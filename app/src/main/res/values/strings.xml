@@ -1,4 +1,5 @@
 <resources>
-    <string name="app_name">MAD Demo W23</string>
-    <string name="welcome_message">Welcome to MAD W23</string>
+    <string name="app_name">MAD Demo W24</string>
+    <string name="welcome_message">Welcome to MAD W24</string>
+    <string name="welcome_message_alternative">WELCOME AGAIN!</string>
 </resources>
