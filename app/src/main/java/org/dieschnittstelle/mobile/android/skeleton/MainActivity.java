@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import org.dieschnittstelle.mobile.android.skeleton.R;
 
 public class MainActivity extends AppCompatActivity {
@@ -22,7 +24,6 @@ public class MainActivity extends AppCompatActivity {
         welcomeText.setText(R.string.welcome_message_alternative);
 
         welcomeText.setOnClickListener((view) ->
-                Toast.makeText(MainActivity.this,"HELLO AGAIN",Toast.LENGTH_SHORT).show()
-        );
+                Snackbar.make(findViewById(R.id.rootView), R.string.welcome_message_reply, Snackbar.LENGTH_SHORT).show());
     }
 }
