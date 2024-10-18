@@ -3,4 +3,6 @@
     <string name="welcome_message">Welcome to MAD W24</string>
     <string name="welcome_message_alternative">WELCOME AGAIN!</string>
     <string name="welcome_message_reply">HELLO AGAIN</string>
+    <string name="task_name">Task Name</string>
+    <string name="task_description">Task Description</string>
 </resources>
