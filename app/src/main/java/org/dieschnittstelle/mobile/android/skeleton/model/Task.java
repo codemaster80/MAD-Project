@@ -5,12 +5,12 @@ import java.io.Serializable;
 public class Task implements Serializable {
     private String name;
     private String description;
-    private boolean done;
+    private boolean completed;
 
-    public Task(String name, String description, boolean done) {
+    public Task(String name, String description, boolean completed) {
         this.name = name;
         this.description = description;
-        this.done = done;
+        this.completed = completed;
     }
 
     public String getName() {
@@ -29,11 +29,11 @@ public class Task implements Serializable {
         this.description = description;
     }
 
-    public boolean isDone() {
-        return done;
+    public boolean isCompleted() {
+        return completed;
     }
 
-    public void setDone(boolean done) {
-        this.done = done;
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
     }
 }

@@ -1,9 +1,10 @@
 <resources>
-    <string name="app_name">MAD Demo W24</string>
-    <string name="welcome_message">Welcome to MAD W24</string>
-    <string name="welcome_message_alternative">WELCOME AGAIN!</string>
-    <string name="welcome_message_reply">HELLO AGAIN</string>
-    <string name="task_name">Task Name</string>
-    <string name="task_description">Task Description</string>
-    <string name="task_edited_feedback_message">Task successfully edited: </string>
+    <string name="app_name">Mission Possible App</string>
+    <string name="welcome_message">Welcome to Mission Possible!</string>
+    <string name="task_list_message">Check your missions</string>
+    <string name="add_task_message">Add new mission</string>
+    <string name="save_task_message">Save mission</string>
+    <string name="task_name">Mission Name</string>
+    <string name="task_description">Mission Description</string>
+    <string name="task_updated_feedback_message">Mission successfully updated: </string>
 </resources>

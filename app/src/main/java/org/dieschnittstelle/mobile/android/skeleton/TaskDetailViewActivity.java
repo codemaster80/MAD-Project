@@ -12,31 +12,38 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
 
 public class TaskDetailViewActivity extends AppCompatActivity {
-    protected static final String TASK_NAME_ID = "taskName";
+    protected static final String TASK_NAME_VIEW_ID = "taskName";
+    protected static final String TASK_DESCRIPTION_VIEW_ID  = "taskDescription";
     private EditText taskNameEditText;
-    private FloatingActionButton saveTaskAction;
+    private EditText taskDescriptionEditText;
+    private FloatingActionButton updateTaskAction;
     private Task task;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.task_detail_view);
+        setContentView(R.layout.activity_task_detail_view);
 
-        String taskName = getIntent().getStringExtra(TASK_NAME_ID);
+        String taskName = getIntent().getStringExtra(TASK_NAME_VIEW_ID);
         // task = (Task) getIntent().getSerializableExtra(TASK_NAME_ID)
         taskNameEditText = findViewById(R.id.taskName);
         taskNameEditText.setText(taskName);
         // taskNameEditText.setText(task.getName());
 
-        saveTaskAction = findViewById(R.id.saveTaskAction);
-        saveTaskAction.setOnClickListener(view -> {
-            this.saveTask();
-        });
+        String taskDescription = getIntent().getStringExtra(TASK_DESCRIPTION_VIEW_ID);
+        taskDescriptionEditText = findViewById(R.id.taskDescription);
+        taskDescriptionEditText.setText(taskDescription);
+
+        updateTaskAction = findViewById(R.id.updateTaskAction);
+        updateTaskAction.setOnClickListener(view -> this.saveTask());
     }
 
-    protected void saveTask() {
+    private void saveTask() {
         Intent returnIntent = new Intent();
-        returnIntent.putExtra(TASK_NAME_ID, taskNameEditText.getText().toString());
+        returnIntent.putExtra(TASK_NAME_VIEW_ID, taskNameEditText.getText().toString());
+        returnIntent.putExtra(TASK_DESCRIPTION_VIEW_ID, taskDescriptionEditText.getText().toString());
+        // TODO: Save task to DB
+        // TODO: Update list view with new task
         this.setResult(TaskDetailViewActivity.RESULT_OK, returnIntent);
         this.finish();
     }
