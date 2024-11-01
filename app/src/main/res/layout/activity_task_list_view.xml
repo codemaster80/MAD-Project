@@ -3,14 +3,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/taskListActivityView">
+    android:id="@+id/taskListViewActivity">
 
-    <LinearLayout
+<!--    <LinearLayout-->
+<!--        android:id="@+id/taskListView"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:orientation="vertical">-->
+<!--    </LinearLayout>-->
+
+    <ListView
         android:id="@+id/taskListView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-    </LinearLayout>
+        android:layout_height="match_parent"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addTaskAction"
@@ -18,7 +23,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:srcCompat="@drawable/baseline_add_white_24dp"
         android:contentDescription="@string/add_task_message"
-        android:layout_margin="10dp"
+        android:layout_margin="16dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
     </com.google.android.material.floatingactionbutton.FloatingActionButton>
