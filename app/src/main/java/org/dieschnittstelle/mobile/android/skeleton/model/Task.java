@@ -11,15 +11,17 @@ public class Task implements Serializable {
     private String name;
     private String description;
     private boolean completed;
+    private boolean favorite;
 
     public Task() {
     }
 
-    public Task(String name, String description, boolean completed) {
+    public Task(String name, String description, boolean completed, boolean favorite) {
         this.id = UUID.randomUUID();
         this.name = name;
         this.description = description;
         this.completed = completed;
+        this.favorite = favorite;
     }
 
     public UUID getId() {
@@ -48,6 +50,14 @@ public class Task implements Serializable {
 
     public void setCompleted(boolean completed) {
         this.completed = completed;
+    }
+
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
     }
 
     @Override

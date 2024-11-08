@@ -25,7 +25,6 @@ public class TaskListViewActivity extends AppCompatActivity {
 
     protected static final int REQUEST_CODE_DETAIL_VIEW_EDIT_CALL = 1;
     protected static final int REQUEST_CODE_DETAIL_VIEW_ADD_CALL = 2;
-//    private ViewGroup taskListView;
     private ListView taskListView;
     private List<Task> taskList = new ArrayList<>();
     private ArrayAdapter<Task> taskListViewAdapter;
@@ -37,13 +36,11 @@ public class TaskListViewActivity extends AppCompatActivity {
         setContentView(R.layout.activity_task_list_view);
         taskListView = findViewById(R.id.taskListView);
 
-        taskList.add(new Task("Aufgabe 1", "Beschreibung 1", false));
-        taskList.add(new Task("Aufgabe 2", "Beschreibung 2", false));
-        taskList.add(new Task("Aufgabe 3", "Beschreibung 3", false));
-        taskList.add(new Task("Aufgabe 4", "Beschreibung 4", false));
+        taskList.add(new Task("Aufgabe 1", "Beschreibung 1", false, false));
+        taskList.add(new Task("Aufgabe 2", "Beschreibung 2", false, false));
+        taskList.add(new Task("Aufgabe 3", "Beschreibung 3", false, false));
+        taskList.add(new Task("Aufgabe 4", "Beschreibung 4", false, false));
 
-//        taskListViewAdapter = new ArrayAdapter<>(this, R.layout.task_view, taskList);
-//        taskListViewAdapter = new ArrayAdapter<>(this, R.layout.structured_task_view, R.id.taskName, taskList);
         taskListViewAdapter = new ArrayAdapter<>(this, R.layout.structured_task_view, taskList) {
             @NonNull
             @Override
@@ -53,6 +50,13 @@ public class TaskListViewActivity extends AppCompatActivity {
                 ((TextView) taskListView.findViewById(R.id.taskName)).setText(taskFromList.getName());
                 ((CheckBox) taskListView.findViewById(R.id.taskCompleted)).setChecked(taskFromList.isCompleted());
                 ((CheckBox) taskListView.findViewById(R.id.taskCompleted))
+
+                        .setOnCheckedChangeListener(
+                                (buttonView, isChecked) -> taskFromList.setCompleted(isChecked)
+                        );
+                ((CheckBox) taskListView.findViewById(R.id.taskFavorite)).setChecked(taskFromList.isCompleted());
+                ((CheckBox) taskListView.findViewById(R.id.taskFavorite))
+
                         .setOnCheckedChangeListener(
                                 (buttonView, isChecked) -> taskFromList.setCompleted(isChecked)
                         );
@@ -65,14 +69,6 @@ public class TaskListViewActivity extends AppCompatActivity {
             Task selectedTask = taskListViewAdapter.getItem(position);
             showTaskDetailView(selectedTask);
         });
-
-//        taskList.forEach(task -> {
-//            TextView taskView = (TextView) getLayoutInflater().inflate(R.layout.task_view, null);
-//            taskView.setText(task.getName());
-//            taskView.setOnClickListener(view -> showTaskDetailView(task));
-//
-//            taskListView.addView(taskView);
-//        });
 
         addTaskAction = findViewById(R.id.addTaskAction);
         addTaskAction.setOnClickListener(view -> this.showNewTaskDetailView());
@@ -100,6 +96,7 @@ public class TaskListViewActivity extends AppCompatActivity {
             selectedTask.setName(taskFromDetailView.getName());
             selectedTask.setDescription(taskFromDetailView.getDescription());
             selectedTask.setCompleted(taskFromDetailView.isCompleted());
+            selectedTask.setFavorite(taskFromDetailView.isCompleted());
             // TODO: update DB
             taskListViewAdapter.notifyDataSetChanged();
             showMessage(getString(R.string.task_updated_feedback_message) + " " + taskFromDetailView.getName() + " description: " + taskFromDetailView.getDescription());

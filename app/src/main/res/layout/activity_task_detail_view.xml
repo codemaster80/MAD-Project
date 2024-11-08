@@ -1,23 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/taskDetailViewActivity">
+
     <EditText
         android:id="@+id/taskName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:hint="@string/task_name"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-    </EditText>
+        tools:layout_editor_absoluteX="0dp"></EditText>
+
     <CheckBox
         android:id="@+id/taskCompleted"
-        android:text="@string/checkbox_text"
+        android:text="@string/checkbox_done_text"
         app:layout_constraintRight_toRightOf="@+id/taskName"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+
+    <CheckBox
+        android:id="@+id/taskFavorite"
+        android:layout_width="95dp"
+        android:layout_height="31dp"
+        android:text="@string/checkbox_fav_text"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/taskCompleted"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/taskName"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
     <EditText
         android:id="@+id/taskDescription"
         android:hint="@string/task_description"

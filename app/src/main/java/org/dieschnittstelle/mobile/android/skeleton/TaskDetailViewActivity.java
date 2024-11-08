@@ -2,6 +2,7 @@ package org.dieschnittstelle.mobile.android.skeleton;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
@@ -18,6 +19,7 @@ public class TaskDetailViewActivity extends AppCompatActivity {
     private EditText taskNameEditText;
     private EditText taskDescriptionEditText;
     private CheckBox taskCompletedCheckBox;
+    private CheckBox taskFavoriteCheckBox;
     private FloatingActionButton updateTaskAction;
     private Task task;
 
@@ -40,6 +42,9 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         taskCompletedCheckBox = findViewById(R.id.taskCompleted);
         taskCompletedCheckBox.setChecked(task.isCompleted());
 
+        taskFavoriteCheckBox = findViewById(R.id.taskFavorite);
+        taskFavoriteCheckBox.setChecked(task.isFavorite());
+
         updateTaskAction = findViewById(R.id.updateTaskAction);
         updateTaskAction.setOnClickListener(view -> this.saveTask());
     }
@@ -53,6 +58,7 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         task.setName(taskNameEditText.getText().toString());
         task.setDescription(taskDescriptionEditText.getText().toString());
         task.setCompleted(taskCompletedCheckBox.isChecked());
+        task.setFavorite(taskFavoriteCheckBox.isChecked());
         returnIntent.putExtra(TASK_DETAIL_VIEW_KEY, task);
 
 
