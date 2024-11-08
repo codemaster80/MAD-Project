@@ -2,11 +2,10 @@ package org.dieschnittstelle.mobile.android.skeleton.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class TaskCRUDOperation implements ITaskCRUDOperation {
 
-    private List<Task> tasks = new ArrayList<>();
+    private final List<Task> tasks = new ArrayList<>();
 
     public TaskCRUDOperation() {
         tasks.add(new Task("Aufgabe 1", "Beschreibung 1", false));
@@ -28,17 +27,17 @@ public class TaskCRUDOperation implements ITaskCRUDOperation {
     }
 
     @Override
-    public Task readTask(UUID id) {
+    public Task readTask(long id) {
         return null;
     }
 
     @Override
     public boolean updateTask(Task task) {
-        return false;
+        return true;
     }
 
     @Override
-    public boolean deleteTask(UUID id) {
+    public boolean deleteTask(long id) {
         return false;
     }
 }

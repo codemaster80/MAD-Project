@@ -12,27 +12,26 @@ import androidx.room.RoomDatabase;
 import androidx.room.Update;
 
 import java.util.List;
-import java.util.UUID;
 
 public class LocalTaskCRUDOperation implements ITaskCRUDOperation{
 
     @Dao
-    public static interface SQLiteTaskCRUDOperation {
+    public interface SQLiteTaskCRUDOperation {
 
         @Insert
-        public UUID createTask(Task task);
+        long createTask(Task task);
 
         @Query("SELECT * FROM task")
-        public List<Task> readAllTasks();
+        List<Task> readAllTasks();
 
         @Query("SELECT * FROM task WHERE id=(:id)")
-        public Task readTask(UUID id);
+        Task readTask(long id);
 
         @Update
-        public void updateTask(Task task);
+        void updateTask(Task task);
 
         @Delete
-        public void deleteTask(Task task);
+        void deleteTask(Task task);
     }
 
     @Database(entities = {Task.class}, version = 1)
@@ -41,7 +40,7 @@ public class LocalTaskCRUDOperation implements ITaskCRUDOperation{
         public abstract SQLiteTaskCRUDOperation getDao();
     }
 
-    private TaskDatabase taskDatabase;
+    private final TaskDatabase taskDatabase;
 
     public LocalTaskCRUDOperation(Context context) {
         taskDatabase = Room.databaseBuilder(
@@ -53,7 +52,7 @@ public class LocalTaskCRUDOperation implements ITaskCRUDOperation{
 
     @Override
     public Task createTask(Task task) {
-        UUID newTaskId = taskDatabase.getDao().createTask(task);
+        long newTaskId = taskDatabase.getDao().createTask(task);
         task.setId(newTaskId);
         return task;
     }
@@ -64,7 +63,7 @@ public class LocalTaskCRUDOperation implements ITaskCRUDOperation{
     }
 
     @Override
-    public Task readTask(UUID id) {
+    public Task readTask(long id) {
         return null;
     }
 
@@ -74,7 +73,7 @@ public class LocalTaskCRUDOperation implements ITaskCRUDOperation{
     }
 
     @Override
-    public boolean deleteTask(UUID id) {
+    public boolean deleteTask(long id) {
         return false;
     }
 }

@@ -6,12 +6,11 @@ import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.UUID;
 
 @Entity
 public class Task implements Serializable {
     @PrimaryKey(autoGenerate = true)
-    private UUID id;
+    private long id;
     private String name;
     private String description;
     private boolean completed;
@@ -25,11 +24,11 @@ public class Task implements Serializable {
         this.completed = completed;
     }
 
-    public UUID getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(long id) {
         this.id = id;
     }
 

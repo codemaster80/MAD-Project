@@ -43,8 +43,8 @@ public class TaskListViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_list_view);
         taskListView = findViewById(R.id.taskListView);
-//        taskCRUDOperation = new TaskCRUDOperation();
-        taskCRUDOperation = new LocalTaskCRUDOperation(this);
+        taskCRUDOperation = new TaskCRUDOperation();
+//        taskCRUDOperation = new LocalTaskCRUDOperation(this);
 
 //        taskListViewAdapter = new ArrayAdapter<>(this, R.layout.task_view, taskList);
 //        taskListViewAdapter = new ArrayAdapter<>(this, R.layout.structured_task_view, R.id.taskName, taskList);
@@ -112,7 +112,7 @@ public class TaskListViewActivity extends AppCompatActivity {
             boolean isUpdated = this.taskCRUDOperation.updateTask(taskFromDetailView);
             if (isUpdated) {
                 Task selectedTask = taskList.stream()
-                        .filter(task -> task.getId().equals(taskFromDetailView.getId()))
+                        .filter(task -> task.getId() == (taskFromDetailView.getId()))
                         .findAny()
                         .orElse(new Task());
                 selectedTask.setName(taskFromDetailView.getName());
