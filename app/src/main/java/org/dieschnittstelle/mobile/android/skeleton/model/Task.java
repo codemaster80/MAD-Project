@@ -1,13 +1,16 @@
 package org.dieschnittstelle.mobile.android.skeleton.model;
 
 import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.UUID;
 
+@Entity
 public class Task implements Serializable {
-    private UUID id;
+    @PrimaryKey(autoGenerate = true)
+    private long id;
     private String name;
     private String description;
     private boolean completed;
@@ -16,14 +19,17 @@ public class Task implements Serializable {
     }
 
     public Task(String name, String description, boolean completed) {
-        this.id = UUID.randomUUID();
         this.name = name;
         this.description = description;
         this.completed = completed;
     }
 
-    public UUID getId() {
+    public long getId() {
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getName() {

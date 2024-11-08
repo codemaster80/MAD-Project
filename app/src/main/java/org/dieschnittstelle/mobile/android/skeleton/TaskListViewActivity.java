@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,7 +17,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.dieschnittstelle.mobile.android.skeleton.model.ITaskCRUDOperation;
+import org.dieschnittstelle.mobile.android.skeleton.model.LocalTaskCRUDOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
+import org.dieschnittstelle.mobile.android.skeleton.model.TaskCRUDOperation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,16 +35,16 @@ public class TaskListViewActivity extends AppCompatActivity {
     private ArrayAdapter<Task> taskListViewAdapter;
     private FloatingActionButton addTaskAction;
 
+    private ITaskCRUDOperation taskCRUDOperation;
+    private ProgressBar progressBar;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_list_view);
         taskListView = findViewById(R.id.taskListView);
-
-        taskList.add(new Task("Aufgabe 1", "Beschreibung 1", false));
-        taskList.add(new Task("Aufgabe 2", "Beschreibung 2", false));
-        taskList.add(new Task("Aufgabe 3", "Beschreibung 3", false));
-        taskList.add(new Task("Aufgabe 4", "Beschreibung 4", false));
+        taskCRUDOperation = new TaskCRUDOperation();
+//        taskCRUDOperation = new LocalTaskCRUDOperation(this);
 
 //        taskListViewAdapter = new ArrayAdapter<>(this, R.layout.task_view, taskList);
 //        taskListViewAdapter = new ArrayAdapter<>(this, R.layout.structured_task_view, R.id.taskName, taskList);
@@ -76,6 +80,18 @@ public class TaskListViewActivity extends AppCompatActivity {
 
         addTaskAction = findViewById(R.id.addTaskAction);
         addTaskAction.setOnClickListener(view -> this.showNewTaskDetailView());
+
+        this.progressBar = findViewById(R.id.progressBar);
+        this.progressBar.setVisibility(View.VISIBLE);
+
+        new Thread(() -> {
+            List<Task> tasks = this.taskCRUDOperation.readAllTasks();
+            this.taskList.addAll(tasks);
+            runOnUiThread(() -> {
+                this.progressBar.setVisibility(View.GONE);
+                this.taskListViewAdapter.notifyDataSetChanged();
+            });
+        }).start();
     }
 
     protected void showTaskDetailView(Task task) {
@@ -93,22 +109,32 @@ public class TaskListViewActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == REQUEST_CODE_DETAIL_VIEW_EDIT_CALL && resultCode == TaskDetailViewActivity.RESULT_OK) {
             Task taskFromDetailView = (Task) data.getSerializableExtra(TaskDetailViewActivity.TASK_DETAIL_VIEW_KEY);
-            Task selectedTask = taskList.stream()
-                    .filter(task -> task.getId().equals(taskFromDetailView.getId()))
-                    .findAny()
-                    .orElse(new Task());
-            selectedTask.setName(taskFromDetailView.getName());
-            selectedTask.setDescription(taskFromDetailView.getDescription());
-            selectedTask.setCompleted(taskFromDetailView.isCompleted());
-            // TODO: update DB
-            taskListViewAdapter.notifyDataSetChanged();
-            showMessage(getString(R.string.task_updated_feedback_message) + " " + taskFromDetailView.getName() + " description: " + taskFromDetailView.getDescription());
+            boolean isUpdated = this.taskCRUDOperation.updateTask(taskFromDetailView);
+            if (isUpdated) {
+                Task selectedTask = taskList.stream()
+                        .filter(task -> task.getId() == (taskFromDetailView.getId()))
+                        .findAny()
+                        .orElse(new Task());
+                selectedTask.setName(taskFromDetailView.getName());
+                selectedTask.setDescription(taskFromDetailView.getDescription());
+                selectedTask.setCompleted(taskFromDetailView.isCompleted());
+                // TODO: update DB
+                taskListViewAdapter.notifyDataSetChanged();
+                showMessage(getString(R.string.task_updated_feedback_message) + " " + taskFromDetailView.getName() + " description: " + taskFromDetailView.getDescription());
+            }
         }
         if (requestCode == REQUEST_CODE_DETAIL_VIEW_ADD_CALL && resultCode == TaskDetailViewActivity.RESULT_OK) {
             Task taskFromDetailView = (Task) data.getSerializableExtra(TaskDetailViewActivity.TASK_DETAIL_VIEW_KEY);
-            taskList.add(taskFromDetailView);
-            // TODO: update DB
-            taskListViewAdapter.notifyDataSetChanged();
+
+            // update DB
+            new Thread(() -> {
+                Task createdTask = this.taskCRUDOperation.createTask(taskFromDetailView);
+                taskList.add(createdTask);
+                runOnUiThread(() -> {
+                    taskListViewAdapter.notifyDataSetChanged();
+                });
+            }).start();
+
             showMessage(getString(R.string.task_added_feedback_message) + " " + taskFromDetailView.getName() + " description: " + taskFromDetailView.getDescription());
         }
         super.onActivityResult(requestCode, resultCode, data);
