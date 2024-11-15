@@ -13,10 +13,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.dieschnittstelle.mobile.android.skeleton.databinding.StructuredTaskViewBinding;
 import org.dieschnittstelle.mobile.android.skeleton.model.ITaskCRUDOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.LocalTaskCRUDOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
@@ -51,17 +53,39 @@ public class TaskListViewActivity extends AppCompatActivity {
         taskListViewAdapter = new ArrayAdapter<>(this, R.layout.structured_task_view, taskList) {
             @NonNull
             @Override
-            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                ViewGroup taskListView = (ViewGroup) getLayoutInflater().inflate(R.layout.structured_task_view, null);
+            public View getView(int position, @Nullable View recyclableTaskView, @NonNull ViewGroup parent) {
+                View taskView;
+                StructuredTaskViewBinding bind;
                 Task taskFromList = getItem(position);
-                ((TextView) taskListView.findViewById(R.id.taskName)).setText(taskFromList.getName());
-                ((CheckBox) taskListView.findViewById(R.id.taskCompleted)).setChecked(taskFromList.isCompleted());
-                ((CheckBox) taskListView.findViewById(R.id.taskCompleted))
-                        .setOnCheckedChangeListener(
-                                (buttonView, isChecked) -> taskFromList.setCompleted(isChecked)
-                        );
 
-                return taskListView;
+                // recyclableTaskView do not exist, then create one
+                if (recyclableTaskView == null) {
+                    bind = DataBindingUtil.inflate(
+                            getLayoutInflater(),
+                            R.layout.structured_task_view,
+                            null,
+                            false
+                    );
+                    taskView = bind.getRoot();
+                    taskView.setTag(bind);
+
+                // recyclableTaskView exist, then reuse and access it with binding object
+                } else {
+                    taskView = recyclableTaskView;
+                    bind = (StructuredTaskViewBinding) taskView.getTag();
+                }
+                bind.setTask(taskFromList);
+                return taskView;
+
+//                ViewGroup taskListView = (ViewGroup) getLayoutInflater().inflate(R.layout.structured_task_view, null);
+//                                ((TextView) taskListView.findViewById(R.id.taskName)).setText(taskFromList.getName());
+//                ((CheckBox) taskListView.findViewById(R.id.taskCompleted)).setChecked(taskFromList.isCompleted());
+//                ((CheckBox) taskListView.findViewById(R.id.taskCompleted))
+//                        .setOnCheckedChangeListener(
+//                                (buttonView, isChecked) -> taskFromList.setCompleted(isChecked)
+//                        );
+//
+//                return taskListView;
             }
         };
         taskListView.setAdapter(taskListViewAdapter);
