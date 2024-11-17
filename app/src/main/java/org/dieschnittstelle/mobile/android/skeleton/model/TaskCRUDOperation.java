@@ -8,15 +8,15 @@ public class TaskCRUDOperation implements ITaskCRUDOperation {
     private final List<Task> tasks = new ArrayList<>();
 
     public TaskCRUDOperation() {
-        tasks.add(new Task("Aufgabe 1", "Beschreibung 1", false));
-        tasks.add(new Task("Aufgabe 2", "Beschreibung 2", false));
-        tasks.add(new Task("Aufgabe 3", "Beschreibung 3", false));
-        tasks.add(new Task("Aufgabe 4", "Beschreibung 4", false));
+        tasks.add(new Task("Aufgabe 1", "Beschreibung 1", false, false));
+        tasks.add(new Task("Aufgabe 2", "Beschreibung 2", false, false));
+        tasks.add(new Task("Aufgabe 3", "Beschreibung 3", false, false));
+        tasks.add(new Task("Aufgabe 4", "Beschreibung 4", false, false));
     }
 
     @Override
     public Task createTask(Task task) {
-        Task newTask =  new Task(task.getName(), task.getDescription(), task.isCompleted());
+        Task newTask =  new Task(task.getName(), task.getDescription(), task.isCompleted(), task.isFavorite());
         tasks.add(newTask);
         return newTask;
     }
