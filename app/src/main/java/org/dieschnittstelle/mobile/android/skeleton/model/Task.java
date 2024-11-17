@@ -16,16 +16,18 @@ public class Task implements Serializable {
     private String date;
     private String time;
     private boolean completed;
+    private boolean favorite;
 
     public Task() {
 
     }
 
-    public Task(String name, String description, String date, String time, boolean completed) {
+    public Task(String name, String description, String date, String time, boolean favorite, boolean completed) {
         this.name = name;
         this.description = description;
         this.date = date;
         this.time = time;
+        this.favorite = favorite;
         this.completed = completed;
     }
 
@@ -67,6 +69,14 @@ public class Task implements Serializable {
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
     }
 
     public boolean isCompleted() {
