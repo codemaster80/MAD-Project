@@ -1,40 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <TextView
-        android:id="@+id/taskName"
-        app:layout_constraintLeft_toLeftOf="@id/taskCompleted"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:textSize="30sp"
-        android:padding="10dp"
+    <data>
+        <variable
+            name="task"
+            type="org.dieschnittstelle.mobile.android.skeleton.model.Task" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-    </TextView>
-    <CheckBox
-        android:id="@+id/taskCompleted"
-        android:text="@string/checkbox_text"
-        android:focusable="false"
-        app:layout_constraintRight_toRightOf="@+id/taskName"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="match_parent">
 
-    <CheckBox
-        android:id="@+id/taskFavorite"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/favorite_text"
-        android:focusable="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/taskCompleted"
-        app:layout_constraintHorizontal_bias="0.95"
-        app:layout_constraintStart_toStartOf="@+id/taskName"
-        app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/taskName"
+            android:text="@={task.name}"
+            app:layout_constraintLeft_toLeftOf="@id/taskCompleted"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:textSize="30sp"
+            android:padding="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </TextView>
+        <CheckBox
+            android:id="@+id/taskCompleted"
+            android:checked="@={task.completed}"
+            android:text="@string/checkbox_text"
+            android:focusable="false"
+            app:layout_constraintRight_toRightOf="@+id/taskName"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <CheckBox
+            android:id="@+id/taskFavorite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/favorite_text"
+            android:focusable="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/taskCompleted"
+            app:layout_constraintHorizontal_bias="0.95"
+            app:layout_constraintStart_toStartOf="@+id/taskName"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
