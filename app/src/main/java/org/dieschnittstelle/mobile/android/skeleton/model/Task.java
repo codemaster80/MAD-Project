@@ -13,14 +13,19 @@ public class Task implements Serializable {
     private long id;
     private String name;
     private String description;
+    private String date;
+    private String time;
     private boolean completed;
 
     public Task() {
+
     }
 
-    public Task(String name, String description, boolean completed) {
+    public Task(String name, String description, String date, String time, boolean completed) {
         this.name = name;
         this.description = description;
+        this.date = date;
+        this.time = time;
         this.completed = completed;
     }
 
@@ -46,6 +51,22 @@ public class Task implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 
     public boolean isCompleted() {
