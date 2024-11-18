@@ -13,6 +13,8 @@ public class Task implements Serializable {
     private long id;
     private String name;
     private String description;
+    private String date;
+    private String time;
     private boolean completed;
     private boolean favorite;
 
@@ -20,11 +22,13 @@ public class Task implements Serializable {
 
     }
 
-    public Task(String name, String description, boolean completed, boolean favorite) {
+    public Task(String name, String description, String date, String time, boolean favorite, boolean completed) {
         this.name = name;
         this.description = description;
-        this.completed = completed;
+        this.date = date;
+        this.time = time;
         this.favorite = favorite;
+        this.completed = completed;
     }
 
     public long getId() {
@@ -51,12 +55,20 @@ public class Task implements Serializable {
         this.description = description;
     }
 
-    public boolean isCompleted() {
-        return completed;
+    public String getDate() {
+        return date;
     }
 
-    public void setCompleted(boolean completed) {
-        this.completed = completed;
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 
     public boolean isFavorite() {
@@ -65,6 +77,14 @@ public class Task implements Serializable {
 
     public void setFavorite(boolean favorite) {
         this.favorite = favorite;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
     }
 
     @Override
