@@ -39,29 +39,23 @@
 
         <EditText
             android:id="@+id/taskDate"
-            android:layout_width="89dp"
-            android:layout_height="36dp"
-            android:layout_marginEnd="8dp"
-            android:background="@null"
-            android:ems="10"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:inputType="date"
-            android:singleLine="false"
             android:text="@={controller.task.date}"
-            app:layout_constraintEnd_toStartOf="@+id/taskTime"
-            app:layout_constraintTop_toTopOf="parent"
+            android:hint="@string/task_due_date"
+            app:layout_constraintTop_toBottomOf="@+id/taskDescription"
             tools:text="@tools:sample/date/ddmmyy" />
 
         <EditText
             android:id="@+id/taskTime"
-            android:layout_width="82dp"
-            android:layout_height="37dp"
-            android:background="@null"
-            android:ems="10"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:inputType="time"
             android:text="@={controller.task.time}"
-            app:layout_constraintEnd_toStartOf="@+id/taskCompleted"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="@tools:sample/date/ddmmyy" />
+            android:hint="@string/task_time_limit"
+            app:layout_constraintTop_toBottomOf="@+id/taskDate"
+            tools:text="@tools:sample/date/hhmmss" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/updateTaskAction"

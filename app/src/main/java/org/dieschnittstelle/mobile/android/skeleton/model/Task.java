@@ -19,7 +19,6 @@ public class Task implements Serializable {
     private boolean favorite;
 
     public Task() {
-
     }
 
     public Task(String name, String description, String date, String time, boolean favorite, boolean completed) {
