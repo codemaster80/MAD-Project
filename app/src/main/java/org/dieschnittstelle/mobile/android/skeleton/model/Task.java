@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import org.dieschnittstelle.mobile.android.skeleton.R;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -17,17 +19,19 @@ public class Task implements Serializable {
     private String time;
     private boolean completed;
     private boolean favorite;
+    private String priority = "NONE";
 
     public Task() {
     }
 
-    public Task(String name, String description, String date, String time, boolean favorite, boolean completed) {
+    public Task(String name, String description, String date, String time, boolean completed, boolean favorite, String priority) {
         this.name = name;
         this.description = description;
         this.date = date;
         this.time = time;
-        this.favorite = favorite;
         this.completed = completed;
+        this.favorite = favorite;
+        this.priority = priority;
     }
 
     public long getId() {
@@ -86,6 +90,14 @@ public class Task implements Serializable {
         this.completed = completed;
     }
 
+    public String getPriority() {
+        return priority;
+    }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -103,5 +115,20 @@ public class Task implements Serializable {
     @Override
     public String toString() {
         return this.getName();
+    }
+
+    public int toPriorityColorResource() {
+        switch (this.priority.toUpperCase()) {
+            case "CRITICAL":
+                return R.color.colorTaskPrioCritical;
+            case "HIGH":
+                return R.color.colorTaskPrioHigh;
+            case "NORMAL":
+                return R.color.colorTaskPrioNormal;
+            case "LOW":
+                return R.color.colorTaskPrioLow;
+            default:
+                return R.color.colorTaskPrioNone;
+        }
     }
 }

@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
 
         welcomeText = findViewById(R.id.welcomeText);
         welcomeText.setText(R.string.welcome_message);
+        welcomeText.setOnClickListener(view -> this.showTaskListView());
 
         showTaskListAction = findViewById(R.id.showTaskListAction);
         showTaskListAction.setOnClickListener(view -> this.showTaskListView());
