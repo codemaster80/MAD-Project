@@ -87,7 +87,7 @@ public class TaskListViewActivity extends AppCompatActivity {
         taskDetailViewForAddLauncher.launch(callTaskDetailViewIntent);
     }
 
-    private ActivityResultLauncher<Intent> taskDetailViewForEditLauncher = registerForActivityResult(
+    private final ActivityResultLauncher<Intent> taskDetailViewForEditLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             activityResult -> {
                     if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_OK) {
@@ -101,6 +101,7 @@ public class TaskListViewActivity extends AppCompatActivity {
                             selectedTask.setName(taskFromDetailView.getName());
                             selectedTask.setDescription(taskFromDetailView.getDescription());
                             selectedTask.setCompleted(taskFromDetailView.isCompleted());
+                            selectedTask.setPriority(taskFromDetailView.getPriority());
                             // TODO: update DB
                             taskListViewAdapter.notifyDataSetChanged();
                             showMessage(getString(R.string.task_updated_feedback_message) + " " + taskFromDetailView.getName() + " description: " + taskFromDetailView.getDescription());
@@ -109,7 +110,7 @@ public class TaskListViewActivity extends AppCompatActivity {
             }
     );
 
-    private ActivityResultLauncher<Intent> taskDetailViewForAddLauncher = registerForActivityResult(
+    private final ActivityResultLauncher<Intent> taskDetailViewForAddLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             activityResult -> {
                 if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_OK) {
@@ -120,9 +121,7 @@ public class TaskListViewActivity extends AppCompatActivity {
                         Task createdTask = this.taskCRUDOperation.createTask(taskFromDetailView);
                         viewModel.getTaskList().add(createdTask);
                         // TODO: update DB
-                        runOnUiThread(() -> {
-                            taskListViewAdapter.notifyDataSetChanged();
-                        });
+                        runOnUiThread(() -> taskListViewAdapter.notifyDataSetChanged());
                     }).start();
 
                     showMessage(getString(R.string.task_added_feedback_message) + " " + taskFromDetailView.getName() + " description: " + taskFromDetailView.getDescription());
@@ -138,6 +137,7 @@ public class TaskListViewActivity extends AppCompatActivity {
         public TaskListAdapter(Context owner, int resourceId, List<Task> taskList) {
             super(owner, resourceId, taskList);
         }
+
         @NonNull
         @Override
         public View getView(int position, @Nullable View recyclableTaskView, @NonNull ViewGroup parent) {
@@ -154,11 +154,13 @@ public class TaskListViewActivity extends AppCompatActivity {
                         false
                 );
                 taskView = taskViewBinding.getRoot();
+                taskView.setBackgroundResource(taskFromList.toPriorityColorResource());
                 taskView.setTag(taskViewBinding);
 
                 // recyclableTaskView exist, then reuse and access it with binding object
             } else {
                 taskView = recyclableTaskView;
+                taskView.setBackgroundResource(taskFromList.toPriorityColorResource());
                 taskViewBinding = (StructuredTaskViewBinding) taskView.getTag();
             }
             taskViewBinding.setTask(taskFromList);

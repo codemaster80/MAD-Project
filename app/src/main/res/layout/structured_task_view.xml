@@ -16,7 +16,7 @@
             app:layout_constraintLeft_toLeftOf="@id/taskCompleted"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:textSize="30sp"
+            android:textSize="25sp"
             android:padding="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -29,21 +29,26 @@
             app:layout_constraintRight_toRightOf="@+id/taskName"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintHeight="50dp"
+            android:layout_marginEnd="@dimen/cardview_default_radius"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            />
 
         <CheckBox
             android:id="@+id/taskFavorite"
             android:checked="@={task.favorite}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/cardview_default_radius"
             android:text="@string/favorite_text"
             android:focusable="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/taskCompleted"
             app:layout_constraintHorizontal_bias="0.95"
             app:layout_constraintStart_toStartOf="@+id/taskName"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintHeight="50dp"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
