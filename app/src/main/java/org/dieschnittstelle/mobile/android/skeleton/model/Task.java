@@ -1,6 +1,5 @@
 package org.dieschnittstelle.mobile.android.skeleton.model;
 
-import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -19,12 +18,12 @@ public class Task implements Serializable {
     private String time;
     private boolean completed;
     private boolean favorite;
-    private String priority = "NONE";
+    private Priority priority = Priority.NONE;
 
     public Task() {
     }
 
-    public Task(String name, String description, String date, String time, boolean completed, boolean favorite, String priority) {
+    public Task(String name, String description, String date, String time, boolean completed, boolean favorite, Priority priority) {
         this.name = name;
         this.description = description;
         this.date = date;
@@ -90,11 +89,11 @@ public class Task implements Serializable {
         this.completed = completed;
     }
 
-    public String getPriority() {
+    public Priority getPriority() {
         return priority;
     }
 
-    public void setPriority(String priority) {
+    public void setPriority(Priority priority) {
         this.priority = priority;
     }
 
@@ -111,24 +110,17 @@ public class Task implements Serializable {
         return Objects.hashCode(id);
     }
 
-    @NonNull
-    @Override
-    public String toString() {
-        return this.getName();
-    }
+    public enum Priority {
+        CRITICAL(R.color.colorTaskPrioCritical),
+        HIGH(R.color.colorTaskPrioHigh),
+        NORMAL(R.color.colorTaskPrioNormal),
+        LOW(R.color.colorTaskPrioLow),
+        NONE(R.color.colorTaskPrioNone);
 
-    public int toPriorityColorResource() {
-        switch (this.priority.toUpperCase()) {
-            case "CRITICAL":
-                return R.color.colorTaskPrioCritical;
-            case "HIGH":
-                return R.color.colorTaskPrioHigh;
-            case "NORMAL":
-                return R.color.colorTaskPrioNormal;
-            case "LOW":
-                return R.color.colorTaskPrioLow;
-            default:
-                return R.color.colorTaskPrioNone;
+        public final int resourceId;
+
+        Priority(int resourceId) {
+            this.resourceId = resourceId;
         }
     }
 }

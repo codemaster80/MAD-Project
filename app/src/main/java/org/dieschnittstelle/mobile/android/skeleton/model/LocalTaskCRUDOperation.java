@@ -13,7 +13,7 @@ import androidx.room.Update;
 
 import java.util.List;
 
-public class LocalTaskCRUDOperation implements ITaskCRUDOperation{
+public class LocalTaskCRUDOperation implements ITaskCRUDOperation {
 
     @Dao
     public interface SQLiteTaskCRUDOperation {
@@ -48,6 +48,11 @@ public class LocalTaskCRUDOperation implements ITaskCRUDOperation{
                 TaskDatabase.class,
                 "task-db"
         ).build();
+
+        createTask(new Task("Aufgabe 1", "Beschreibung 1", "01.01.2025", "12:00", false, false, Task.Priority.CRITICAL));
+        createTask(new Task("Aufgabe 2", "Beschreibung 2", "05.12.2024", "10:00", false, false, Task.Priority.HIGH));
+        createTask(new Task("Aufgabe 3", "Beschreibung 3", "01.10.2024", "09:00", false, false, Task.Priority.NORMAL));
+        createTask(new Task("Aufgabe 4", "Beschreibung 4", "15.01.2024", "08:00", false, false, Task.Priority.LOW));
     }
 
     @Override

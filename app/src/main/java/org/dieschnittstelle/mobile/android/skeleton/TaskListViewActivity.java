@@ -22,6 +22,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.dieschnittstelle.mobile.android.skeleton.databinding.StructuredTaskViewBinding;
 import org.dieschnittstelle.mobile.android.skeleton.model.ITaskCRUDOperation;
+import org.dieschnittstelle.mobile.android.skeleton.model.LocalTaskCRUDOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
 import org.dieschnittstelle.mobile.android.skeleton.model.TaskCRUDOperation;
 import org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskListViewActivityViewModel;
@@ -90,23 +91,23 @@ public class TaskListViewActivity extends AppCompatActivity {
     private final ActivityResultLauncher<Intent> taskDetailViewForEditLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             activityResult -> {
-                    if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_OK) {
-                        Task taskFromDetailView = (Task) activityResult.getData().getSerializableExtra(TaskDetailViewActivity.TASK_DETAIL_VIEW_KEY);
-                        boolean isUpdated = taskCRUDOperation.updateTask(taskFromDetailView);
-                        if (isUpdated) {
-                            Task selectedTask = viewModel.getTaskList().stream()
-                                    .filter(task -> task.getId() == (taskFromDetailView.getId()))
-                                    .findAny()
-                                    .orElse(new Task());
-                            selectedTask.setName(taskFromDetailView.getName());
-                            selectedTask.setDescription(taskFromDetailView.getDescription());
-                            selectedTask.setCompleted(taskFromDetailView.isCompleted());
-                            selectedTask.setPriority(taskFromDetailView.getPriority());
-                            // TODO: update DB
-                            taskListViewAdapter.notifyDataSetChanged();
-                            showMessage(getString(R.string.task_updated_feedback_message) + " " + taskFromDetailView.getName() + " description: " + taskFromDetailView.getDescription());
-                        }
+                if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_OK) {
+                    Task taskFromDetailView = (Task) activityResult.getData().getSerializableExtra(TaskDetailViewActivity.TASK_DETAIL_VIEW_KEY);
+                    boolean isUpdated = taskCRUDOperation.updateTask(taskFromDetailView);
+                    if (isUpdated) {
+                        Task selectedTask = viewModel.getTaskList().stream()
+                                .filter(task -> task.getId() == (taskFromDetailView.getId()))
+                                .findAny()
+                                .orElse(new Task());
+                        selectedTask.setName(taskFromDetailView.getName());
+                        selectedTask.setDescription(taskFromDetailView.getDescription());
+                        selectedTask.setCompleted(taskFromDetailView.isCompleted());
+                        selectedTask.setPriority(taskFromDetailView.getPriority());
+                        // TODO: update DB
+                        taskListViewAdapter.notifyDataSetChanged();
+                        showMessage(getString(R.string.task_updated_feedback_message) + " " + taskFromDetailView.getName() + " description: " + taskFromDetailView.getDescription());
                     }
+                }
             }
     );
 
@@ -154,13 +155,13 @@ public class TaskListViewActivity extends AppCompatActivity {
                         false
                 );
                 taskView = taskViewBinding.getRoot();
-                taskView.setBackgroundResource(taskFromList.toPriorityColorResource());
+                taskView.setBackgroundResource(taskFromList.getPriority().resourceId);
                 taskView.setTag(taskViewBinding);
 
                 // recyclableTaskView exist, then reuse and access it with binding object
             } else {
                 taskView = recyclableTaskView;
-                taskView.setBackgroundResource(taskFromList.toPriorityColorResource());
+                taskView.setBackgroundResource(taskFromList.getPriority().resourceId);
                 taskViewBinding = (StructuredTaskViewBinding) taskView.getTag();
             }
             taskViewBinding.setTask(taskFromList);
