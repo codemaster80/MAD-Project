@@ -2,7 +2,7 @@ package org.dieschnittstelle.mobile.android.skeleton.model;
 
 import java.util.List;
 
-public interface ITaskCRUDOperation {
+public interface ITaskDatabaseOperation {
 
     Task createTask(Task task);
 

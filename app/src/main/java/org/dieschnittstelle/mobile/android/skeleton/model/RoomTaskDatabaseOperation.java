@@ -13,7 +13,7 @@ import androidx.room.Update;
 
 import java.util.List;
 
-public class LocalTaskCRUDOperation implements ITaskCRUDOperation {
+public class RoomTaskDatabaseOperation implements ITaskDatabaseOperation {
 
     @Dao
     public interface SQLiteTaskCRUDOperation {
@@ -34,7 +34,7 @@ public class LocalTaskCRUDOperation implements ITaskCRUDOperation {
         void deleteTask(Task task);
     }
 
-    @Database(entities = {Task.class}, version = 1)
+    @Database(entities = {Task.class}, version = 2)
     public abstract static class TaskDatabase extends RoomDatabase {
 
         public abstract SQLiteTaskCRUDOperation getDao();
@@ -42,17 +42,15 @@ public class LocalTaskCRUDOperation implements ITaskCRUDOperation {
 
     private final TaskDatabase taskDatabase;
 
-    public LocalTaskCRUDOperation(Context context) {
+    public RoomTaskDatabaseOperation(Context context) {
         taskDatabase = Room.databaseBuilder(
                 context.getApplicationContext(),
                 TaskDatabase.class,
                 "task-db"
-        ).build();
-
-        createTask(new Task("Aufgabe 1", "Beschreibung 1", "01.01.2025", "12:00", false, false, Task.Priority.CRITICAL));
-        createTask(new Task("Aufgabe 2", "Beschreibung 2", "05.12.2024", "10:00", false, false, Task.Priority.HIGH));
-        createTask(new Task("Aufgabe 3", "Beschreibung 3", "01.10.2024", "09:00", false, false, Task.Priority.NORMAL));
-        createTask(new Task("Aufgabe 4", "Beschreibung 4", "15.01.2024", "08:00", false, false, Task.Priority.LOW));
+        )
+                // clear DB when schema changed
+                .fallbackToDestructiveMigration()
+                .build();
     }
 
     @Override
@@ -74,6 +72,7 @@ public class LocalTaskCRUDOperation implements ITaskCRUDOperation {
 
     @Override
     public boolean updateTask(Task task) {
+        taskDatabase.getDao().updateTask(task);
         return true;
     }
 
