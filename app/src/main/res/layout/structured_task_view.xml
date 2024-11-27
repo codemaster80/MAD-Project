@@ -5,6 +5,9 @@
         <variable
             name="task"
             type="org.dieschnittstelle.mobile.android.skeleton.model.Task" />
+        <variable
+            name="taskListViewModel"
+            type="org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskListViewModel" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -24,6 +27,7 @@
         <CheckBox
             android:id="@+id/taskCompleted"
             android:checked="@={task.completed}"
+            android:onClick="@{() -> taskListViewModel.updateTask(task)}"
             android:text="@string/checkbox_text"
             android:focusable="false"
             app:layout_constraintRight_toRightOf="@+id/taskName"

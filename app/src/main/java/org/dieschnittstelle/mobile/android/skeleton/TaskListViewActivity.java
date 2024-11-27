@@ -21,11 +21,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.dieschnittstelle.mobile.android.skeleton.databinding.StructuredTaskViewBinding;
-import org.dieschnittstelle.mobile.android.skeleton.model.ITaskCRUDOperation;
-import org.dieschnittstelle.mobile.android.skeleton.model.LocalTaskCRUDOperation;
+import org.dieschnittstelle.mobile.android.skeleton.model.ITaskDatabaseOperation;
+import org.dieschnittstelle.mobile.android.skeleton.model.RoomTaskDatabaseOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
-import org.dieschnittstelle.mobile.android.skeleton.model.TaskCRUDOperation;
-import org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskListViewActivityViewModel;
+import org.dieschnittstelle.mobile.android.skeleton.model.MockTaskDatabaseOperation;
+import org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskListViewModel;
 
 import java.util.List;
 
@@ -33,21 +33,19 @@ public class TaskListViewActivity extends AppCompatActivity {
     private ListView taskListView;
     private ArrayAdapter<Task> taskListViewAdapter;
     private FloatingActionButton addTaskAction;
-
-    private ITaskCRUDOperation taskCRUDOperation;
     private ProgressBar progressBar;
-
-    private TaskListViewActivityViewModel viewModel;
+    private TaskListViewModel viewModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_list_view);
-        viewModel = new ViewModelProvider(this).get(TaskListViewActivityViewModel.class);
+        viewModel = new ViewModelProvider(this).get(TaskListViewModel.class);
 
         taskListView = findViewById(R.id.taskListView);
-        taskCRUDOperation = new TaskCRUDOperation();
-//        taskCRUDOperation = new LocalTaskCRUDOperation(this);
+//        ITaskDatabaseOperation taskDbOperation = new MockTaskDatabaseOperation();
+        ITaskDatabaseOperation taskDbOperation = new RoomTaskDatabaseOperation(this);
+        viewModel.setTaskDbOperation(taskDbOperation);
 
         taskListViewAdapter = new TaskListAdapter(this, R.layout.structured_task_view, viewModel.getTaskList());
         taskListView.setAdapter(taskListViewAdapter);
@@ -61,19 +59,18 @@ public class TaskListViewActivity extends AppCompatActivity {
         addTaskAction.setOnClickListener(view -> this.showNewTaskDetailView());
 
         this.progressBar = findViewById(R.id.progressBar);
+        viewModel.getProcessingState().observe(this, processingState -> {
+            if (processingState == TaskListViewModel.ProcessingState.RUNNING_LONG) {
+                this.progressBar.setVisibility(View.VISIBLE);
+            }
+            else if (processingState == TaskListViewModel.ProcessingState.DONE) {
+                this.progressBar.setVisibility(View.GONE);
+                this.taskListViewAdapter.notifyDataSetChanged();
+            }
+        });
 
         if (!viewModel.isInitialised()) {
-            this.progressBar.setVisibility(View.VISIBLE);
-
-            new Thread(() -> {
-                List<Task> tasks = this.taskCRUDOperation.readAllTasks();
-                viewModel.getTaskList().addAll(tasks);
-                runOnUiThread(() -> {
-                    this.progressBar.setVisibility(View.GONE);
-                    this.taskListViewAdapter.notifyDataSetChanged();
-                    viewModel.setInitialised(true);
-                });
-            }).start();
+            viewModel.readAllTasks();
         }
     }
 
@@ -93,20 +90,9 @@ public class TaskListViewActivity extends AppCompatActivity {
             activityResult -> {
                 if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_OK) {
                     Task taskFromDetailView = (Task) activityResult.getData().getSerializableExtra(TaskDetailViewActivity.TASK_DETAIL_VIEW_KEY);
-                    boolean isUpdated = taskCRUDOperation.updateTask(taskFromDetailView);
-                    if (isUpdated) {
-                        Task selectedTask = viewModel.getTaskList().stream()
-                                .filter(task -> task.getId() == (taskFromDetailView.getId()))
-                                .findAny()
-                                .orElse(new Task());
-                        selectedTask.setName(taskFromDetailView.getName());
-                        selectedTask.setDescription(taskFromDetailView.getDescription());
-                        selectedTask.setCompleted(taskFromDetailView.isCompleted());
-                        selectedTask.setPriority(taskFromDetailView.getPriority());
-                        // TODO: update DB
-                        taskListViewAdapter.notifyDataSetChanged();
-                        showMessage(getString(R.string.task_updated_feedback_message) + " " + taskFromDetailView.getName() + " description: " + taskFromDetailView.getDescription());
-                    }
+                    viewModel.updateTask(taskFromDetailView);
+                    taskListViewAdapter.notifyDataSetChanged();
+                    showMessage(getString(R.string.task_updated_feedback_message) + " " + taskFromDetailView.getName() + " description: " + taskFromDetailView.getDescription());
                 }
             }
     );
@@ -116,15 +102,7 @@ public class TaskListViewActivity extends AppCompatActivity {
             activityResult -> {
                 if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_OK) {
                     Task taskFromDetailView = (Task) activityResult.getData().getSerializableExtra(TaskDetailViewActivity.TASK_DETAIL_VIEW_KEY);
-
-                    // update DB
-                    new Thread(() -> {
-                        Task createdTask = this.taskCRUDOperation.createTask(taskFromDetailView);
-                        viewModel.getTaskList().add(createdTask);
-                        // TODO: update DB
-                        runOnUiThread(() -> taskListViewAdapter.notifyDataSetChanged());
-                    }).start();
-
+                    viewModel.createTask(taskFromDetailView);
                     showMessage(getString(R.string.task_added_feedback_message) + " " + taskFromDetailView.getName() + " description: " + taskFromDetailView.getDescription());
                 }
             }
@@ -157,6 +135,7 @@ public class TaskListViewActivity extends AppCompatActivity {
                 taskView = taskViewBinding.getRoot();
                 taskView.setBackgroundResource(taskFromList.getPriority().resourceId);
                 taskView.setTag(taskViewBinding);
+                taskViewBinding.setTaskListViewModel(viewModel);
 
                 // recyclableTaskView exist, then reuse and access it with binding object
             } else {
