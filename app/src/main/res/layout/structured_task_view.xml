@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
         <variable
@@ -9,50 +10,64 @@
             name="taskListViewModel"
             type="org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskListViewModel" />
     </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <TextView
             android:id="@+id/taskName"
-            android:text="@={task.name}"
-            app:layout_constraintLeft_toLeftOf="@id/taskCompleted"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:textSize="25sp"
-            android:padding="10dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-        </TextView>
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="@={task.name}"
+            android:textSize="25sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="@id/taskCompleted"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.498"></TextView>
+
         <CheckBox
             android:id="@+id/taskCompleted"
-            android:checked="@={task.completed}"
-            android:onClick="@{() -> taskListViewModel.updateTask(task)}"
-            android:text="@string/checkbox_text"
-            android:focusable="false"
-            app:layout_constraintRight_toRightOf="@+id/taskName"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintHeight="50dp"
-            android:layout_marginEnd="@dimen/cardview_default_radius"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            />
+            android:layout_marginEnd="@dimen/cardview_default_radius"
+            android:checked="@={task.completed}"
+            android:focusable="false"
+            android:onClick="@{() -> taskListViewModel.updateTask(task)}"
+            android:text="@string/checkbox_text"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHeight="50dp"
+            app:layout_constraintRight_toRightOf="@+id/taskName"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <CheckBox
             android:id="@+id/taskFavorite"
-            android:checked="@={task.favorite}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/cardview_default_radius"
-            android:text="@string/favorite_text"
+            android:checked="@={task.favorite}"
             android:focusable="false"
+            android:text="@string/favorite_text"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/taskCompleted"
+            app:layout_constraintHeight="50dp"
             app:layout_constraintHorizontal_bias="0.95"
             app:layout_constraintStart_toStartOf="@+id/taskName"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/taskDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="176dp"
+            android:layout_marginEnd="235dp"
+            android:text="@={task.date}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintHeight="50dp"/>
+            app:layout_constraintVertical_bias="0.5" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
