@@ -48,17 +48,12 @@ public class TaskDetailViewActivity extends AppCompatActivity {
     }
 
     public void saveTask() {
-//        if (taskNameEditText.getText().toString().isBlank()) {
-//            Snackbar.make(findViewById(R.id.taskDetailViewActivity), "Cannot save: Mission name is missing", Snackbar.LENGTH_SHORT).show();
-//            return;
-//        }
         if (task.getName() == null || task.getName().isBlank()) {
             Snackbar.make(
                     findViewById(R.id.taskDetailViewActivity),
                     "Cannot save: Mission name is missing",
                     Snackbar.LENGTH_SHORT
             ).show();
-            return;
         }
         Intent returnIntent = new Intent();
         returnIntent.putExtra(TASK_DETAIL_VIEW_KEY, task);

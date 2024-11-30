@@ -27,11 +27,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="@={controller.task.completed}"
-            android:text="@string/checkbox_text"
-            android:layout_marginEnd="@dimen/cardview_default_radius"
+            android:text="@string/checkbox_done"
+            app:layout_constraintHeight="50dp"
             app:layout_constraintRight_toRightOf="@+id/taskName"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintHeight="50dp"/>
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <CheckBox
+            android:id="@+id/taskFavorite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:checked="@={controller.task.favorite}"
+            android:text="@string/checkbox_favorite"
+            app:layout_constraintEnd_toStartOf="@+id/taskCompleted"
+            app:layout_constraintHeight="50dp"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <EditText
             android:id="@+id/taskDescription"
             android:text="@={controller.task.description}"
