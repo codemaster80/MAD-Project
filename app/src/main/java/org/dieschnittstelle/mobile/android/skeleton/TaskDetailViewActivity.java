@@ -1,12 +1,16 @@
 package org.dieschnittstelle.mobile.android.skeleton;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
@@ -17,6 +21,7 @@ import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityTaskDeta
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +29,8 @@ public class TaskDetailViewActivity extends AppCompatActivity {
     protected static final String TASK_DETAIL_VIEW_KEY = "taskDetailViewObject";
     private Task task;
     private Spinner taskPrioritySpinner;
+    TextView taskDateTextView;
+    private Button pickDateBtn;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -38,6 +45,10 @@ public class TaskDetailViewActivity extends AppCompatActivity {
                 R.layout.activity_task_detail_view
         );
         taskDetailViewBinding.setController(this);
+
+        pickDateBtn = findViewById(R.id.btnPickDueDate);
+        taskDateTextView = findViewById(R.id.taskDate);
+        setDueDate();
 
         taskPrioritySpinner = findViewById(R.id.dropdownPriority);
         setPriorityDropDown();
@@ -60,6 +71,47 @@ public class TaskDetailViewActivity extends AppCompatActivity {
 
         this.setResult(TaskDetailViewActivity.RESULT_OK, returnIntent);
         this.finish();
+    }
+
+    private void setDueDate() {
+        pickDateBtn.setOnClickListener(view -> {
+            Calendar calendar;
+            int currentYear, currentMonth, currentDay;
+            DatePickerDialog datePickerDialog;
+
+            if (task.getDate() == null || task.getDate().isBlank()) {
+                calendar = Calendar.getInstance();
+                currentYear = calendar.get(Calendar.YEAR);
+                currentMonth = calendar.get(Calendar.MONTH);
+                currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+                datePickerDialog = setDatePickerDialog(currentYear, currentMonth, currentDay);
+            } else {
+                String currentDueDateStr = task.getDate();
+                currentDay = Integer.parseInt(currentDueDateStr.split("\\.")[0]);
+                // Month of Calendar starts from 0
+                currentMonth = Integer.parseInt(currentDueDateStr.split("\\.")[1]) - 1;
+                currentYear = Integer.parseInt(currentDueDateStr.split("\\.")[2]);
+                datePickerDialog = setDatePickerDialog(currentYear, currentMonth, currentDay);
+            }
+            datePickerDialog.show();
+        });
+    }
+
+    @NonNull
+    private DatePickerDialog setDatePickerDialog(int currentYear, int currentMonth, int currentDay) {
+        return new DatePickerDialog(
+                this,
+                (datePickerView, selectedYear, selectedMonth, selectedDay) -> {
+                    // Set the selected date to the current task
+                    // Month of Calendar starts from 0
+                    String dueDateStr = selectedDay + "." + (selectedMonth + 1) + "." + selectedYear;
+                    task.setDate(dueDateStr);
+                    taskDateTextView.setText(dueDateStr);
+                },
+                currentYear,
+                currentMonth,
+                currentDay
+        );
     }
 
     private void setPriorityDropDown() {
