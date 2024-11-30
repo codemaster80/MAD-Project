@@ -77,6 +77,7 @@ public class TaskListViewModel extends ViewModel {
                 selectedTask.setName(taskFromDetailView.getName());
                 selectedTask.setDescription(taskFromDetailView.getDescription());
                 selectedTask.setCompleted(taskFromDetailView.isCompleted());
+                selectedTask.setFavorite(taskFromDetailView.isFavorite());
                 selectedTask.setPriority(taskFromDetailView.getPriority());
                 processingState.postValue(ProcessingState.DONE);
             }
