@@ -12,4 +12,5 @@
     <string name="task_added_feedback_message">Mission successfuly added: </string>
     <string name="checkbox_done">Done</string>
     <string name="checkbox_favorite">Favorite</string>
+    <string name="select_due_date_btn">Select Mission Due Date</string>
 </resources>

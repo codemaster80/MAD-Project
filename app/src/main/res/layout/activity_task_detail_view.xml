@@ -55,16 +55,26 @@
             android:layout_height="wrap_content">
         </EditText>
 
-        <EditText
+        <TextView
             android:id="@+id/taskDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="date"
-            android:text="@={controller.task.date}"
+            android:layout_above="@+id/btnPickDueDate"
+            android:text="@{controller.task.date}"
+            android:layout_marginStart="@dimen/cardview_default_radius"
+            android:textSize="18sp"
             android:hint="@string/task_due_date"
             app:layout_constraintTop_toBottomOf="@+id/taskDescription"
-            app:layout_constraintHeight="50dp"
-            tools:text="@tools:sample/date/ddmmyy" />
+            app:layout_constraintHeight="30dp"/>
+
+        <Button
+            android:id="@+id/btnPickDueDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/select_due_date_btn"
+            android:textAllCaps="false"
+            app:layout_constraintTop_toBottomOf="@+id/taskDate"
+            app:layout_constraintHeight="50dp" />
 
         <EditText
             android:id="@+id/taskTime"
@@ -73,7 +83,7 @@
             android:inputType="time"
             android:text="@={controller.task.time}"
             android:hint="@string/task_time_limit"
-            app:layout_constraintTop_toBottomOf="@+id/taskDate"
+            app:layout_constraintTop_toBottomOf="@+id/btnPickDueDate"
             app:layout_constraintHeight="50dp"
             tools:text="@tools:sample/date/hhmmss" />
 
