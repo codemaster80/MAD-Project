@@ -106,7 +106,7 @@ public class TaskDetailViewActivity extends AppCompatActivity {
                     // Month of Calendar starts from 0
                     String dueDateStr = selectedDay + "." + (selectedMonth + 1) + "." + selectedYear;
                     task.setDate(dueDateStr);
-                    taskDateTextView.setText(dueDateStr);
+                    pickDateBtn.setText(dueDateStr);
                 },
                 currentYear,
                 currentMonth,

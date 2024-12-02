@@ -13,4 +13,5 @@
     <string name="checkbox_done">Done</string>
     <string name="checkbox_favorite">Favorite</string>
     <string name="select_due_date_btn">Select Mission Due Date</string>
+    <string name="priority_info_message">Mission Priority Level</string>
 </resources>
