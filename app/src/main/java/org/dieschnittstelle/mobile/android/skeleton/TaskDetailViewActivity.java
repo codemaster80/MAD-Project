@@ -14,11 +14,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-
-import com.google.android.material.snackbar.Snackbar;
+import androidx.lifecycle.ViewModelProvider;
 
 import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityTaskDetailViewBinding;
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
+import org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskDetailViewModel;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 public class TaskDetailViewActivity extends AppCompatActivity {
     protected static final String TASK_DETAIL_VIEW_KEY = "taskDetailViewObject";
     private Task task;
+    private TaskDetailViewModel viewModel;
     private Spinner taskPrioritySpinner;
     TextView taskDateTextView;
     private Button pickDateBtn;
@@ -36,15 +37,21 @@ public class TaskDetailViewActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        task = (Task) getIntent().getSerializableExtra(TASK_DETAIL_VIEW_KEY);
-        if (task == null) {
-            task = new Task();
+        this.viewModel = new ViewModelProvider(this).get(TaskDetailViewModel.class);
+        if (viewModel.getTask() == null) {
+            task = (Task) getIntent().getSerializableExtra(TASK_DETAIL_VIEW_KEY);
+            if (task == null) {
+                task = new Task();
+            }
+            this.viewModel.setTask(task);
         }
+
         ActivityTaskDetailViewBinding taskDetailViewBinding = DataBindingUtil.setContentView(
                 this,
                 R.layout.activity_task_detail_view
         );
-        taskDetailViewBinding.setController(this);
+        taskDetailViewBinding.setTaskDetailViewModel(this.viewModel);
+        taskDetailViewBinding.setLifecycleOwner(this);
 
         pickDateBtn = findViewById(R.id.btnPickDueDate);
         taskDateTextView = findViewById(R.id.taskDate);
@@ -52,25 +59,15 @@ public class TaskDetailViewActivity extends AppCompatActivity {
 
         taskPrioritySpinner = findViewById(R.id.dropdownPriority);
         setPriorityDropDown();
-    }
 
-    public Task getTask() {
-        return task;
-    }
-
-    public void saveTask() {
-        if (task.getName() == null || task.getName().isBlank()) {
-            Snackbar.make(
-                    findViewById(R.id.taskDetailViewActivity),
-                    "Cannot save: Mission name is missing",
-                    Snackbar.LENGTH_SHORT
-            ).show();
-        }
-        Intent returnIntent = new Intent();
-        returnIntent.putExtra(TASK_DETAIL_VIEW_KEY, task);
-
-        this.setResult(TaskDetailViewActivity.RESULT_OK, returnIntent);
-        this.finish();
+        this.viewModel.isTaskOnSave().observe(this, onSave -> {
+            if (onSave) {
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra(TASK_DETAIL_VIEW_KEY, task);
+                this.setResult(TaskDetailViewActivity.RESULT_OK, returnIntent);
+                this.finish();
+            }
+        });
     }
 
     private void setDueDate() {
