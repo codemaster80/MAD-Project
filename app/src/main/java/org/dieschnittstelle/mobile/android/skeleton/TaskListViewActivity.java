@@ -22,9 +22,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.dieschnittstelle.mobile.android.skeleton.databinding.StructuredTaskViewBinding;
 import org.dieschnittstelle.mobile.android.skeleton.model.ITaskDatabaseOperation;
-import org.dieschnittstelle.mobile.android.skeleton.model.RoomTaskDatabaseOperation;
+import org.dieschnittstelle.mobile.android.skeleton.model.LocalTaskDatabaseOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
-import org.dieschnittstelle.mobile.android.skeleton.model.MockTaskDatabaseOperation;
 import org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskListViewModel;
 
 import java.util.List;
@@ -43,8 +42,7 @@ public class TaskListViewActivity extends AppCompatActivity {
         viewModel = new ViewModelProvider(this).get(TaskListViewModel.class);
 
         taskListView = findViewById(R.id.taskListView);
-//        ITaskDatabaseOperation taskDbOperation = new MockTaskDatabaseOperation();
-        ITaskDatabaseOperation taskDbOperation = new RoomTaskDatabaseOperation(this);
+        ITaskDatabaseOperation taskDbOperation = ((TaskApplication) getApplication()).getTaskDatabaseOperation();
         viewModel.setTaskDbOperation(taskDbOperation);
 
         taskListViewAdapter = new TaskListAdapter(this, R.layout.structured_task_view, viewModel.getTaskList());
