@@ -3,6 +3,8 @@ package org.dieschnittstelle.mobile.android.skeleton.model;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import com.google.gson.annotations.SerializedName;
+
 import org.dieschnittstelle.mobile.android.skeleton.R;
 
 import java.io.Serializable;
@@ -16,7 +18,9 @@ public class Task implements Serializable {
     private String description;
     private String date;
     private String time;
+    @SerializedName("done")
     private boolean completed;
+    @SerializedName("favourite")
     private boolean favorite;
     private Priority priority = Priority.NONE;
 
