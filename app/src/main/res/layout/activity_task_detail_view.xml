@@ -68,21 +68,25 @@
             android:textAllCaps="false"
             app:layout_constraintTop_toBottomOf="@+id/taskDate" />
 
-        <com.google.android.material.textfield.TextInputLayout
+        <TextView
             android:id="@+id/taskTime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/task_time_limit"
-            android:inputType="time"
-            app:hintEnabled="true"
-            app:layout_constraintTop_toBottomOf="@+id/btnPickDueDate">
+            android:layout_above="@+id/btnPickTime"
+            android:layout_marginStart="@dimen/cardview_default_radius"
+            android:text="@string/task_time_limit"
+            android:textSize="18sp"
+            app:layout_constraintHeight="30dp"
+            app:layout_constraintTop_toBottomOf="@+id/btnPickDueDate" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:text="@={taskDetailViewModel.task.time}" />
-        </com.google.android.material.textfield.TextInputLayout>
+        <Button
+            android:id="@+id/btnPickTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/select_time_limit_btn"
+            android:text="@{taskDetailViewModel.task.time}"
+            android:textAllCaps="false"
+            app:layout_constraintTop_toBottomOf="@+id/taskTime" />
 
         <TextView
             android:id="@+id/priorityText"
@@ -93,7 +97,7 @@
             android:text="@string/priority_info_message"
             android:textSize="18sp"
             app:layout_constraintHeight="30dp"
-            app:layout_constraintTop_toBottomOf="@+id/taskTime" />
+            app:layout_constraintTop_toBottomOf="@+id/btnPickTime" />
 
         <Spinner
             android:id="@+id/dropdownPriority"
@@ -106,6 +110,7 @@
             android:id="@+id/taskCompleted"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="20sp"
             android:checked="@={taskDetailViewModel.task.completed}"
             android:text="@string/checkbox_done"
             app:buttonTint="@color/colorAccent"
@@ -114,6 +119,7 @@
         <com.google.android.material.checkbox.MaterialCheckBox
             android:id="@+id/taskFavorite"
             android:text="@string/checkbox_favorite"
+            android:textSize="20sp"
             android:checked="@={taskDetailViewModel.task.favorite}"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -1,6 +1,7 @@
 package org.dieschnittstelle.mobile.android.skeleton;
 
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -32,6 +33,8 @@ public class TaskDetailViewActivity extends AppCompatActivity {
     private Spinner taskPrioritySpinner;
     TextView taskDateTextView;
     private Button pickDateBtn;
+    TextView taskTimeTextView;
+    private Button pickTimeBtn;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,6 +60,10 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         taskDateTextView = findViewById(R.id.taskDate);
         setDueDate();
 
+        pickTimeBtn = findViewById(R.id.btnPickTime);
+        taskTimeTextView = findViewById(R.id.taskTime);
+        setTimeLimit();
+
         taskPrioritySpinner = findViewById(R.id.dropdownPriority);
         setPriorityDropDown();
 
@@ -81,15 +88,14 @@ public class TaskDetailViewActivity extends AppCompatActivity {
                 currentYear = calendar.get(Calendar.YEAR);
                 currentMonth = calendar.get(Calendar.MONTH);
                 currentDay = calendar.get(Calendar.DAY_OF_MONTH);
-                datePickerDialog = setDatePickerDialog(currentYear, currentMonth, currentDay);
             } else {
                 String currentDueDateStr = task.getDate();
                 currentDay = Integer.parseInt(currentDueDateStr.split("\\.")[0]);
                 // Month of Calendar starts from 0
                 currentMonth = Integer.parseInt(currentDueDateStr.split("\\.")[1]) - 1;
                 currentYear = Integer.parseInt(currentDueDateStr.split("\\.")[2]);
-                datePickerDialog = setDatePickerDialog(currentYear, currentMonth, currentDay);
             }
+            datePickerDialog = setDatePickerDialog(currentYear, currentMonth, currentDay);
             datePickerDialog.show();
         });
     }
@@ -108,6 +114,49 @@ public class TaskDetailViewActivity extends AppCompatActivity {
                 currentYear,
                 currentMonth,
                 currentDay
+        );
+    }
+
+    private void setTimeLimit() {
+        pickTimeBtn.setOnClickListener(view -> {
+            Calendar calendar;
+            int currentHour, currentMinute;
+            TimePickerDialog timePickerDialog;
+
+            if (task.getTime() == null || task.getTime().isBlank()) {
+                calendar = Calendar.getInstance();
+                currentHour = calendar.get(Calendar.HOUR_OF_DAY);
+                currentMinute = calendar.get(Calendar.MINUTE);
+            } else {
+                String currentTimeLimitStr = task.getTime();
+                currentHour = Integer.parseInt(currentTimeLimitStr.split(":")[0]);
+                currentMinute = Integer.parseInt(currentTimeLimitStr.split(":")[1]);
+            }
+            timePickerDialog = setTimePickerDialog(currentHour, currentMinute);
+            timePickerDialog.show();
+        });
+    }
+
+    private TimePickerDialog setTimePickerDialog(int currentHour, int currentMinute) {
+        return new TimePickerDialog(
+                this,
+                (timePickerView, selectedHour, selectedMinute) -> {
+                    String selectedHourStr = String.valueOf(selectedHour);
+                    String selectedMinuteStr = String.valueOf(selectedMinute);
+                    // convert single digit time to double digit. e.g.: 9h 0m -> 09:00
+                    if (selectedHour < 10) {
+                        selectedHourStr = "0" + selectedHour;
+                    }
+                    if (selectedMinute < 10) {
+                        selectedMinuteStr = "0" + selectedMinute;
+                    }
+                    String timeLimitStr = selectedHourStr + ":" + selectedMinuteStr;
+                    task.setTime(timeLimitStr);
+                    pickTimeBtn.setText(timeLimitStr);
+                },
+                currentHour,
+                currentMinute,
+                true
         );
     }
 
