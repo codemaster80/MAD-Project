@@ -4,12 +4,13 @@
     <string name="task_list_message">Check your missions</string>
     <string name="add_task_message">Add new mission</string>
     <string name="save_task_message">Save mission</string>
+    <string name="delete_task_message">Delete mission</string>
     <string name="task_name">Mission Name</string>
     <string name="task_description">Mission Description</string>
     <string name="task_due_date">Mission Due Date</string>
     <string name="task_time_limit">Mission Time Limit</string>
     <string name="task_updated_feedback_message">Mission successfully updated: </string>
-    <string name="task_added_feedback_message">Mission successfuly added: </string>
+    <string name="task_added_feedback_message">Mission successfully added: </string>
     <string name="checkbox_done">Done</string>
     <string name="checkbox_favorite">Favorite</string>
     <string name="select_due_date_btn">Select Mission Due Date</string>

@@ -10,6 +10,7 @@ import org.dieschnittstelle.mobile.android.skeleton.model.Task;
 public class TaskDetailViewModel extends ViewModel {
     private Task task;
     private MutableLiveData<Boolean> isTaskOnSave = new MutableLiveData<>(false);
+    private MutableLiveData<Boolean> isTaskOnDelete = new MutableLiveData<>(false);
     private MutableLiveData<String> nameInputError = new MutableLiveData<>();
 
     public Task getTask() {
@@ -26,6 +27,12 @@ public class TaskDetailViewModel extends ViewModel {
 
     public MutableLiveData<Boolean> isTaskOnSave() {
         return isTaskOnSave;
+    }
+
+    public void deleteTask() { isTaskOnDelete.setValue(true); }
+
+    public MutableLiveData<Boolean> isTaskOnDelete() {
+        return isTaskOnDelete;
     }
 
     public boolean checkNameInputOnEnterKey(int keyId) {

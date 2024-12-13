@@ -75,6 +75,16 @@ public class TaskDetailViewActivity extends AppCompatActivity {
                 this.finish();
             }
         });
+
+        this.viewModel.isTaskOnDelete().observe(this, onDelete -> {
+            if (onDelete) {
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra(TASK_DETAIL_VIEW_KEY, task);
+                this.setResult(TaskDetailViewActivity.RESULT_OK, returnIntent);
+                this.finish();
+            }
+        });
+
     }
 
     private void setDueDate() {
