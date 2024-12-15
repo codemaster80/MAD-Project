@@ -30,6 +30,7 @@ import java.util.List;
 
 public class TaskListViewActivity extends AppCompatActivity {
     private ListView taskListView;
+    private ITaskDatabaseOperation taskDbOperation;
     private ArrayAdapter<Task> taskListViewAdapter;
     private FloatingActionButton addTaskAction;
     private ProgressBar progressBar;
@@ -42,7 +43,7 @@ public class TaskListViewActivity extends AppCompatActivity {
         viewModel = new ViewModelProvider(this).get(TaskListViewModel.class);
 
         taskListView = findViewById(R.id.taskListView);
-        ITaskDatabaseOperation taskDbOperation = ((TaskApplication) getApplication()).getTaskDatabaseOperation();
+        taskDbOperation = ((TaskApplication) getApplication()).getTaskDatabaseOperation();
         viewModel.setTaskDbOperation(taskDbOperation);
 
         taskListViewAdapter = new TaskListAdapter(this, R.layout.structured_task_view, viewModel.getTaskList());
@@ -56,20 +57,12 @@ public class TaskListViewActivity extends AppCompatActivity {
         addTaskAction = findViewById(R.id.addTaskAction);
         addTaskAction.setOnClickListener(view -> this.showNewTaskDetailView());
 
-        this.progressBar = findViewById(R.id.progressBar);
-        viewModel.getProcessingState().observe(this, processingState -> {
-            if (processingState == TaskListViewModel.ProcessingState.RUNNING_LONG) {
-                this.progressBar.setVisibility(View.VISIBLE);
-            }
-            else if (processingState == TaskListViewModel.ProcessingState.DONE) {
-                this.progressBar.setVisibility(View.GONE);
-                this.taskListViewAdapter.notifyDataSetChanged();
-            }
-        });
+        progressBar = findViewById(R.id.progressBar);
 
         if (!viewModel.isInitialised()) {
             viewModel.readAllTasks();
         }
+        viewModel.getProcessingState().observe(this, this::handleTaskProcessingState);
     }
 
     private void showTaskDetailView(Task task) {
@@ -105,6 +98,28 @@ public class TaskListViewActivity extends AppCompatActivity {
                 }
             }
     );
+
+    private void handleTaskProcessingState(TaskListViewModel.ProcessingState processingState) {
+        switch (processingState) {
+            case RUNNING_LONG:
+                progressBar.setVisibility(View.VISIBLE);
+                break;
+
+            case DONE:
+                progressBar.setVisibility(View.GONE);
+                taskListViewAdapter.notifyDataSetChanged();
+                break;
+
+            case DB_CONNECT_FAIL:
+                progressBar.setVisibility(View.GONE);
+                showMessage(getString(R.string.task_db_connect_fail_message));
+                ((TaskApplication) getApplication()).setTaskDatabaseOperation(new LocalTaskDatabaseOperation(this));
+                taskDbOperation = ((TaskApplication) getApplication()).getTaskDatabaseOperation();
+                viewModel.setTaskDbOperation(taskDbOperation);
+                viewModel.readAllTasks();
+                break;
+        }
+    }
 
     private void showMessage(String message) {
         Snackbar.make(findViewById(R.id.taskListViewActivity), message, Snackbar.LENGTH_SHORT).show();
