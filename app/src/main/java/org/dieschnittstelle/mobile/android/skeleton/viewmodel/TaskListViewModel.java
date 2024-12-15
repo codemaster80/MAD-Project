@@ -16,7 +16,7 @@ public class TaskListViewModel extends ViewModel {
     private final List<Task> taskList = new ArrayList<>();
     private boolean initialised;
 
-    public enum ProcessingState {RUNNING_LONG, RUNNING, DONE}
+    public enum ProcessingState {DB_CONNECT_FAIL, RUNNING_LONG, RUNNING, DONE}
     private final MutableLiveData<ProcessingState> processingState = new MutableLiveData<>();
     private final ExecutorService executorService = Executors.newFixedThreadPool(4);
 
@@ -55,9 +55,13 @@ public class TaskListViewModel extends ViewModel {
     public void readAllTasks() {
         processingState.setValue(ProcessingState.RUNNING_LONG);
         new Thread(() -> {
-            List<Task> tasks = taskDbOperation.readAllTasks();
-            getTaskList().addAll(tasks);
-            processingState.postValue(ProcessingState.DONE);
+            try {
+                List<Task> tasks = taskDbOperation.readAllTasks();
+                getTaskList().addAll(tasks);
+                processingState.postValue(ProcessingState.DONE);
+            } catch (Exception e) {
+                processingState.postValue(ProcessingState.DB_CONNECT_FAIL);
+            }
         }).start();
     }
 

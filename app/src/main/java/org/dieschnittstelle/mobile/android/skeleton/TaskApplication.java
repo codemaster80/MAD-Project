@@ -15,11 +15,15 @@ public class TaskApplication extends Application {
     public void onCreate() {
         super.onCreate();
 //        this.taskDatabaseOperation = new MockTaskDatabaseOperation();
-        this.taskDatabaseOperation = new LocalTaskDatabaseOperation(this);
-//        this.taskDatabaseOperation = new RemoteTaskDatabaseOperation();
+//        this.taskDatabaseOperation = new LocalTaskDatabaseOperation(this);
+        this.taskDatabaseOperation = new RemoteTaskDatabaseOperation();
     }
 
     public ITaskDatabaseOperation getTaskDatabaseOperation() {
         return taskDatabaseOperation;
+    }
+
+    public void setTaskDatabaseOperation(ITaskDatabaseOperation taskDatabaseOperation) {
+        this.taskDatabaseOperation = taskDatabaseOperation;
     }
 }
