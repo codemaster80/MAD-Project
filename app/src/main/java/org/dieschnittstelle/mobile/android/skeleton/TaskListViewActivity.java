@@ -3,6 +3,7 @@ package org.dieschnittstelle.mobile.android.skeleton;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -84,6 +85,12 @@ public class TaskListViewActivity extends AppCompatActivity {
                     viewModel.updateTask(taskFromDetailView);
                     taskListViewAdapter.notifyDataSetChanged();
                     showMessage(getString(R.string.task_updated_feedback_message) + " " + taskFromDetailView.getName());
+                } else if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_DELETE_OK) {
+                    Log.i("RESULT_DELETE_OK", "OK");
+                    Task taskFromDetailView = (Task) activityResult.getData().getSerializableExtra(TaskDetailViewActivity.TASK_DETAIL_VIEW_KEY);
+                    viewModel.deleteTask(taskFromDetailView.getId());
+                    taskListViewAdapter.notifyDataSetChanged();
+                    showMessage(getString(R.string.task_deleted_feedback_message) + " " + taskFromDetailView.getName());
                 }
             }
     );

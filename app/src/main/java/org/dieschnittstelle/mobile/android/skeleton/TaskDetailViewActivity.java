@@ -1,13 +1,18 @@
 package org.dieschnittstelle.mobile.android.skeleton;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -16,6 +21,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityTaskDetailViewBinding;
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
@@ -28,6 +35,7 @@ import java.util.stream.Collectors;
 
 public class TaskDetailViewActivity extends AppCompatActivity {
     protected static final String TASK_DETAIL_VIEW_KEY = "taskDetailViewObject";
+    protected static final int RESULT_DELETE_OK = 99;
     private Task task;
     private TaskDetailViewModel viewModel;
     private Spinner taskPrioritySpinner;
@@ -78,9 +86,16 @@ public class TaskDetailViewActivity extends AppCompatActivity {
 
         this.viewModel.isTaskOnDelete().observe(this, onDelete -> {
             if (onDelete) {
+//                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//                builder.setView(android.R.layout.select_dialog_item);
+//                builder.setMessage("Delete?");
+//                // builder.setPositiveButton("Yes", onDeleteClicklistener);
+//                AlertDialog dialog = builder.create();
+//                dialog.show();
+
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra(TASK_DETAIL_VIEW_KEY, task);
-                this.setResult(TaskDetailViewActivity.RESULT_OK, returnIntent);
+                this.setResult(TaskDetailViewActivity.RESULT_DELETE_OK, returnIntent);
                 this.finish();
             }
         });
