@@ -86,20 +86,30 @@ public class TaskDetailViewActivity extends AppCompatActivity {
 
         this.viewModel.isTaskOnDelete().observe(this, onDelete -> {
             if (onDelete) {
-//                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//                builder.setView(android.R.layout.select_dialog_item);
-//                builder.setMessage("Delete?");
-//                // builder.setPositiveButton("Yes", onDeleteClicklistener);
-//                AlertDialog dialog = builder.create();
-//                dialog.show();
-
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra(TASK_DETAIL_VIEW_KEY, task);
-                this.setResult(TaskDetailViewActivity.RESULT_DELETE_OK, returnIntent);
-                this.finish();
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setView(android.R.layout.select_dialog_item);
+                builder.setMessage("Delete task?");
+                builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        deleteIntent();
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User cancels the dialog.
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
             }
         });
+    }
 
+    public void deleteIntent() {
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra(TASK_DETAIL_VIEW_KEY, task);
+        this.setResult(TaskDetailViewActivity.RESULT_DELETE_OK, returnIntent);
+        this.finish();
     }
 
     private void setDueDate() {
