@@ -86,7 +86,6 @@ public class TaskListViewActivity extends AppCompatActivity {
                     taskListViewAdapter.notifyDataSetChanged();
                     showMessage(getString(R.string.task_updated_feedback_message) + " " + taskFromDetailView.getName());
                 } else if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_DELETE_OK) {
-                    Log.i("RESULT_DELETE_OK", "OK");
                     Task taskFromDetailView = (Task) activityResult.getData().getSerializableExtra(TaskDetailViewActivity.TASK_DETAIL_VIEW_KEY);
                     viewModel.deleteTask(taskFromDetailView.getId());
                     taskListViewAdapter.notifyDataSetChanged();
