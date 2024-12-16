@@ -6,13 +6,10 @@ import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -21,8 +18,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
-
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityTaskDetailViewBinding;
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
@@ -43,6 +38,7 @@ public class TaskDetailViewActivity extends AppCompatActivity {
     private Button pickDateBtn;
     TextView taskTimeTextView;
     private Button pickTimeBtn;
+    private boolean deleteTask = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -86,26 +82,30 @@ public class TaskDetailViewActivity extends AppCompatActivity {
 
         this.viewModel.isTaskOnDelete().observe(this, onDelete -> {
             if (onDelete) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setView(android.R.layout.select_dialog_item);
-                builder.setMessage("Delete task?");
-                builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        deleteIntent();
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // User cancels the dialog.
-                    }
-                });
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                deleteAlertDialog();
             }
         });
     }
 
-    public void deleteIntent() {
+    private void deleteAlertDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(android.R.layout.select_dialog_item);
+        builder.setMessage("Delete Mission?");
+        builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                deleteIntent();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+               // do nothing
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void deleteIntent() {
         Intent returnIntent = new Intent();
         returnIntent.putExtra(TASK_DETAIL_VIEW_KEY, task);
         this.setResult(TaskDetailViewActivity.RESULT_DELETE_OK, returnIntent);
