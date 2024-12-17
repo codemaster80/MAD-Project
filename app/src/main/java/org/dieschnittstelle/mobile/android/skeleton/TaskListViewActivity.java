@@ -3,7 +3,6 @@ package org.dieschnittstelle.mobile.android.skeleton;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -52,7 +51,7 @@ public class TaskListViewActivity extends AppCompatActivity {
 
         taskListView.setOnItemClickListener((parent, view, position, id) -> {
             Task selectedTask = taskListViewAdapter.getItem(position);
-            showTaskDetailView(selectedTask);
+            showEditTaskDetailView(selectedTask);
         });
 
         addTaskAction = findViewById(R.id.addTaskAction);
@@ -66,7 +65,7 @@ public class TaskListViewActivity extends AppCompatActivity {
         viewModel.getProcessingState().observe(this, this::handleTaskProcessingState);
     }
 
-    private void showTaskDetailView(Task task) {
+    private void showEditTaskDetailView(Task task) {
         Intent callTaskDetailViewIntent = new Intent(this, TaskDetailViewActivity.class);
         callTaskDetailViewIntent.putExtra(TaskDetailViewActivity.TASK_DETAIL_VIEW_KEY, task);
         taskDetailViewForEditLauncher.launch(callTaskDetailViewIntent);
@@ -88,7 +87,6 @@ public class TaskListViewActivity extends AppCompatActivity {
                 } else if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_DELETE_OK) {
                     Task taskFromDetailView = (Task) activityResult.getData().getSerializableExtra(TaskDetailViewActivity.TASK_DETAIL_VIEW_KEY);
                     viewModel.deleteTask(taskFromDetailView.getId());
-                    taskListViewAdapter.notifyDataSetChanged();
                     showMessage(getString(R.string.task_deleted_feedback_message) + " " + taskFromDetailView.getName());
                 }
             }
