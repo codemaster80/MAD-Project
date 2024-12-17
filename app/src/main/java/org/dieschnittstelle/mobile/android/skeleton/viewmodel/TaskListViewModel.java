@@ -90,5 +90,15 @@ public class TaskListViewModel extends ViewModel {
     }
 
     public void deleteTask(long id) {
+        processingState.setValue(ProcessingState.RUNNING);
+        executorService.execute(() -> {
+            Task task = new Task();
+            task.setId(id);
+            boolean isDeleted = taskDbOperation.deleteTask(id);
+            if (isDeleted) {
+                getTaskList().remove(task);
+                processingState.postValue(ProcessingState.DONE);
+            }
+        });
     }
 }

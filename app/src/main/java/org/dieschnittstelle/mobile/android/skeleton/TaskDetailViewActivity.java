@@ -1,7 +1,9 @@
 package org.dieschnittstelle.mobile.android.skeleton;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 
 public class TaskDetailViewActivity extends AppCompatActivity {
     protected static final String TASK_DETAIL_VIEW_KEY = "taskDetailViewObject";
+    protected static final int RESULT_DELETE_OK = 99;
     private Task task;
     private TaskDetailViewModel viewModel;
     private Spinner taskPrioritySpinner;
@@ -35,6 +38,7 @@ public class TaskDetailViewActivity extends AppCompatActivity {
     private Button pickDateBtn;
     TextView taskTimeTextView;
     private Button pickTimeBtn;
+    private boolean deleteTask = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,13 +82,34 @@ public class TaskDetailViewActivity extends AppCompatActivity {
 
         this.viewModel.isTaskOnDelete().observe(this, onDelete -> {
             if (onDelete) {
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra(TASK_DETAIL_VIEW_KEY, task);
-                this.setResult(TaskDetailViewActivity.RESULT_OK, returnIntent);
-                this.finish();
+                deleteAlertDialog();
             }
         });
+    }
 
+    private void deleteAlertDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(android.R.layout.select_dialog_item);
+        builder.setMessage("Delete Mission?");
+        builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                deleteIntent();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+               // do nothing
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void deleteIntent() {
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra(TASK_DETAIL_VIEW_KEY, task);
+        this.setResult(TaskDetailViewActivity.RESULT_DELETE_OK, returnIntent);
+        this.finish();
     }
 
     private void setDueDate() {
