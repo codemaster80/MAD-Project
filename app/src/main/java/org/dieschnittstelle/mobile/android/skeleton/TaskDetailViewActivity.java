@@ -3,7 +3,6 @@ package org.dieschnittstelle.mobile.android.skeleton;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -38,7 +37,6 @@ public class TaskDetailViewActivity extends AppCompatActivity {
     private Button pickDateBtn;
     TextView taskTimeTextView;
     private Button pickTimeBtn;
-    private boolean deleteTask = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -90,16 +88,10 @@ public class TaskDetailViewActivity extends AppCompatActivity {
     private void deleteAlertDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(android.R.layout.select_dialog_item);
-        builder.setMessage("Delete Mission?");
-        builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                deleteIntent();
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-               // do nothing
-            }
+        builder.setMessage("Delete Mission \"" + task.getName() + "\"?");
+        builder.setPositiveButton("Delete", (dialog, id) -> deleteIntent());
+        builder.setNegativeButton("Cancel", (dialog, id) -> {
+           // do nothing
         });
         AlertDialog dialog = builder.create();
         dialog.show();
