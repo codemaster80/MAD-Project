@@ -28,6 +28,9 @@ public class RemoteTaskDatabaseOperation implements ITaskDatabaseOperation {
         @PUT("/api/todos/{todoId}")
         Call<Task> updateTask(@Path("todoId") long id, @Body Task task);
 
+        @DELETE("/api/todos")
+        Call<Boolean> deleteAllTasks();
+
         @DELETE("/api/todos/{todoId}")
         Call<Boolean> deleteTask(@Path("todoId") long id);
     }
@@ -76,6 +79,15 @@ public class RemoteTaskDatabaseOperation implements ITaskDatabaseOperation {
         try {
             toDoRESTWebAPI.updateTask(task.getId(), task).execute().body();
             return true;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean deleteAllTasks() {
+        try {
+            return Boolean.TRUE.equals(toDoRESTWebAPI.deleteAllTasks().execute().body());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
