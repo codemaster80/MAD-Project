@@ -12,5 +12,7 @@ public interface ITaskDatabaseOperation {
 
     boolean updateTask(Task task);
 
+    boolean deleteAllTasks();
+
     boolean deleteTask(long id);
 }

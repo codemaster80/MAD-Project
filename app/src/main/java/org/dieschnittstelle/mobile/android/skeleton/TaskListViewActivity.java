@@ -62,7 +62,7 @@ public class TaskListViewActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
 
         if (!viewModel.isInitialised()) {
-            viewModel.readAllTasks();
+            viewModel.readAllTasks(this);
         }
         viewModel.getProcessingState().observe(this, this::handleTaskProcessingState);
     }
@@ -137,13 +137,13 @@ public class TaskListViewActivity extends AppCompatActivity {
                 taskListViewAdapter.notifyDataSetChanged();
                 break;
 
-            case DB_CONNECT_FAIL:
+            case DB_INIT_CONNECT_FAIL:
                 progressBar.setVisibility(View.GONE);
                 showMessage(getString(R.string.task_db_connect_fail_message));
                 ((TaskApplication) getApplication()).setTaskDatabaseOperation(new LocalTaskDatabaseOperation(this));
                 taskDbOperation = ((TaskApplication) getApplication()).getTaskDatabaseOperation();
                 viewModel.setTaskDbOperation(taskDbOperation);
-                viewModel.readAllTasks();
+                viewModel.readAllTasks(this);
                 break;
         }
     }

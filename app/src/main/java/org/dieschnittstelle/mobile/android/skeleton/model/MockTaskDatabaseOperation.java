@@ -29,7 +29,10 @@ public class MockTaskDatabaseOperation implements ITaskDatabaseOperation {
 
     @Override
     public Task readTask(long id) {
-        return null;
+        return tasks.stream()
+                .filter(existingTask -> existingTask.getId() == (id))
+                .findAny()
+                .orElse(null);
     }
 
     @Override
@@ -52,7 +55,16 @@ public class MockTaskDatabaseOperation implements ITaskDatabaseOperation {
     }
 
     @Override
+    public boolean deleteAllTasks() {
+        if (!tasks.isEmpty()) {
+            tasks.clear();
+        }
+        return true;
+    }
+
+    @Override
     public boolean deleteTask(long id) {
-        return false;
+        tasks.removeIf(existingTask -> existingTask.getId() == (id));
+        return true;
     }
 }

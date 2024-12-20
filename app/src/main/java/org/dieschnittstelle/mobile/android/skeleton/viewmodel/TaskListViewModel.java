@@ -1,11 +1,13 @@
 package org.dieschnittstelle.mobile.android.skeleton.viewmodel;
 
+import android.content.Context;
+
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.android.identity.cbor.DataItem;
-
 import org.dieschnittstelle.mobile.android.skeleton.model.ITaskDatabaseOperation;
+import org.dieschnittstelle.mobile.android.skeleton.model.LocalTaskDatabaseOperation;
+import org.dieschnittstelle.mobile.android.skeleton.model.RemoteTaskDatabaseOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
 
 import java.util.ArrayList;
@@ -18,9 +20,9 @@ public class TaskListViewModel extends ViewModel {
     private ITaskDatabaseOperation taskDbOperation;
     private final List<Task> taskList = new ArrayList<>();
     private boolean initialised;
-    private static Comparator<Task> SORT_BY_COMPLETED_AND_NAME = Comparator.comparing(Task::isCompleted).thenComparing(Task::getName);
-    private Comparator<Task> currentSorter = Comparator.comparing(Task::isCompleted).thenComparing(Task::getName);
-    public enum ProcessingState {DB_CONNECT_FAIL, RUNNING_LONG, RUNNING, DONE}
+    private static final Comparator<Task> SORT_BY_COMPLETED_AND_NAME = Comparator.comparing(Task::isCompleted).thenComparing(Task::getName);
+    private final Comparator<Task> currentSorter = SORT_BY_COMPLETED_AND_NAME;
+    public enum ProcessingState {DB_INIT_CONNECT_FAIL, RUNNING_LONG, RUNNING, DONE}
     private final MutableLiveData<ProcessingState> processingState = new MutableLiveData<>();
     private final ExecutorService executorService = Executors.newFixedThreadPool(4);
 
@@ -57,21 +59,20 @@ public class TaskListViewModel extends ViewModel {
         }).start();
     }
 
-    public void readAllTasks() {
+    public void readAllTasks(Context ctxForLocalDB) {
         processingState.setValue(ProcessingState.RUNNING_LONG);
         new Thread(() -> {
             try {
                 List<Task> tasks = taskDbOperation.readAllTasks();
+                if (taskDbOperation instanceof RemoteTaskDatabaseOperation) {
+                    replaceAllTasks(tasks, ctxForLocalDB);
+                }
                 getTaskList().addAll(tasks);
                 processingState.postValue(ProcessingState.DONE);
             } catch (Exception e) {
-                processingState.postValue(ProcessingState.DB_CONNECT_FAIL);
+                processingState.postValue(ProcessingState.DB_INIT_CONNECT_FAIL);
             }
         }).start();
-    }
-
-    public void readTask(long id) {
-
     }
 
     public void updateTask(Task taskFromDetailView) {
@@ -117,5 +118,17 @@ public class TaskListViewModel extends ViewModel {
 
     private void doSortItems() {
         getTaskList().sort(currentSorter);
+    }
+
+    public void replaceAllTasks(List<Task> tasksFromRemoteDB, Context ctxForLocalDB) {
+        this.setTaskDbOperation(new LocalTaskDatabaseOperation(ctxForLocalDB));
+        List<Task> localTasks = taskDbOperation.readAllTasks();
+        if (localTasks.isEmpty()) {
+            tasksFromRemoteDB.forEach(remoteTask -> taskDbOperation.createTask(remoteTask));
+        } else {
+            this.setTaskDbOperation(new RemoteTaskDatabaseOperation());
+            taskDbOperation.deleteAllTasks();
+            localTasks.forEach(localTask -> taskDbOperation.createTask(localTask));
+        }
     }
 }
