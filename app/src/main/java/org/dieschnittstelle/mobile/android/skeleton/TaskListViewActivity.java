@@ -3,6 +3,8 @@ package org.dieschnittstelle.mobile.android.skeleton;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -63,6 +65,27 @@ public class TaskListViewActivity extends AppCompatActivity {
             viewModel.readAllTasks(this);
         }
         viewModel.getProcessingState().observe(this, this::handleTaskProcessingState);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_overview_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.sortItems) {
+            this.viewModel.sortItems();
+            return true;
+        }
+        else if (item.getItemId() == R.id.deleteAllLocalItems) {
+            showMessage("Delete all local items...");
+            return true;
+        }
+        else {
+            return super.onOptionsItemSelected(item);
+        }
     }
 
     private void showEditTaskDetailView(Task task) {

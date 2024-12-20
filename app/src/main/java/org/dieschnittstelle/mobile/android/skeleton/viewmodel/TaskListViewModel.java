@@ -5,12 +5,15 @@ import android.content.Context;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.android.identity.cbor.DataItem;
+
 import org.dieschnittstelle.mobile.android.skeleton.model.ITaskDatabaseOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.LocalTaskDatabaseOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.RemoteTaskDatabaseOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,7 +22,8 @@ public class TaskListViewModel extends ViewModel {
     private ITaskDatabaseOperation taskDbOperation;
     private final List<Task> taskList = new ArrayList<>();
     private boolean initialised;
-
+    private static Comparator<Task> SORT_BY_COMPLETED_AND_NAME = Comparator.comparing(Task::isCompleted).thenComparing(Task::getName);
+    private Comparator<Task> currentSorter = Comparator.comparing(Task::isCompleted).thenComparing(Task::getName);
     public enum ProcessingState {DB_INIT_CONNECT_FAIL, RUNNING_LONG, RUNNING, DONE}
     private final MutableLiveData<ProcessingState> processingState = new MutableLiveData<>();
     private final ExecutorService executorService = Executors.newFixedThreadPool(4);
@@ -52,6 +56,7 @@ public class TaskListViewModel extends ViewModel {
         new Thread(() -> {
             Task createdTask = taskDbOperation.createTask(taskFromDetailView);
             getTaskList().add(createdTask);
+            doSortItems();
             processingState.postValue(ProcessingState.DONE);
         }).start();
     }
@@ -87,6 +92,7 @@ public class TaskListViewModel extends ViewModel {
                 selectedTask.setCompleted(taskFromDetailView.isCompleted());
                 selectedTask.setFavorite(taskFromDetailView.isFavorite());
                 selectedTask.setPriority(taskFromDetailView.getPriority());
+                doSortItems();
                 processingState.postValue(ProcessingState.DONE);
             }
         });
@@ -103,6 +109,17 @@ public class TaskListViewModel extends ViewModel {
                 processingState.postValue(ProcessingState.DONE);
             }
         });
+    }
+
+    public void sortItems() {
+        processingState.setValue(ProcessingState.RUNNING);
+        // getTaskList().sort(currentSorter);
+        doSortItems();
+        processingState.postValue(ProcessingState.DONE);
+    }
+
+    private void doSortItems() {
+        getTaskList().sort(currentSorter);
     }
 
     public void replaceAllTasks(List<Task> tasksFromRemoteDB, Context ctxForLocalDB) {

@@ -31,9 +31,13 @@ android {
         targetCompatibility "11"
     }
     namespace 'org.dieschnittstelle.mobile.android.skeleton'
+    packagingOptions {
+        exclude 'META-INF/versions/9/OSGI-INF/MANIFEST.MF'
+    }
 }
 
 dependencies {
+    implementation 'com.android.identity:identity-jvm:202411.1'
     def room_version = "2.6.1"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
