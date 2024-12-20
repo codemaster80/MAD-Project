@@ -9,7 +9,10 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 import androidx.room.Update;
+
+import org.dieschnittstelle.mobile.android.skeleton.util.DateConverter;
 
 import java.util.List;
 
@@ -38,6 +41,7 @@ public class LocalTaskDatabaseOperation implements ITaskDatabaseOperation {
     }
 
     @Database(entities = {Task.class}, version = 2)
+    @TypeConverters(DateConverter.class)
     public abstract static class TaskDatabase extends RoomDatabase {
 
         public abstract SQLiteTaskCRUDOperation getDao();

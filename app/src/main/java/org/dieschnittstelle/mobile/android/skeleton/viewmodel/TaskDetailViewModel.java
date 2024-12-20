@@ -7,11 +7,16 @@ import androidx.lifecycle.ViewModel;
 
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
 public class TaskDetailViewModel extends ViewModel {
     private Task task;
     private MutableLiveData<Boolean> isTaskOnSave = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> isTaskOnDelete = new MutableLiveData<>(false);
     private MutableLiveData<String> nameInputError = new MutableLiveData<>();
+    private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.GERMANY);
 
     public Task getTask() {
         return task;
@@ -52,5 +57,19 @@ public class TaskDetailViewModel extends ViewModel {
     public boolean onNameInputChanged() {
         this.nameInputError.setValue(null);
         return false;
+    }
+
+    public String toDueDateString() {
+        if (task.getExpiry() == null) {
+            return "";
+        }
+        return DATE_FORMATTER.format(task.getExpiry()).split(" ")[0];
+    }
+
+    public String toTimeLimitString() {
+        if (task.getExpiry() == null) {
+            return "";
+        }
+        return DATE_FORMATTER.format(task.getExpiry()).split(" ")[1];
     }
 }

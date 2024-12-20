@@ -64,7 +64,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/select_due_date_btn"
-            android:text="@{taskDetailViewModel.task.date}"
+            android:text="@{taskDetailViewModel.toDueDateString()}"
             android:textAllCaps="false"
             app:layout_constraintTop_toBottomOf="@+id/taskDate" />
 
@@ -84,7 +84,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/select_time_limit_btn"
-            android:text="@{taskDetailViewModel.task.time}"
+            android:text="@{taskDetailViewModel.toTimeLimitString()}"
             android:textAllCaps="false"
             app:layout_constraintTop_toBottomOf="@+id/taskTime" />
 
