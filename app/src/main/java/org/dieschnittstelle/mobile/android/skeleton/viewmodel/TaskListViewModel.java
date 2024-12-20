@@ -63,6 +63,7 @@ public class TaskListViewModel extends ViewModel {
             try {
                 List<Task> tasks = taskDbOperation.readAllTasks();
                 getTaskList().addAll(tasks);
+                doSortItems();
                 processingState.postValue(ProcessingState.DONE);
             } catch (Exception e) {
                 processingState.postValue(ProcessingState.DB_CONNECT_FAIL);
