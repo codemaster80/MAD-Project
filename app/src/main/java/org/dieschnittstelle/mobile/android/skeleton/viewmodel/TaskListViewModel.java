@@ -5,8 +5,6 @@ import android.content.Context;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.android.identity.cbor.DataItem;
-
 import org.dieschnittstelle.mobile.android.skeleton.model.ITaskDatabaseOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.LocalTaskDatabaseOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.RemoteTaskDatabaseOperation;
@@ -22,8 +20,8 @@ public class TaskListViewModel extends ViewModel {
     private ITaskDatabaseOperation taskDbOperation;
     private final List<Task> taskList = new ArrayList<>();
     private boolean initialised;
-    private static Comparator<Task> SORT_BY_COMPLETED_AND_NAME = Comparator.comparing(Task::isCompleted).thenComparing(Task::getName);
-    private Comparator<Task> currentSorter = Comparator.comparing(Task::isCompleted).thenComparing(Task::getName);
+    private static final Comparator<Task> SORT_BY_COMPLETED_AND_NAME = Comparator.comparing(Task::isCompleted).thenComparing(Task::getName);
+    private final Comparator<Task> currentSorter = SORT_BY_COMPLETED_AND_NAME;
     public enum ProcessingState {DB_INIT_CONNECT_FAIL, RUNNING_LONG, RUNNING, DONE}
     private final MutableLiveData<ProcessingState> processingState = new MutableLiveData<>();
     private final ExecutorService executorService = Executors.newFixedThreadPool(4);
