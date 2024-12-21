@@ -37,7 +37,7 @@ public class LocalTaskDatabaseOperation implements ITaskDatabaseOperation {
         void deleteTask(Task task);
     }
 
-    @Database(entities = {Task.class}, version = 2)
+    @Database(entities = {Task.class}, version = 1)
     public abstract static class TaskDatabase extends RoomDatabase {
 
         public abstract SQLiteTaskCRUDOperation getDao();

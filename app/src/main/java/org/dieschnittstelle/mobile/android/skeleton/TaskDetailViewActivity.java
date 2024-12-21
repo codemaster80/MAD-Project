@@ -20,6 +20,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityTaskDetailViewBinding;
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
+import org.dieschnittstelle.mobile.android.skeleton.util.DateConverter;
 import org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskDetailViewModel;
 
 import java.util.Arrays;
@@ -71,6 +72,11 @@ public class TaskDetailViewActivity extends AppCompatActivity {
 
         this.viewModel.isTaskOnSave().observe(this, onSave -> {
             if (onSave) {
+                String date = (String) pickDateBtn.getText();
+                String time = (String) pickTimeBtn.getText();
+                // DateFormat String 01.01.2025 01:00
+                Long expiryLong = DateConverter.fromDateString(date + " " + time);
+                task.setExpiry(expiryLong);
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra(TASK_DETAIL_VIEW_KEY, task);
                 this.setResult(TaskDetailViewActivity.RESULT_OK, returnIntent);
@@ -110,17 +116,17 @@ public class TaskDetailViewActivity extends AppCompatActivity {
             int currentYear, currentMonth, currentDay;
             DatePickerDialog datePickerDialog;
 
-            if (task.getDate() == null || task.getDate().isBlank()) {
+            if (task.getExpiry() == null || task.getExpiry() == 0) {
                 calendar = Calendar.getInstance();
                 currentYear = calendar.get(Calendar.YEAR);
                 currentMonth = calendar.get(Calendar.MONTH);
                 currentDay = calendar.get(Calendar.DAY_OF_MONTH);
             } else {
-                String currentDueDateStr = task.getDate();
-                currentDay = Integer.parseInt(currentDueDateStr.split("\\.")[0]);
-                // Month of Calendar starts from 0
-                currentMonth = Integer.parseInt(currentDueDateStr.split("\\.")[1]) - 1;
-                currentYear = Integer.parseInt(currentDueDateStr.split("\\.")[2]);
+                String dateStr = DateConverter.toDateString(task.getExpiry()).split(" ")[0];
+                currentDay = Integer.parseInt(dateStr.split("\\.")[0]);
+                // Month of Calendar.java starts from 0
+                currentMonth = Integer.parseInt(dateStr.split("\\.")[1]) - 1;
+                currentYear = Integer.parseInt(dateStr.split("\\.")[2]);
             }
             datePickerDialog = setDatePickerDialog(currentYear, currentMonth, currentDay);
             datePickerDialog.show();
@@ -132,10 +138,8 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         return new DatePickerDialog(
                 this,
                 (datePickerView, selectedYear, selectedMonth, selectedDay) -> {
-                    // Set the selected date to the current task
-                    // Month of Calendar starts from 0
-                    String dueDateStr = selectedDay + "." + (selectedMonth + 1) + "." + selectedYear;
-                    task.setDate(dueDateStr);
+                    // Month of Calendar.java starts from 0
+                    String dueDateStr = to2Digits(selectedDay) + "." + to2Digits(selectedMonth + 1) + "." + selectedYear;
                     pickDateBtn.setText(dueDateStr);
                 },
                 currentYear,
@@ -150,14 +154,14 @@ public class TaskDetailViewActivity extends AppCompatActivity {
             int currentHour, currentMinute;
             TimePickerDialog timePickerDialog;
 
-            if (task.getTime() == null || task.getTime().isBlank()) {
+            if(task.getExpiry() == null || task.getExpiry() == 0) {
                 calendar = Calendar.getInstance();
                 currentHour = calendar.get(Calendar.HOUR_OF_DAY);
                 currentMinute = calendar.get(Calendar.MINUTE);
             } else {
-                String currentTimeLimitStr = task.getTime();
-                currentHour = Integer.parseInt(currentTimeLimitStr.split(":")[0]);
-                currentMinute = Integer.parseInt(currentTimeLimitStr.split(":")[1]);
+                String timeStr = DateConverter.toDateString(task.getExpiry()).split(" ")[1];
+                currentHour = Integer.parseInt(timeStr.split(":")[0]);
+                currentMinute = Integer.parseInt(timeStr.split(":")[1]);
             }
             timePickerDialog = setTimePickerDialog(currentHour, currentMinute);
             timePickerDialog.show();
@@ -168,17 +172,8 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         return new TimePickerDialog(
                 this,
                 (timePickerView, selectedHour, selectedMinute) -> {
-                    String selectedHourStr = String.valueOf(selectedHour);
-                    String selectedMinuteStr = String.valueOf(selectedMinute);
                     // convert single digit time to double digit. e.g.: 9h 0m -> 09:00
-                    if (selectedHour < 10) {
-                        selectedHourStr = "0" + selectedHour;
-                    }
-                    if (selectedMinute < 10) {
-                        selectedMinuteStr = "0" + selectedMinute;
-                    }
-                    String timeLimitStr = selectedHourStr + ":" + selectedMinuteStr;
-                    task.setTime(timeLimitStr);
+                    String timeLimitStr = to2Digits(selectedHour) + ":" + to2Digits(selectedMinute);
                     pickTimeBtn.setText(timeLimitStr);
                 },
                 currentHour,
@@ -216,5 +211,12 @@ public class TaskDetailViewActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> arg0) {
             }
         });
+    }
+
+    private String to2Digits(int number) {
+        if (number < 10) {
+            return "0" + number;
+        }
+        return String.valueOf(number);
     }
 }

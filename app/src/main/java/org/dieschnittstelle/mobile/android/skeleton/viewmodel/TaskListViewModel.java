@@ -9,6 +9,7 @@ import org.dieschnittstelle.mobile.android.skeleton.model.ITaskDatabaseOperation
 import org.dieschnittstelle.mobile.android.skeleton.model.LocalTaskDatabaseOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.RemoteTaskDatabaseOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
+import org.dieschnittstelle.mobile.android.skeleton.util.DateConverter;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -87,7 +88,7 @@ public class TaskListViewModel extends ViewModel {
                         .orElse(new Task());
                 selectedTask.setName(taskFromDetailView.getName());
                 selectedTask.setDescription(taskFromDetailView.getDescription());
-                selectedTask.setDate(taskFromDetailView.getDate());
+                selectedTask.setExpiry(taskFromDetailView.getExpiry());
                 selectedTask.setCompleted(taskFromDetailView.isCompleted());
                 selectedTask.setFavorite(taskFromDetailView.isFavorite());
                 selectedTask.setPriority(taskFromDetailView.getPriority());
@@ -108,6 +109,11 @@ public class TaskListViewModel extends ViewModel {
                 processingState.postValue(ProcessingState.DONE);
             }
         });
+    }
+
+    public String toDueDateString(Long expiry) {
+        String dateTime = DateConverter.toDateString(expiry);
+        return dateTime.split(" ")[0];
     }
 
     public void sortItems() {

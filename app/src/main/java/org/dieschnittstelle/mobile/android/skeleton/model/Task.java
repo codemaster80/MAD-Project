@@ -16,8 +16,7 @@ public class Task implements Serializable {
     private long id;
     private String name;
     private String description;
-    private String date;
-    private String time;
+    private Long expiry;
     @SerializedName("done")
     private boolean completed;
     @SerializedName("favourite")
@@ -27,11 +26,10 @@ public class Task implements Serializable {
     public Task() {
     }
 
-    public Task(String name, String description, String date, String time, boolean completed, boolean favorite, Priority priority) {
+    public Task(String name, String description, Long expiry, boolean completed, boolean favorite, Priority priority) {
         this.name = name;
         this.description = description;
-        this.date = date;
-        this.time = time;
+        this.expiry = expiry;
         this.completed = completed;
         this.favorite = favorite;
         this.priority = priority;
@@ -61,20 +59,12 @@ public class Task implements Serializable {
         this.description = description;
     }
 
-    public String getDate() {
-        return date;
+    public Long getExpiry() {
+        return expiry;
     }
 
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
+    public void setExpiry(Long expiry) {
+        this.expiry = expiry;
     }
 
     public boolean isFavorite() {

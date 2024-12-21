@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
+import org.dieschnittstelle.mobile.android.skeleton.util.DateConverter;
 
 public class TaskDetailViewModel extends ViewModel {
     private Task task;
@@ -52,5 +53,15 @@ public class TaskDetailViewModel extends ViewModel {
     public boolean onNameInputChanged() {
         this.nameInputError.setValue(null);
         return false;
+    }
+
+    public String toDueDateString() {
+        String dateTime = DateConverter.toDateString(task.getExpiry());
+        return dateTime.split(" ")[0];
+    }
+
+    public String toTimeLimitString() {
+        String dateTime = DateConverter.toDateString(task.getExpiry());
+        return dateTime.split(" ")[1];
     }
 }

@@ -1,5 +1,7 @@
 package org.dieschnittstelle.mobile.android.skeleton.model;
 
+import org.dieschnittstelle.mobile.android.skeleton.util.DateConverter;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,10 +11,10 @@ public class MockTaskDatabaseOperation implements ITaskDatabaseOperation {
     private final List<Task> tasks = new ArrayList<>();
 
     public MockTaskDatabaseOperation() {
-        createTask(new Task("Aufgabe 1", "Beschreibung 1", "01.01.2025", "12:00", false, false, Task.Priority.CRITICAL));
-        createTask(new Task("Aufgabe 2", "Beschreibung 2", "05.12.2024", "10:00", false, false, Task.Priority.HIGH));
-        createTask(new Task("Aufgabe 3", "Beschreibung 3", "01.10.2024", "09:00", false, false, Task.Priority.NORMAL));
-        createTask(new Task("Aufgabe 4", "Beschreibung 4", "15.01.2024", "08:00", false, false, Task.Priority.LOW));
+        createTask(new Task("Aufgabe 1", "Beschreibung 1", DateConverter.fromDateString("01.01.2025 12:00"), false, false, Task.Priority.CRITICAL));
+        createTask(new Task("Aufgabe 2", "Beschreibung 2", DateConverter.fromDateString("05.12.2024 10:00"),false, false, Task.Priority.HIGH));
+        createTask(new Task("Aufgabe 3", "Beschreibung 3", DateConverter.fromDateString("01.10.2024 09:00"),false, false, Task.Priority.NORMAL));
+        createTask(new Task("Aufgabe 4", "Beschreibung 4", DateConverter.fromDateString("15.01.2024 08:00"),false, false, Task.Priority.LOW));
     }
 
     @Override
@@ -48,8 +50,7 @@ public class MockTaskDatabaseOperation implements ITaskDatabaseOperation {
         selectedTask.setDescription(task.getDescription());
         selectedTask.setFavorite(task.isFavorite());
         selectedTask.setCompleted(task.isCompleted());
-        selectedTask.setDate(task.getDate());
-        selectedTask.setTime(task.getTime());
+        selectedTask.setExpiry(task.getExpiry());
         selectedTask.setPriority(task.getPriority());
         return true;
     }
