@@ -2,15 +2,12 @@ package org.dieschnittstelle.mobile.android.skeleton.model;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import androidx.room.TypeConverters;
 
 import com.google.gson.annotations.SerializedName;
 
 import org.dieschnittstelle.mobile.android.skeleton.R;
-import org.dieschnittstelle.mobile.android.skeleton.util.DateConverter;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.Objects;
 
 @Entity
@@ -19,8 +16,7 @@ public class Task implements Serializable {
     private long id;
     private String name;
     private String description;
-    @TypeConverters(DateConverter.class)
-    private Date expiry;
+    private Long expiry;
     @SerializedName("done")
     private boolean completed;
     @SerializedName("favourite")
@@ -30,7 +26,7 @@ public class Task implements Serializable {
     public Task() {
     }
 
-    public Task(String name, String description, Date expiry, boolean completed, boolean favorite, Priority priority) {
+    public Task(String name, String description, Long expiry, boolean completed, boolean favorite, Priority priority) {
         this.name = name;
         this.description = description;
         this.expiry = expiry;
@@ -63,11 +59,11 @@ public class Task implements Serializable {
         this.description = description;
     }
 
-    public Date getExpiry() {
+    public Long getExpiry() {
         return expiry;
     }
 
-    public void setExpiry(Date expiry) {
+    public void setExpiry(Long expiry) {
         this.expiry = expiry;
     }
 

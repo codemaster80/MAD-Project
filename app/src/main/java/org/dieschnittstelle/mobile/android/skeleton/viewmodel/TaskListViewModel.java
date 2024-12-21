@@ -9,14 +9,11 @@ import org.dieschnittstelle.mobile.android.skeleton.model.ITaskDatabaseOperation
 import org.dieschnittstelle.mobile.android.skeleton.model.LocalTaskDatabaseOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.RemoteTaskDatabaseOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
+import org.dieschnittstelle.mobile.android.skeleton.util.DateConverter;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -29,7 +26,6 @@ public class TaskListViewModel extends ViewModel {
     public enum ProcessingState {DB_INIT_CONNECT_FAIL, RUNNING_LONG, RUNNING, DONE}
     private final MutableLiveData<ProcessingState> processingState = new MutableLiveData<>();
     private final ExecutorService executorService = Executors.newFixedThreadPool(4);
-    private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.GERMANY);
 
     public TaskListViewModel() {
     }
@@ -114,11 +110,9 @@ public class TaskListViewModel extends ViewModel {
         });
     }
 
-    public String toDueDateString(Date expiry) {
-        if (expiry == null) {
-            return "";
-        }
-        return DATE_FORMATTER.format(expiry).split(" ")[0];
+    public String toDueDateString(Long expiry) {
+        String dateTime = DateConverter.toDateString(expiry);
+        return dateTime.split(" ")[0];
     }
 
     public void sortItems() {

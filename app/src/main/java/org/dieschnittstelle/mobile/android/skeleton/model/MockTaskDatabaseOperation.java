@@ -1,23 +1,20 @@
 package org.dieschnittstelle.mobile.android.skeleton.model;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import org.dieschnittstelle.mobile.android.skeleton.util.DateConverter;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class MockTaskDatabaseOperation implements ITaskDatabaseOperation {
 
     private static long idCounter = 0;
     private final List<Task> tasks = new ArrayList<>();
-    DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.GERMANY);
 
-    public MockTaskDatabaseOperation() throws ParseException {
-        createTask(new Task("Aufgabe 1", "Beschreibung 1", df.parse("01.01.2025 12:00"), false, false, Task.Priority.CRITICAL));
-        createTask(new Task("Aufgabe 2", "Beschreibung 2", df.parse("05.12.2024 10:00"),false, false, Task.Priority.HIGH));
-        createTask(new Task("Aufgabe 3", "Beschreibung 3", df.parse("01.10.2024 09:00"),false, false, Task.Priority.NORMAL));
-        createTask(new Task("Aufgabe 4", "Beschreibung 4", df.parse("15.01.2024 08:00"),false, false, Task.Priority.LOW));
+    public MockTaskDatabaseOperation() {
+        createTask(new Task("Aufgabe 1", "Beschreibung 1", DateConverter.fromDateString("01.01.2025 12:00"), false, false, Task.Priority.CRITICAL));
+        createTask(new Task("Aufgabe 2", "Beschreibung 2", DateConverter.fromDateString("05.12.2024 10:00"),false, false, Task.Priority.HIGH));
+        createTask(new Task("Aufgabe 3", "Beschreibung 3", DateConverter.fromDateString("01.10.2024 09:00"),false, false, Task.Priority.NORMAL));
+        createTask(new Task("Aufgabe 4", "Beschreibung 4", DateConverter.fromDateString("15.01.2024 08:00"),false, false, Task.Priority.LOW));
     }
 
     @Override

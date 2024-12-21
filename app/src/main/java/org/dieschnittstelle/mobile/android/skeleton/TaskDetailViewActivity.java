@@ -20,16 +20,12 @@ import androidx.lifecycle.ViewModelProvider;
 
 import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityTaskDetailViewBinding;
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
+import org.dieschnittstelle.mobile.android.skeleton.util.DateConverter;
 import org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskDetailViewModel;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class TaskDetailViewActivity extends AppCompatActivity {
@@ -42,7 +38,6 @@ public class TaskDetailViewActivity extends AppCompatActivity {
     private Button pickDateBtn;
     TextView taskTimeTextView;
     private Button pickTimeBtn;
-    private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.GERMANY);
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -79,10 +74,9 @@ public class TaskDetailViewActivity extends AppCompatActivity {
             if (onSave) {
                 String date = (String) pickDateBtn.getText();
                 String time = (String) pickTimeBtn.getText();
-                try {
-                    Date expiry = DATE_FORMATTER.parse(date + " " + time);
-                    task.setExpiry(expiry);
-                } catch (ParseException ignored) {}
+                // DateFormat String 01.01.2025 01:00
+                Long expiryLong = DateConverter.fromDateString(date + " " + time);
+                task.setExpiry(expiryLong);
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra(TASK_DETAIL_VIEW_KEY, task);
                 this.setResult(TaskDetailViewActivity.RESULT_OK, returnIntent);
@@ -122,13 +116,13 @@ public class TaskDetailViewActivity extends AppCompatActivity {
             int currentYear, currentMonth, currentDay;
             DatePickerDialog datePickerDialog;
 
-            if (task.getExpiry() == null) {
+            if (task.getExpiry() == null || task.getExpiry() == 0) {
                 calendar = Calendar.getInstance();
                 currentYear = calendar.get(Calendar.YEAR);
                 currentMonth = calendar.get(Calendar.MONTH);
                 currentDay = calendar.get(Calendar.DAY_OF_MONTH);
             } else {
-                String dateStr = DATE_FORMATTER.format(task.getExpiry()).split(" ")[0];
+                String dateStr = DateConverter.toDateString(task.getExpiry()).split(" ")[0];
                 currentDay = Integer.parseInt(dateStr.split("\\.")[0]);
                 // Month of Calendar.java starts from 0
                 currentMonth = Integer.parseInt(dateStr.split("\\.")[1]) - 1;
@@ -160,12 +154,12 @@ public class TaskDetailViewActivity extends AppCompatActivity {
             int currentHour, currentMinute;
             TimePickerDialog timePickerDialog;
 
-            if(task.getExpiry() == null) {
+            if(task.getExpiry() == null || task.getExpiry() == 0) {
                 calendar = Calendar.getInstance();
                 currentHour = calendar.get(Calendar.HOUR_OF_DAY);
                 currentMinute = calendar.get(Calendar.MINUTE);
             } else {
-                String timeStr = DATE_FORMATTER.format(task.getExpiry()).split(" ")[1];
+                String timeStr = DateConverter.toDateString(task.getExpiry()).split(" ")[1];
                 currentHour = Integer.parseInt(timeStr.split(":")[0]);
                 currentMinute = Integer.parseInt(timeStr.split(":")[1]);
             }
