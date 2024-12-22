@@ -57,11 +57,17 @@ public class TaskDetailViewModel extends ViewModel {
 
     public String toDueDateString() {
         String dateTime = DateConverter.toDateString(task.getExpiry());
+        if (dateTime.isBlank()) {
+            return dateTime;
+        }
         return dateTime.split(" ")[0];
     }
 
     public String toTimeLimitString() {
         String dateTime = DateConverter.toDateString(task.getExpiry());
+        if (dateTime.isBlank()) {
+            return dateTime;
+        }
         return dateTime.split(" ")[1];
     }
 }
