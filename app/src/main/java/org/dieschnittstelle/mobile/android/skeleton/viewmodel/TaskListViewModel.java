@@ -50,10 +50,18 @@ public class TaskListViewModel extends ViewModel {
         return processingState;
     }
 
-    public void createTask(Task taskFromDetailView) {
+    public void createTask(Task taskFromDetailView, Context ctxForLocalDB) {
         processingState.setValue(ProcessingState.RUNNING);
         new Thread(() -> {
             Task createdTask = taskDbOperation.createTask(taskFromDetailView);
+            // also create task on remote DB
+            if (taskDbOperation instanceof LocalTaskDatabaseOperation) {
+                try {
+                    this.setTaskDbOperation(new RemoteTaskDatabaseOperation());
+                } catch (Exception ignored) {}
+                taskDbOperation.createTask(createdTask);
+                this.setTaskDbOperation(new LocalTaskDatabaseOperation(ctxForLocalDB));
+            }
             getTaskList().add(createdTask);
             doSortItems();
             processingState.postValue(ProcessingState.DONE);
@@ -77,7 +85,7 @@ public class TaskListViewModel extends ViewModel {
         }).start();
     }
 
-    public void updateTask(Task taskFromDetailView) {
+    public void updateTask(Task taskFromDetailView, Context ctxForLocalDB) {
         processingState.setValue(ProcessingState.RUNNING_LONG);
         executorService.execute(() -> {
             boolean isUpdated = taskDbOperation.updateTask(taskFromDetailView);
@@ -86,6 +94,15 @@ public class TaskListViewModel extends ViewModel {
                         .filter(task -> task.getId() == (taskFromDetailView.getId()))
                         .findAny()
                         .orElse(new Task());
+
+                // also update task on remote DB
+                if (taskDbOperation instanceof LocalTaskDatabaseOperation) {
+                    try {
+                        this.setTaskDbOperation(new RemoteTaskDatabaseOperation());
+                    } catch (Exception ignored) {}
+                    taskDbOperation.updateTask(selectedTask);
+                    this.setTaskDbOperation(new LocalTaskDatabaseOperation(ctxForLocalDB));
+                }
                 selectedTask.setName(taskFromDetailView.getName());
                 selectedTask.setDescription(taskFromDetailView.getDescription());
                 selectedTask.setExpiry(taskFromDetailView.getExpiry());
@@ -98,13 +115,21 @@ public class TaskListViewModel extends ViewModel {
         });
     }
 
-    public void deleteTask(long id) {
+    public void deleteTask(long id, Context ctxForLocalDB) {
         processingState.setValue(ProcessingState.RUNNING);
         executorService.execute(() -> {
             Task task = new Task();
             task.setId(id);
             boolean isDeleted = taskDbOperation.deleteTask(id);
             if (isDeleted) {
+                // also delete task on remote DB
+                if (taskDbOperation instanceof LocalTaskDatabaseOperation) {
+                    try {
+                        this.setTaskDbOperation(new RemoteTaskDatabaseOperation());
+                    } catch (Exception ignored) {}
+                    taskDbOperation.deleteTask(id);
+                    this.setTaskDbOperation(new LocalTaskDatabaseOperation(ctxForLocalDB));
+                }
                 getTaskList().remove(task);
                 processingState.postValue(ProcessingState.DONE);
             }
@@ -113,6 +138,9 @@ public class TaskListViewModel extends ViewModel {
 
     public String toDueDateString(Long expiry) {
         String dateTime = DateConverter.toDateString(expiry);
+        if (dateTime.isBlank()) {
+            return dateTime;
+        }
         return dateTime.split(" ")[0];
     }
 
@@ -127,11 +155,20 @@ public class TaskListViewModel extends ViewModel {
         getTaskList().sort(currentSorter);
     }
 
+    /**
+     * Compare tasks between remote DB and local DB
+     * if there are no local tasks, all tasks are transmitted from remote to local DB.
+     * if there are local tasks, then all tasks on remote DB are deleted and local tasks are transferred to remote DB.
+     *
+     * @param tasksFromRemoteDB List of tasks from remote DB
+     * @param ctxForLocalDB Application context for local DB creation
+     */
     public void replaceAllTasks(List<Task> tasksFromRemoteDB, Context ctxForLocalDB) {
         this.setTaskDbOperation(new LocalTaskDatabaseOperation(ctxForLocalDB));
         List<Task> localTasks = taskDbOperation.readAllTasks();
         if (localTasks.isEmpty()) {
             tasksFromRemoteDB.forEach(remoteTask -> taskDbOperation.createTask(remoteTask));
+            this.setTaskDbOperation(new RemoteTaskDatabaseOperation());
         } else {
             this.setTaskDbOperation(new RemoteTaskDatabaseOperation());
             taskDbOperation.deleteAllTasks();

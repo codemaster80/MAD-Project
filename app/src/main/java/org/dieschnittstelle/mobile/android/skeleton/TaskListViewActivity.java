@@ -104,12 +104,12 @@ public class TaskListViewActivity extends AppCompatActivity {
             activityResult -> {
                 if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_OK) {
                     Task taskFromDetailView = (Task) activityResult.getData().getSerializableExtra(TaskDetailViewActivity.TASK_DETAIL_VIEW_KEY);
-                    viewModel.updateTask(taskFromDetailView);
+                    viewModel.updateTask(taskFromDetailView, this);
                     taskListViewAdapter.notifyDataSetChanged();
                     showMessage(getString(R.string.task_updated_feedback_message) + " " + taskFromDetailView.getName());
                 } else if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_DELETE_OK) {
                     Task taskFromDetailView = (Task) activityResult.getData().getSerializableExtra(TaskDetailViewActivity.TASK_DETAIL_VIEW_KEY);
-                    viewModel.deleteTask(taskFromDetailView.getId());
+                    viewModel.deleteTask(taskFromDetailView.getId(), this);
                     showMessage(getString(R.string.task_deleted_feedback_message) + " " + taskFromDetailView.getName());
                 }
             }
@@ -120,7 +120,7 @@ public class TaskListViewActivity extends AppCompatActivity {
             activityResult -> {
                 if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_OK) {
                     Task taskFromDetailView = (Task) activityResult.getData().getSerializableExtra(TaskDetailViewActivity.TASK_DETAIL_VIEW_KEY);
-                    viewModel.createTask(taskFromDetailView);
+                    viewModel.createTask(taskFromDetailView, this);
                     showMessage(getString(R.string.task_added_feedback_message) + " " + taskFromDetailView.getName());
                 }
             }
