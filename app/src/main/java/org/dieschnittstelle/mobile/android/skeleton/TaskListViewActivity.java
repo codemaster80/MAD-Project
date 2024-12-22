@@ -75,17 +75,25 @@ public class TaskListViewActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.sortItems) {
+        if (item.getItemId() == R.id.sortTasks) {
             this.viewModel.sortItems();
             return true;
         }
-        else if (item.getItemId() == R.id.deleteAllLocalItems) {
-            showMessage("Delete all local items...");
+        if (item.getItemId() == R.id.deleteAllLocalTasks) {
+            showMessage("Deleting all missions from local database...");
+            this.viewModel.deleteAllTasksFromLocal(this);
             return true;
         }
-        else {
-            return super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.deleteAllRemoteTasks) {
+            showMessage("Deleting all missions from remote database...");
+            this.viewModel.deleteAllTasksFromRemote(this);
+            return true;
         }
+        if (item.getItemId() == R.id.syncLocalRemoteDB) {
+            showMessage("Syncing all missions between database...");
+            this.viewModel.readAllTasks(this);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void showEditTaskDetailView(Task task) {

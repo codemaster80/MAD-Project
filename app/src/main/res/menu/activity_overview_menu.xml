@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:title="SORT" android:id="@+id/sortItems" app:showAsAction="always" android:icon="@drawable/sort_24dp"/>
-    <item android:title="DELETE ALL LOCAL" android:id="@+id/deleteAllLocalItems" app:showAsAction="never"/>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="SORT" android:id="@+id/sortTasks" android:icon="@drawable/sort_24dp"/>
+    <item android:title="DELETE ALL LOCAL" android:id="@+id/deleteAllLocalTasks"/>
+    <item android:title="DELETE ALL REMOTE" android:id="@+id/deleteAllRemoteTasks"/>
+    <item android:title="SYNC DATABASE" android:id="@+id/syncLocalRemoteDB"/>
 </menu>

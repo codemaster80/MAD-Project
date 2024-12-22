@@ -136,6 +136,42 @@ public class TaskListViewModel extends ViewModel {
         });
     }
 
+    public void deleteAllTasksFromLocal(Context ctxForLocalDB) {
+        processingState.setValue(ProcessingState.RUNNING);
+        executorService.execute(() -> {
+            boolean isDeleted = false;
+            if (taskDbOperation instanceof RemoteTaskDatabaseOperation) {
+                this.setTaskDbOperation(new LocalTaskDatabaseOperation(ctxForLocalDB));
+                isDeleted = taskDbOperation.deleteAllTasks();
+                this.setTaskDbOperation(new RemoteTaskDatabaseOperation());
+            } else if (taskDbOperation instanceof LocalTaskDatabaseOperation) {
+                isDeleted = taskDbOperation.deleteAllTasks();
+            }
+            if (isDeleted) {
+                getTaskList().clear();
+                processingState.postValue(ProcessingState.DONE);
+            }
+        });
+    }
+
+    public void deleteAllTasksFromRemote(Context ctxForLocalDB) {
+        processingState.setValue(ProcessingState.RUNNING);
+        executorService.execute(() -> {
+            boolean isDeleted = false;
+            if (taskDbOperation instanceof LocalTaskDatabaseOperation) {
+                this.setTaskDbOperation(new RemoteTaskDatabaseOperation());
+                isDeleted = taskDbOperation.deleteAllTasks();
+                this.setTaskDbOperation(new LocalTaskDatabaseOperation(ctxForLocalDB));
+            } else if (taskDbOperation instanceof RemoteTaskDatabaseOperation) {
+                isDeleted = taskDbOperation.deleteAllTasks();
+            }
+            if (isDeleted) {
+                getTaskList().clear();
+                processingState.postValue(ProcessingState.DONE);
+            }
+        });
+    }
+
     public String toDueDateString(Long expiry) {
         String dateTime = DateConverter.toDateString(expiry);
         if (dateTime.isBlank()) {
