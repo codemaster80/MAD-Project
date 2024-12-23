@@ -18,4 +18,9 @@
     <string name="select_due_date_btn">Select Mission Due Date</string>
     <string name="select_time_limit_btn">Select Mission Time Limit</string>
     <string name="priority_info_message">Mission Priority Level</string>
+    <string name="sort_done_menu_text">SORT DONE</string>
+    <string name="sort_priority_menu_text">SORT PRIORITY</string>
+    <string name="delete_all_local_menu_text">DELETE ALL LOCAL</string>
+    <string name="delete_all_remote_menu_text">DELETE ALL REMOTE</string>
+    <string name="sync_database_menu_text">SYNC DATABASE</string>
 </resources>
