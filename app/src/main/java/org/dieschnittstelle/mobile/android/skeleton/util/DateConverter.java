@@ -27,4 +27,11 @@ public class DateConverter {
         }
         return DATE_FORMATTER.format(dateTime);
     }
+
+    public static Long fromDate(Date dateTime) {
+        if (dateTime == null) {
+            return null;
+        }
+        return dateTime.getTime();
+    }
 }
