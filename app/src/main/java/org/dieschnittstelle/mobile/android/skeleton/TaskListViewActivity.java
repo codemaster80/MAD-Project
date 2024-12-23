@@ -76,7 +76,13 @@ public class TaskListViewActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.sortTasks) {
-            this.viewModel.sortItems();
+            showMessage("Sorting all done missions...");
+            this.viewModel.sortTasks();
+            return true;
+        }
+        if (item.getItemId() == R.id.sortTasksByPrio) {
+            showMessage("Sorting all missions by priority...");
+            this.viewModel.sortTasksByPrioAndDate();
             return true;
         }
         if (item.getItemId() == R.id.deleteAllLocalTasks) {
@@ -113,6 +119,7 @@ public class TaskListViewActivity extends AppCompatActivity {
                 if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_OK) {
                     Task taskFromDetailView = (Task) activityResult.getData().getSerializableExtra(TaskDetailViewActivity.TASK_DETAIL_VIEW_KEY);
                     viewModel.updateTask(taskFromDetailView, this);
+
                     taskListViewAdapter.notifyDataSetChanged();
                     showMessage(getString(R.string.task_updated_feedback_message) + " " + taskFromDetailView.getName());
                 } else if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_DELETE_OK) {

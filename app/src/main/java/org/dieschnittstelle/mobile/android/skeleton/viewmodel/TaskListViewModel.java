@@ -22,13 +22,13 @@ public class TaskListViewModel extends ViewModel {
     private final List<Task> taskList = new ArrayList<>();
     private boolean initialised;
     private static final Comparator<Task> SORT_BY_COMPLETED_AND_NAME = Comparator.comparing(Task::isCompleted).thenComparing(Task::getName);
-    private final Comparator<Task> currentSorter = SORT_BY_COMPLETED_AND_NAME;
+    private static final Comparator<Task> SORT_BY_PRIO_AND_DATE = Comparator.comparing(Task::getPriority).thenComparing(Task::getExpiry);
+    private Comparator<Task> currentSorter = SORT_BY_COMPLETED_AND_NAME;
     public enum ProcessingState {DB_INIT_CONNECT_FAIL, RUNNING_LONG, RUNNING, DONE}
     private final MutableLiveData<ProcessingState> processingState = new MutableLiveData<>();
     private final ExecutorService executorService = Executors.newFixedThreadPool(4);
 
-    public TaskListViewModel() {
-    }
+    public TaskListViewModel() {}
 
     public void setTaskDbOperation(ITaskDatabaseOperation taskDbOperation) {
         this.taskDbOperation = taskDbOperation;
@@ -50,6 +50,10 @@ public class TaskListViewModel extends ViewModel {
         return processingState;
     }
 
+    public void setCurrentSorter(Comparator<Task> currentSorter) {
+        this.currentSorter = currentSorter;
+    }
+
     public void createTask(Task taskFromDetailView, Context ctxForLocalDB) {
         processingState.setValue(ProcessingState.RUNNING);
         new Thread(() -> {
@@ -63,7 +67,7 @@ public class TaskListViewModel extends ViewModel {
                 this.setTaskDbOperation(new LocalTaskDatabaseOperation(ctxForLocalDB));
             }
             getTaskList().add(createdTask);
-            doSortItems();
+            doSort();
             processingState.postValue(ProcessingState.DONE);
         }).start();
     }
@@ -77,7 +81,7 @@ public class TaskListViewModel extends ViewModel {
                     replaceAllTasks(tasks, ctxForLocalDB);
                 }
                 getTaskList().addAll(tasks);
-                doSortItems();
+                doSort();
                 processingState.postValue(ProcessingState.DONE);
             } catch (Exception e) {
                 processingState.postValue(ProcessingState.DB_INIT_CONNECT_FAIL);
@@ -109,7 +113,7 @@ public class TaskListViewModel extends ViewModel {
                 selectedTask.setCompleted(taskFromDetailView.isCompleted());
                 selectedTask.setFavorite(taskFromDetailView.isFavorite());
                 selectedTask.setPriority(taskFromDetailView.getPriority());
-                doSortItems();
+                doSort();
                 processingState.postValue(ProcessingState.DONE);
             }
         });
@@ -180,15 +184,21 @@ public class TaskListViewModel extends ViewModel {
         return dateTime.split(" ")[0];
     }
 
-    public void sortItems() {
+    public void sortTasks() {
         processingState.setValue(ProcessingState.RUNNING);
-        // getTaskList().sort(currentSorter);
-        doSortItems();
+        doSort();
         processingState.postValue(ProcessingState.DONE);
     }
 
-    private void doSortItems() {
+    private void doSort() {
         getTaskList().sort(currentSorter);
+    }
+
+    public void sortTasksByPrioAndDate() {
+        processingState.setValue(ProcessingState.RUNNING);
+        this.setCurrentSorter(SORT_BY_PRIO_AND_DATE);
+        doSort();
+        processingState.postValue(ProcessingState.DONE);
     }
 
     /**
