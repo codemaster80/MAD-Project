@@ -8,4 +8,5 @@
     <color name="colorTaskPrioNormal">#82D38A</color>
     <color name="colorTaskPrioLow">#7AB5C7</color>
     <color name="colorTaskPrioNone">#BABABA</color>
+    <color name="colorExpiredDate">#C31220</color>
 </resources>

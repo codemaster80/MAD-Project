@@ -2,6 +2,7 @@ package org.dieschnittstelle.mobile.android.skeleton;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -10,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -119,7 +121,6 @@ public class TaskListViewActivity extends AppCompatActivity {
                 if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_OK) {
                     Task taskFromDetailView = (Task) activityResult.getData().getSerializableExtra(TaskDetailViewActivity.TASK_DETAIL_VIEW_KEY);
                     viewModel.updateTask(taskFromDetailView, this);
-
                     taskListViewAdapter.notifyDataSetChanged();
                     showMessage(getString(R.string.task_updated_feedback_message) + " " + taskFromDetailView.getName());
                 } else if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_DELETE_OK) {
@@ -188,18 +189,28 @@ public class TaskListViewActivity extends AppCompatActivity {
                         false
                 );
                 taskView = taskViewBinding.getRoot();
-                taskView.setBackgroundResource(taskFromList.getPriority().resourceId);
                 taskView.setTag(taskViewBinding);
                 taskViewBinding.setTaskListViewModel(viewModel);
 
                 // recyclableTaskView exist, then reuse and access it with binding object
             } else {
                 taskView = recyclableTaskView;
-                taskView.setBackgroundResource(taskFromList.getPriority().resourceId);
                 taskViewBinding = (StructuredTaskViewBinding) taskView.getTag();
             }
+            taskView.setBackgroundResource(taskFromList.getPriority().resourceId);
+            TextView dueDateView = taskView.findViewById(R.id.taskDate);
+            setDueDateColor(taskFromList.getExpiry(), dueDateView);
             taskViewBinding.setTask(taskFromList);
             return taskView;
+        }
+    }
+
+    private void setDueDateColor(Long expiry, TextView dueDateView) {
+        final String defaultTextViewColor = "#808080";
+        if (viewModel.isExpiredDate(expiry)) {
+            dueDateView.setTextColor(getResources().getColor(R.color.colorExpiredDate, null));
+        } else {
+            dueDateView.setTextColor(Color.parseColor(defaultTextViewColor));
         }
     }
 }

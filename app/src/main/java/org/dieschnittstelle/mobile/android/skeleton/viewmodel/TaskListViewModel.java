@@ -12,6 +12,7 @@ import org.dieschnittstelle.mobile.android.skeleton.model.Task;
 import org.dieschnittstelle.mobile.android.skeleton.util.DateConverter;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -184,8 +185,13 @@ public class TaskListViewModel extends ViewModel {
         return dateTime.split(" ")[0];
     }
 
+    public boolean isExpiredDate(Long expiry) {
+        return expiry != null && expiry <= DateConverter.fromDate(Calendar.getInstance().getTime());
+    }
+
     public void sortTasks() {
         processingState.setValue(ProcessingState.RUNNING);
+        this.setCurrentSorter(SORT_BY_COMPLETED_AND_NAME);
         doSort();
         processingState.postValue(ProcessingState.DONE);
     }
