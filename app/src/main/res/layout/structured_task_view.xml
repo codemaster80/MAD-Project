@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
     <data>
         <variable
             name="task"
@@ -10,66 +9,69 @@
             type="org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskListViewModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <TableLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_margin="15dp">
 
-        <TextView
-            android:id="@+id/taskName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:text="@={task.name}"
-            android:textSize="25sp"
-            android:layout_marginEnd="@dimen/cardview_default_radius"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="@id/taskCompleted"
-            app:layout_constraintEnd_toStartOf="@id/taskDate"
-            app:layout_constraintTop_toTopOf="parent">
-        </TextView>
+        <TableRow>
+            <TextView
+                android:id="@+id/taskName"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_column="1"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:text="@={task.name}"
+                android:textColor="#000000"
+                android:textSize="25sp" />
+        </TableRow>
 
-        <TextView
-            android:id="@+id/taskDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@{taskListViewModel.toDueDateString(task.expiry)}"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:layout_marginStart="@dimen/cardview_default_radius"
-            android:layout_marginEnd="@dimen/cardview_default_radius"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/taskFavorite"
-            app:layout_constraintTop_toTopOf="parent" />
+        <TableRow>
+            <Spinner
+                android:id="@+id/dropdownPriority"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
+                android:layout_marginStart="10dp"
+                android:background="@android:drawable/btn_dropdown"
+                android:minWidth="100dp"
+                android:textSize="15sp" />
 
-        <CheckBox
-            android:id="@+id/taskFavorite"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/cardview_default_radius"
-            android:checked="@={task.favorite}"
-            android:focusable="false"
-            android:onClick="@{() -> taskListViewModel.updateTask(task, context)}"
-            android:text="@string/checkbox_favorite"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/taskCompleted"
-            app:layout_constraintHeight="50dp"
-            app:layout_constraintHorizontal_bias="0.95"
-            app:layout_constraintStart_toStartOf="@+id/taskDate"
-            app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/taskDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="2"
+                android:layout_marginStart="15dp"
+                android:text="@{taskListViewModel.toDueDateString(task.expiry)}"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </TableRow>
 
-        <CheckBox
-            android:id="@+id/taskCompleted"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/cardview_default_radius"
-            android:checked="@={task.completed}"
-            android:focusable="false"
-            android:onClick="@{() -> taskListViewModel.updateTask(task, context)}"
-            android:text="@string/checkbox_done"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintHeight="50dp"
-            app:layout_constraintRight_toRightOf="@+id/taskName"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <TableRow
+            android:layout_marginBottom="5dp"
+            android:gravity="end">
+            <CheckBox
+                android:id="@+id/taskFavorite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="2"
+                android:checked="@={task.favorite}"
+                android:focusable="false"
+                android:onClick="@{() -> taskListViewModel.updateTask(task, context)}"
+                android:text="@string/checkbox_favorite" />
+            <CheckBox
+                android:id="@+id/taskCompleted"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="3"
+                android:layout_marginEnd="20dp"
+                android:checked="@={task.completed}"
+                android:focusable="false"
+                android:onClick="@{() -> taskListViewModel.updateTask(task, context)}"
+                android:text="@string/checkbox_done" />
+        </TableRow>
+    </TableLayout>
 </layout>
