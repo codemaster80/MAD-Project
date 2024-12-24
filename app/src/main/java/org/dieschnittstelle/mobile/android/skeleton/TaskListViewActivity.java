@@ -8,9 +8,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -30,7 +32,9 @@ import org.dieschnittstelle.mobile.android.skeleton.model.LocalTaskDatabaseOpera
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
 import org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskListViewModel;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TaskListViewActivity extends AppCompatActivity {
     private ListView taskListView;
@@ -52,11 +56,6 @@ public class TaskListViewActivity extends AppCompatActivity {
 
         taskListViewAdapter = new TaskListAdapter(this, R.layout.structured_task_view, viewModel.getTaskList());
         taskListView.setAdapter(taskListViewAdapter);
-
-        taskListView.setOnItemClickListener((parent, view, position, id) -> {
-            Task selectedTask = taskListViewAdapter.getItem(position);
-            showEditTaskDetailView(selectedTask);
-        });
 
         addTaskAction = findViewById(R.id.addTaskAction);
         addTaskAction.setOnClickListener(view -> this.showNewTaskDetailView());
@@ -200,17 +199,54 @@ public class TaskListViewActivity extends AppCompatActivity {
             taskView.setBackgroundResource(taskFromList.getPriority().resourceId);
             TextView dueDateView = taskView.findViewById(R.id.taskDate);
             setDueDateColor(taskFromList.getExpiry(), dueDateView);
+            Spinner prioritySpinner = taskView.findViewById(R.id.dropdownPriority);
+            setPriorityDropDown(taskFromList, prioritySpinner, taskView);
             taskViewBinding.setTask(taskFromList);
+
+            taskView.setOnClickListener(v -> {
+                Task selectedTask = taskListViewAdapter.getItem(position);
+                showEditTaskDetailView(selectedTask);
+            });
+
             return taskView;
         }
     }
 
     private void setDueDateColor(Long expiry, TextView dueDateView) {
-        final String defaultTextViewColor = "#808080";
-        if (viewModel.isExpiredDate(expiry)) {
-            dueDateView.setTextColor(getResources().getColor(R.color.colorExpiredDate, null));
-        } else {
-            dueDateView.setTextColor(Color.parseColor(defaultTextViewColor));
+        int color = viewModel.isExpiredDate(expiry)
+                ? Color.RED
+                : Color.BLACK;
+
+        dueDateView.setTextColor(color);
+    }
+
+    private void setPriorityDropDown(Task taskFromList, Spinner prioritySpinner, View taskView) {
+        List<String> priorities = Arrays.asList(
+                Task.Priority.NONE.name(),
+                Task.Priority.LOW.name(),
+                Task.Priority.NORMAL.name(),
+                Task.Priority.HIGH.name(),
+                Task.Priority.CRITICAL.name()
+        );
+        if (!taskFromList.getPriority().equals(Task.Priority.NONE)) {
+            priorities.set(0, taskFromList.getPriority().name());
+            priorities = priorities.stream().distinct().collect(Collectors.toList());
         }
+        ArrayAdapter<String> dropDownPriorityAdapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item, priorities);
+        dropDownPriorityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        prioritySpinner.setAdapter(dropDownPriorityAdapter);
+        prioritySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
+                String selectedPriority = prioritySpinner.getSelectedItem().toString();
+                taskFromList.setPriority(Task.Priority.valueOf(selectedPriority));
+                taskView.setBackgroundResource(taskFromList.getPriority().resourceId);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+            }
+        });
     }
 }
