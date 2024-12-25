@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -11,7 +12,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 public class MainActivity extends AppCompatActivity {
 
     private TextView welcomeText;
-    private FloatingActionButton showTaskListAction;
+    private Button showTaskListAction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         welcomeText.setText(R.string.welcome_message);
         welcomeText.setOnClickListener(view -> this.showTaskListView());
 
-        showTaskListAction = findViewById(R.id.showTaskListAction);
+        showTaskListAction = findViewById(R.id.loginButton);
         showTaskListAction.setOnClickListener(view -> this.showTaskListView());
     }
 

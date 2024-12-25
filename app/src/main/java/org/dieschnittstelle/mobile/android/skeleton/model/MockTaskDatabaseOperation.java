@@ -68,4 +68,9 @@ public class MockTaskDatabaseOperation implements ITaskDatabaseOperation {
         tasks.removeIf(existingTask -> existingTask.getId() == (id));
         return true;
     }
+
+    @Override
+    public boolean authenticateUser(User user) {
+        return true;
+    }
 }

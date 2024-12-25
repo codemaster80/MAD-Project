@@ -33,6 +33,9 @@ public class RemoteTaskDatabaseOperation implements ITaskDatabaseOperation {
 
         @DELETE("/api/todos/{todoId}")
         Call<Boolean> deleteTask(@Path("todoId") long id);
+
+        @PUT("/api/users/auth")
+        Call<Task> authenticateUser(@Body User user);
     }
 
     private final ToDoRESTWebAPI toDoRESTWebAPI;
@@ -97,6 +100,15 @@ public class RemoteTaskDatabaseOperation implements ITaskDatabaseOperation {
     public boolean deleteTask(long id) {
         try {
             return Boolean.TRUE.equals(toDoRESTWebAPI.deleteTask(id).execute().body());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean authenticateUser(User user) {
+        try {
+            return Boolean.TRUE.equals(toDoRESTWebAPI.authenticateUser(user).execute().body());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
