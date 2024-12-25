@@ -21,159 +21,163 @@ import java.util.concurrent.Executors;
 public class TaskListViewModel extends ViewModel {
     private ITaskDatabaseOperation taskDbOperation;
     private final List<Task> taskList = new ArrayList<>();
-    private boolean initialised;
     private static final Comparator<Task> SORT_BY_COMPLETED_AND_NAME = Comparator.comparing(Task::isCompleted).thenComparing(Task::getName);
-    private static final Comparator<Task> SORT_BY_PRIO_AND_DATE = Comparator.comparing(Task::getPriority).thenComparing(Task::getExpiry);
+    private static final Comparator<Task> SORT_BY_PRIO_AND_DATE = Comparator.comparing(Task::getPriority).thenComparing(task -> task.getExpiry() != null);
     private Comparator<Task> currentSorter = SORT_BY_COMPLETED_AND_NAME;
-    public enum ProcessingState {DB_INIT_CONNECT_FAIL, RUNNING_LONG, RUNNING, DONE}
+    public enum ProcessingState {
+        CREATE_FAIL,
+        READ_FAIL,
+        UPDATE_REMOTE_FAIL,
+        UPDATE_LOCAL_FAIL,
+        DELETE_REMOTE_FAIL,
+        DELETE_LOCAL_FAIL,
+        CONNECT_REMOTE_FAIL,
+        RUNNING_LONG,
+        RUNNING,
+        DONE,
+    }
+
     private final MutableLiveData<ProcessingState> processingState = new MutableLiveData<>();
     private final ExecutorService executorService = Executors.newFixedThreadPool(4);
+    private Context applicationContext;
+    private LocalTaskDatabaseOperation localDatabase;
+    private RemoteTaskDatabaseOperation remoteDatabase;
 
-    public TaskListViewModel() {}
-
-    public void setTaskDbOperation(ITaskDatabaseOperation taskDbOperation) {
-        this.taskDbOperation = taskDbOperation;
+    public void setTaskDbOperation(ITaskDatabaseOperation dbOp) {
+        taskDbOperation = dbOp;
     }
 
     public List<Task> getTaskList() {
         return taskList;
     }
 
-    public boolean isInitialised() {
-        return initialised;
-    }
-
-    public void setInitialised(boolean initialised) {
-        this.initialised = initialised;
+    public void initializeDb() {
+        localDatabase = new LocalTaskDatabaseOperation(this.applicationContext);
+        remoteDatabase = new RemoteTaskDatabaseOperation();
     }
 
     public MutableLiveData<ProcessingState> getProcessingState() {
         return processingState;
     }
 
-    public void setCurrentSorter(Comparator<Task> currentSorter) {
-        this.currentSorter = currentSorter;
+    public void setCurrentSorter(Comparator<Task> sorter) {
+        currentSorter = sorter;
     }
 
-    public void createTask(Task taskFromDetailView, Context ctxForLocalDB) {
-        processingState.setValue(ProcessingState.RUNNING);
-        new Thread(() -> {
-            Task createdTask = taskDbOperation.createTask(taskFromDetailView);
-            // also create task on remote DB
-            if (taskDbOperation instanceof LocalTaskDatabaseOperation) {
-                try {
-                    this.setTaskDbOperation(new RemoteTaskDatabaseOperation());
-                } catch (Exception ignored) {}
-                taskDbOperation.createTask(createdTask);
-                this.setTaskDbOperation(new LocalTaskDatabaseOperation(ctxForLocalDB));
-            }
-            getTaskList().add(createdTask);
-            doSort();
-            processingState.postValue(ProcessingState.DONE);
-        }).start();
-    }
-
-    public void readAllTasks(Context ctxForLocalDB) {
+    public void createTask(Task taskFromDetailView) {
         processingState.setValue(ProcessingState.RUNNING_LONG);
-        new Thread(() -> {
+
+        executorService.execute(() -> {
             try {
-                List<Task> tasks = taskDbOperation.readAllTasks();
-                if (taskDbOperation instanceof RemoteTaskDatabaseOperation) {
-                    replaceAllTasks(tasks, ctxForLocalDB);
-                }
-                getTaskList().addAll(tasks);
-                doSort();
-                processingState.postValue(ProcessingState.DONE);
+                taskList.add(localDatabase.createTask(taskFromDetailView));
+                taskList.sort(currentSorter);
+                remoteDatabase.createTask(taskFromDetailView);
             } catch (Exception e) {
-                processingState.postValue(ProcessingState.DB_INIT_CONNECT_FAIL);
+                // assuming local always successful
+                processingState.postValue(ProcessingState.CREATE_FAIL);
+                return;
             }
-        }).start();
+
+            processingState.postValue(ProcessingState.DONE);
+        });
     }
 
-    public void updateTask(Task taskFromDetailView, Context ctxForLocalDB) {
+    public void readAllTasks() {
         processingState.setValue(ProcessingState.RUNNING_LONG);
+
         executorService.execute(() -> {
-            boolean isUpdated = taskDbOperation.updateTask(taskFromDetailView);
+            try {
+                // reading from initialised db
+                taskList.addAll(taskDbOperation.readAllTasks());
+                taskList.sort(currentSorter);
+
+            } catch (Exception e) {
+                processingState.postValue(ProcessingState.READ_FAIL);
+                return;
+            }
+
+            processingState.postValue(ProcessingState.DONE);
+        });
+    }
+
+    public void updateTask(Task task) {
+        processingState.setValue(ProcessingState.RUNNING_LONG);
+
+        executorService.execute(() -> {
+            boolean isUpdated = localDatabase.updateTask(task);
             if (isUpdated) {
-                Task selectedTask = getTaskList().stream()
-                        .filter(task -> task.getId() == (taskFromDetailView.getId()))
-                        .findAny()
-                        .orElse(new Task());
 
-                // also update task on remote DB
-                if (taskDbOperation instanceof LocalTaskDatabaseOperation) {
-                    try {
-                        this.setTaskDbOperation(new RemoteTaskDatabaseOperation());
-                    } catch (Exception ignored) {}
-                    taskDbOperation.updateTask(selectedTask);
-                    this.setTaskDbOperation(new LocalTaskDatabaseOperation(ctxForLocalDB));
+                // update the tasklist with new task
+                taskList.removeIf(t -> t.getId() == task.getId());
+                taskList.add(task);
+                taskList.sort(currentSorter);
+
+                // update the remote db with updated task
+                try {
+                    remoteDatabase.updateTask(task);
+                } catch(Exception e) {
+                    processingState.postValue(ProcessingState.UPDATE_REMOTE_FAIL);
+                    return;
                 }
-                selectedTask.setName(taskFromDetailView.getName());
-                selectedTask.setDescription(taskFromDetailView.getDescription());
-                selectedTask.setExpiry(taskFromDetailView.getExpiry());
-                selectedTask.setCompleted(taskFromDetailView.isCompleted());
-                selectedTask.setFavorite(taskFromDetailView.isFavorite());
-                selectedTask.setPriority(taskFromDetailView.getPriority());
-                doSort();
+
                 processingState.postValue(ProcessingState.DONE);
+
+            } else {
+                processingState.postValue(ProcessingState.UPDATE_LOCAL_FAIL);
             }
         });
     }
 
-    public void deleteTask(long id, Context ctxForLocalDB) {
-        processingState.setValue(ProcessingState.RUNNING);
+    public void deleteTask(long id) {
+        processingState.setValue(ProcessingState.RUNNING_LONG);
+
         executorService.execute(() -> {
-            Task task = new Task();
-            task.setId(id);
-            boolean isDeleted = taskDbOperation.deleteTask(id);
+
+            boolean isDeleted = localDatabase.deleteTask(id);
             if (isDeleted) {
-                // also delete task on remote DB
-                if (taskDbOperation instanceof LocalTaskDatabaseOperation) {
-                    try {
-                        this.setTaskDbOperation(new RemoteTaskDatabaseOperation());
-                    } catch (Exception ignored) {}
-                    taskDbOperation.deleteTask(id);
-                    this.setTaskDbOperation(new LocalTaskDatabaseOperation(ctxForLocalDB));
+                taskList.removeIf(t -> t.getId() == id);
+
+                try {
+                    remoteDatabase.deleteTask(id);
+                } catch (Exception ignored) {
+                    processingState.postValue(ProcessingState.DELETE_REMOTE_FAIL);
+                    return;
                 }
-                getTaskList().remove(task);
+
                 processingState.postValue(ProcessingState.DONE);
+
+            } else {
+                processingState.postValue(ProcessingState.DELETE_LOCAL_FAIL);
+
             }
         });
     }
 
-    public void deleteAllTasksFromLocal(Context ctxForLocalDB) {
-        processingState.setValue(ProcessingState.RUNNING);
+    public void deleteAllTasksFromLocal() {
+        processingState.setValue(ProcessingState.RUNNING_LONG);
+
         executorService.execute(() -> {
-            boolean isDeleted = false;
-            if (taskDbOperation instanceof RemoteTaskDatabaseOperation) {
-                this.setTaskDbOperation(new LocalTaskDatabaseOperation(ctxForLocalDB));
-                isDeleted = taskDbOperation.deleteAllTasks();
-                this.setTaskDbOperation(new RemoteTaskDatabaseOperation());
-            } else if (taskDbOperation instanceof LocalTaskDatabaseOperation) {
-                isDeleted = taskDbOperation.deleteAllTasks();
+
+            boolean isSuccess = localDatabase.deleteAllTasks();
+            if (isSuccess && taskDbOperation instanceof LocalTaskDatabaseOperation) {
+                taskList.clear();
             }
-            if (isDeleted) {
-                getTaskList().clear();
-                processingState.postValue(ProcessingState.DONE);
-            }
+
+            processingState.postValue(isSuccess ? ProcessingState.DONE : ProcessingState.DELETE_LOCAL_FAIL);
         });
     }
 
-    public void deleteAllTasksFromRemote(Context ctxForLocalDB) {
-        processingState.setValue(ProcessingState.RUNNING);
+    public void deleteAllTasksFromRemote() {
+        processingState.setValue(ProcessingState.RUNNING_LONG);
+
         executorService.execute(() -> {
-            boolean isDeleted = false;
-            if (taskDbOperation instanceof LocalTaskDatabaseOperation) {
-                this.setTaskDbOperation(new RemoteTaskDatabaseOperation());
-                isDeleted = taskDbOperation.deleteAllTasks();
-                this.setTaskDbOperation(new LocalTaskDatabaseOperation(ctxForLocalDB));
-            } else if (taskDbOperation instanceof RemoteTaskDatabaseOperation) {
-                isDeleted = taskDbOperation.deleteAllTasks();
+
+            boolean isSuccess = remoteDatabase.deleteAllTasks();
+            if (isSuccess && taskDbOperation instanceof RemoteTaskDatabaseOperation) {
+                taskList.clear();
             }
-            if (isDeleted) {
-                getTaskList().clear();
-                processingState.postValue(ProcessingState.DONE);
-            }
+
+            processingState.postValue(isSuccess ? ProcessingState.DONE : ProcessingState.DELETE_REMOTE_FAIL);
         });
     }
 
@@ -189,21 +193,17 @@ public class TaskListViewModel extends ViewModel {
         return expiry != null && expiry <= DateConverter.fromDate(Calendar.getInstance().getTime());
     }
 
-    public void sortTasks() {
+    public void sortTasksByCompletedAndName() {
         processingState.setValue(ProcessingState.RUNNING);
-        this.setCurrentSorter(SORT_BY_COMPLETED_AND_NAME);
-        doSort();
+        setCurrentSorter(SORT_BY_COMPLETED_AND_NAME);
+        taskList.sort(currentSorter);
         processingState.postValue(ProcessingState.DONE);
-    }
-
-    private void doSort() {
-        getTaskList().sort(currentSorter);
     }
 
     public void sortTasksByPrioAndDate() {
         processingState.setValue(ProcessingState.RUNNING);
-        this.setCurrentSorter(SORT_BY_PRIO_AND_DATE);
-        doSort();
+        setCurrentSorter(SORT_BY_PRIO_AND_DATE);
+        taskList.sort(currentSorter);
         processingState.postValue(ProcessingState.DONE);
     }
 
@@ -211,20 +211,42 @@ public class TaskListViewModel extends ViewModel {
      * Compare tasks between remote DB and local DB
      * if there are no local tasks, all tasks are transmitted from remote to local DB.
      * if there are local tasks, then all tasks on remote DB are deleted and local tasks are transferred to remote DB.
-     *
-     * @param tasksFromRemoteDB List of tasks from remote DB
-     * @param ctxForLocalDB Application context for local DB creation
      */
-    public void replaceAllTasks(List<Task> tasksFromRemoteDB, Context ctxForLocalDB) {
-        this.setTaskDbOperation(new LocalTaskDatabaseOperation(ctxForLocalDB));
-        List<Task> localTasks = taskDbOperation.readAllTasks();
-        if (localTasks.isEmpty()) {
-            tasksFromRemoteDB.forEach(remoteTask -> taskDbOperation.createTask(remoteTask));
-            this.setTaskDbOperation(new RemoteTaskDatabaseOperation());
-        } else {
-            this.setTaskDbOperation(new RemoteTaskDatabaseOperation());
-            taskDbOperation.deleteAllTasks();
-            localTasks.forEach(localTask -> taskDbOperation.createTask(localTask));
+    public void synchronizeDb() {
+        try {
+            List<Task> localTasks = localDatabase.readAllTasks();
+            List<Task> remoteTasks = remoteDatabase.readAllTasks();
+
+            // synchronize logic
+            if (localTasks.isEmpty()) {
+                remoteTasks.forEach(task -> localDatabase.createTask(task));
+            } else {
+                remoteDatabase.deleteAllTasks();
+                localTasks.forEach(localTask -> remoteDatabase.createTask(localTask));
+            }
+
+            // update the model tasklist
+            taskList.addAll(localTasks.isEmpty() ? remoteTasks : localTasks);
+            taskList.sort(currentSorter);
+            processingState.postValue(ProcessingState.DONE);
+
+        } catch (Exception e) {
+            processingState.postValue(ProcessingState.CONNECT_REMOTE_FAIL);
         }
+    }
+
+    public void setContext(Context ctx)
+    {
+        applicationContext = ctx;
+    }
+
+    public void setLocalTaskDatabaseOperation()
+    {
+        taskDbOperation = localDatabase;
+    }
+
+    public void setRemoteTaskDatabaseOperation()
+    {
+        taskDbOperation = remoteDatabase;
     }
 }

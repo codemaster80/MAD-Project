@@ -27,8 +27,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.dieschnittstelle.mobile.android.skeleton.databinding.StructuredTaskViewBinding;
-import org.dieschnittstelle.mobile.android.skeleton.model.ITaskDatabaseOperation;
-import org.dieschnittstelle.mobile.android.skeleton.model.LocalTaskDatabaseOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
 import org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskListViewModel;
 
@@ -38,7 +36,6 @@ import java.util.stream.Collectors;
 
 public class TaskListViewActivity extends AppCompatActivity {
     private ListView taskListView;
-    private ITaskDatabaseOperation taskDbOperation;
     private ArrayAdapter<Task> taskListViewAdapter;
     private FloatingActionButton addTaskAction;
     private ProgressBar progressBar;
@@ -48,24 +45,22 @@ public class TaskListViewActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_list_view);
-        viewModel = new ViewModelProvider(this).get(TaskListViewModel.class);
 
-        taskListView = findViewById(R.id.taskListView);
-        taskDbOperation = ((TaskApplication) getApplication()).getTaskDatabaseOperation();
-        viewModel.setTaskDbOperation(taskDbOperation);
+        viewModel = new ViewModelProvider(this).get(TaskListViewModel.class);
+        viewModel.setContext(this.getApplicationContext());
+        viewModel.setTaskDbOperation(((TaskApplication) getApplication()).getTaskDatabaseOperation());
+        viewModel.getProcessingState().observe(this, this::handleTaskProcessingState);
+        viewModel.initializeDb();
+        viewModel.synchronizeDb();
 
         taskListViewAdapter = new TaskListAdapter(this, R.layout.structured_task_view, viewModel.getTaskList());
+        taskListView = findViewById(R.id.taskListView);
         taskListView.setAdapter(taskListViewAdapter);
 
         addTaskAction = findViewById(R.id.addTaskAction);
         addTaskAction.setOnClickListener(view -> this.showNewTaskDetailView());
 
         progressBar = findViewById(R.id.progressBar);
-
-        if (!viewModel.isInitialised()) {
-            viewModel.readAllTasks(this);
-        }
-        viewModel.getProcessingState().observe(this, this::handleTaskProcessingState);
     }
 
     @Override
@@ -78,28 +73,34 @@ public class TaskListViewActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.sortTasks) {
             showMessage("Sorting all done missions...");
-            this.viewModel.sortTasks();
+            this.viewModel.sortTasksByCompletedAndName();
             return true;
         }
+
         if (item.getItemId() == R.id.sortTasksByPrio) {
             showMessage("Sorting all missions by priority...");
             this.viewModel.sortTasksByPrioAndDate();
             return true;
         }
+
         if (item.getItemId() == R.id.deleteAllLocalTasks) {
             showMessage("Deleting all missions from local database...");
-            this.viewModel.deleteAllTasksFromLocal(this);
+            this.viewModel.deleteAllTasksFromLocal();
             return true;
         }
+
         if (item.getItemId() == R.id.deleteAllRemoteTasks) {
             showMessage("Deleting all missions from remote database...");
-            this.viewModel.deleteAllTasksFromRemote(this);
+            this.viewModel.deleteAllTasksFromRemote();
             return true;
         }
+
         if (item.getItemId() == R.id.syncLocalRemoteDB) {
             showMessage("Syncing all missions between database...");
-            this.viewModel.readAllTasks(this);
+            viewModel.synchronizeDb();
+            return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -119,12 +120,12 @@ public class TaskListViewActivity extends AppCompatActivity {
             activityResult -> {
                 if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_OK) {
                     Task taskFromDetailView = (Task) activityResult.getData().getSerializableExtra(TaskDetailViewActivity.TASK_DETAIL_VIEW_KEY);
-                    viewModel.updateTask(taskFromDetailView, this);
+                    viewModel.updateTask(taskFromDetailView);
                     taskListViewAdapter.notifyDataSetChanged();
                     showMessage(getString(R.string.task_updated_feedback_message) + " " + taskFromDetailView.getName());
                 } else if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_DELETE_OK) {
                     Task taskFromDetailView = (Task) activityResult.getData().getSerializableExtra(TaskDetailViewActivity.TASK_DETAIL_VIEW_KEY);
-                    viewModel.deleteTask(taskFromDetailView.getId(), this);
+                    viewModel.deleteTask(taskFromDetailView.getId());
                     showMessage(getString(R.string.task_deleted_feedback_message) + " " + taskFromDetailView.getName());
                 }
             }
@@ -135,7 +136,7 @@ public class TaskListViewActivity extends AppCompatActivity {
             activityResult -> {
                 if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_OK) {
                     Task taskFromDetailView = (Task) activityResult.getData().getSerializableExtra(TaskDetailViewActivity.TASK_DETAIL_VIEW_KEY);
-                    viewModel.createTask(taskFromDetailView, this);
+                    viewModel.createTask(taskFromDetailView);
                     showMessage(getString(R.string.task_added_feedback_message) + " " + taskFromDetailView.getName());
                 }
             }
@@ -143,22 +144,46 @@ public class TaskListViewActivity extends AppCompatActivity {
 
     private void handleTaskProcessingState(TaskListViewModel.ProcessingState processingState) {
         switch (processingState) {
+            case CREATE_FAIL:
+                progressBar.setVisibility(View.GONE);
+                taskListViewAdapter.notifyDataSetChanged();
+                showMessage(getString(R.string.remote_db_create_fail_message));
+                break;
             case RUNNING_LONG:
                 progressBar.setVisibility(View.VISIBLE);
                 break;
-
             case DONE:
                 progressBar.setVisibility(View.GONE);
                 taskListViewAdapter.notifyDataSetChanged();
                 break;
-
-            case DB_INIT_CONNECT_FAIL:
+            case CONNECT_REMOTE_FAIL:
                 progressBar.setVisibility(View.GONE);
                 showMessage(getString(R.string.task_db_connect_fail_message));
-                ((TaskApplication) getApplication()).setTaskDatabaseOperation(new LocalTaskDatabaseOperation(this));
-                taskDbOperation = ((TaskApplication) getApplication()).getTaskDatabaseOperation();
-                viewModel.setTaskDbOperation(taskDbOperation);
-                viewModel.readAllTasks(this);
+                viewModel.setLocalTaskDatabaseOperation();
+                viewModel.readAllTasks();
+                break;
+            case UPDATE_REMOTE_FAIL:
+                progressBar.setVisibility(View.GONE);
+                //taskListViewAdapter.notifyDataSetChanged();
+                showMessage(getString(R.string.remote_db_update_fail_message));
+                break;
+            case UPDATE_LOCAL_FAIL:
+                progressBar.setVisibility(View.GONE);
+                showMessage(getString(R.string.local_db_update_fail_message));
+                break;
+            case DELETE_REMOTE_FAIL:
+                progressBar.setVisibility(View.GONE);
+                taskListViewAdapter.notifyDataSetChanged();
+                showMessage(getString(R.string.remote_db_delete_fail_message));
+                break;
+            case DELETE_LOCAL_FAIL:
+                progressBar.setVisibility(View.GONE);
+                showMessage(getString(R.string.local_db_delete_fail_message));
+                break;
+            case READ_FAIL:
+                progressBar.setVisibility(View.GONE);
+                taskListViewAdapter.notifyDataSetChanged();
+                showMessage(getString(R.string.db_read_fail_message));
                 break;
         }
     }
@@ -196,17 +221,20 @@ public class TaskListViewActivity extends AppCompatActivity {
                 taskView = recyclableTaskView;
                 taskViewBinding = (StructuredTaskViewBinding) taskView.getTag();
             }
-            taskView.setBackgroundResource(taskFromList.getPriority().resourceId);
-            TextView dueDateView = taskView.findViewById(R.id.taskDate);
-            setDueDateColor(taskFromList.getExpiry(), dueDateView);
-            Spinner prioritySpinner = taskView.findViewById(R.id.dropdownPriority);
-            setPriorityDropDown(taskFromList, prioritySpinner, taskView);
+
             taskViewBinding.setTask(taskFromList);
 
+            taskView.setBackgroundResource(taskFromList.getPriority().resourceId);
             taskView.setOnClickListener(v -> {
                 Task selectedTask = taskListViewAdapter.getItem(position);
                 showEditTaskDetailView(selectedTask);
             });
+
+            TextView dueDateView = taskView.findViewById(R.id.taskDate);
+            setDueDateColor(taskFromList.getExpiry(), dueDateView);
+
+            Spinner prioritySpinner = taskView.findViewById(R.id.dropdownPriority);
+            setPriorityDropDown(taskFromList, prioritySpinner, taskView);
 
             return taskView;
         }
@@ -215,7 +243,7 @@ public class TaskListViewActivity extends AppCompatActivity {
     private void setDueDateColor(Long expiry, TextView dueDateView) {
         int color = viewModel.isExpiredDate(expiry)
                 ? Color.RED
-                : Color.BLACK;
+                : Color.DKGRAY;
 
         dueDateView.setTextColor(color);
     }
@@ -228,22 +256,30 @@ public class TaskListViewActivity extends AppCompatActivity {
                 Task.Priority.HIGH.name(),
                 Task.Priority.CRITICAL.name()
         );
+
         if (!taskFromList.getPriority().equals(Task.Priority.NONE)) {
             priorities.set(0, taskFromList.getPriority().name());
             priorities = priorities.stream().distinct().collect(Collectors.toList());
         }
+
         ArrayAdapter<String> dropDownPriorityAdapter = new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_spinner_item, priorities);
+
         dropDownPriorityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
         prioritySpinner.setAdapter(dropDownPriorityAdapter);
+        prioritySpinner.setSelection(0, false);
         prioritySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
             @Override
             public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
                 String selectedPriority = prioritySpinner.getSelectedItem().toString();
                 taskFromList.setPriority(Task.Priority.valueOf(selectedPriority));
                 taskView.setBackgroundResource(taskFromList.getPriority().resourceId);
+                viewModel.updateTask(taskFromList);
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> arg0) {
             }
