@@ -1,6 +1,7 @@
 package org.dieschnittstelle.mobile.android.skeleton.model;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.room.Dao;
 import androidx.room.Database;
@@ -95,6 +96,7 @@ public class LocalTaskDatabaseOperation implements ITaskDatabaseOperation {
 
     @Override
     public boolean authenticateUser(User user) {
+        Log.i("Login", "Class: LocalTaskDatabaseOperation Method: authenticateUser");
         return true;
     }
 }

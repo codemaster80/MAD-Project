@@ -1,5 +1,7 @@
 package org.dieschnittstelle.mobile.android.skeleton.model;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -108,6 +110,7 @@ public class RemoteTaskDatabaseOperation implements ITaskDatabaseOperation {
     @Override
     public boolean authenticateUser(User user) {
         try {
+            Log.i("Login", "Class: RemoteTaskDatabaseOperation Method: authenticateUser");
             return Boolean.TRUE.equals(toDoRESTWebAPI.authenticateUser(user).execute().body());
         } catch (IOException e) {
             throw new RuntimeException(e);

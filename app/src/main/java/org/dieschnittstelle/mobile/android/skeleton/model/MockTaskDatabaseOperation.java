@@ -1,5 +1,7 @@
 package org.dieschnittstelle.mobile.android.skeleton.model;
 
+import android.util.Log;
+
 import org.dieschnittstelle.mobile.android.skeleton.util.DateConverter;
 
 import java.util.ArrayList;
@@ -71,6 +73,7 @@ public class MockTaskDatabaseOperation implements ITaskDatabaseOperation {
 
     @Override
     public boolean authenticateUser(User user) {
+        Log.i("Login", "Class: MockTaskDatabaseOperation Method: authenticateUser");
         return true;
     }
 }
