@@ -60,7 +60,7 @@
                 android:layout_column="2"
                 android:checked="@={task.favorite}"
                 android:focusable="false"
-                android:onClick="@{() -> taskListViewModel.updateTask(task, context)}"
+                android:onClick="@{() -> taskListViewModel.updateTask(task)}"
                 android:text="@string/checkbox_favorite" />
             <CheckBox
                 android:id="@+id/taskCompleted"
@@ -70,7 +70,7 @@
                 android:layout_marginEnd="20dp"
                 android:checked="@={task.completed}"
                 android:focusable="false"
-                android:onClick="@{() -> taskListViewModel.updateTask(task, context)}"
+                android:onClick="@{() -> taskListViewModel.updateTask(task)}"
                 android:text="@string/checkbox_done" />
         </TableRow>
     </TableLayout>

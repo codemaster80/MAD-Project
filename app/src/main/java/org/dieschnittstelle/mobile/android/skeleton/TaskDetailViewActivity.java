@@ -116,7 +116,7 @@ public class TaskDetailViewActivity extends AppCompatActivity {
             int currentYear, currentMonth, currentDay;
             DatePickerDialog datePickerDialog;
 
-            if (task.getExpiry() == null || task.getExpiry() == 0) {
+            if (task.getExpiry() == 0) {
                 calendar = Calendar.getInstance();
                 currentYear = calendar.get(Calendar.YEAR);
                 currentMonth = calendar.get(Calendar.MONTH);
@@ -154,7 +154,7 @@ public class TaskDetailViewActivity extends AppCompatActivity {
             int currentHour, currentMinute;
             TimePickerDialog timePickerDialog;
 
-            if(task.getExpiry() == null || task.getExpiry() == 0) {
+            if(task.getExpiry() == 0) {
                 calendar = Calendar.getInstance();
                 currentHour = calendar.get(Calendar.HOUR_OF_DAY);
                 currentMinute = calendar.get(Calendar.MINUTE);
