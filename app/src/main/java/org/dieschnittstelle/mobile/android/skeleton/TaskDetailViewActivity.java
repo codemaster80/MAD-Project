@@ -6,12 +6,14 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.view.KeyEvent;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -26,8 +28,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
-
-import com.google.android.material.textfield.TextInputEditText;
 
 import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityTaskDetailViewBinding;
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
@@ -52,6 +52,11 @@ public class TaskDetailViewActivity extends AppCompatActivity {
     private Button pickDateBtn;
     TextView taskTimeTextView;
     private Button pickTimeBtn;
+    private ArrayAdapter<String> selectedContactsAdapter;
+
+    public ArrayAdapter<String> getSelectedContactsAdapter() {
+        return selectedContactsAdapter;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -108,8 +113,9 @@ public class TaskDetailViewActivity extends AppCompatActivity {
 
         // setup listview from selected contacts of the task
         final ListView selectedContacts = findViewById(R.id.selectedContacts);
-        ArrayAdapter<String> selectedContactsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, viewModel.getTask().getContacts());
+        selectedContactsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, viewModel.getTask().getContacts());
         selectedContacts.setAdapter(selectedContactsAdapter);
+        selectedContacts.setOnTouchListener(new OnSwipeTouchListener(this, selectedContacts));
 
         // setup spinner from available contacts
         final Spinner contactsSpinner = findViewById(R.id.contactsDropdown);
@@ -324,4 +330,68 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         return contacts;
     }
 
+    public class OnSwipeTouchListener implements View.OnTouchListener {
+
+        ListView list;
+        private GestureDetector gestureDetector;
+        private Context context;
+
+        public OnSwipeTouchListener(Context ctx, ListView list) {
+            gestureDetector = new GestureDetector(ctx, new GestureListener());
+            context = ctx;
+            this.list = list;
+        }
+
+        public OnSwipeTouchListener() {
+            super();
+        }
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            return gestureDetector.onTouchEvent(event);
+        }
+
+        public void onSwipeRight(int pos) {
+            //Do what you want after swiping left to right
+
+        }
+
+        public void onSwipeLeft(int pos) {
+            viewModel.getTask().getContacts().remove(pos);
+            selectedContactsAdapter.notifyDataSetChanged();
+        }
+
+        private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
+
+            private static final int SWIPE_THRESHOLD = 100;
+            private static final int SWIPE_VELOCITY_THRESHOLD = 100;
+
+            @Override
+            public boolean onDown(MotionEvent e) {
+                return true;
+            }
+
+            private int getPostion(MotionEvent e1) {
+                return list.pointToPosition((int) e1.getX(), (int) e1.getY());
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2,
+                                   float velocityX, float velocityY) {
+                float distanceX = e2.getX() - e1.getX();
+                float distanceY = e2.getY() - e1.getY();
+                if (Math.abs(distanceX) > Math.abs(distanceY)
+                        && Math.abs(distanceX) > SWIPE_THRESHOLD
+                        && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                    if (distanceX > 0)
+                        onSwipeRight(getPostion(e1));
+                    else
+                        onSwipeLeft(getPostion(e1));
+                    return true;
+                }
+                return false;
+            }
+
+        }
+    }
 }
