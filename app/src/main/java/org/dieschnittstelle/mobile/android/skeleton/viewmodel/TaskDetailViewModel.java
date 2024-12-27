@@ -10,17 +10,19 @@ import org.dieschnittstelle.mobile.android.skeleton.util.DateConverter;
 
 public class TaskDetailViewModel extends ViewModel {
     private Task task;
-    private MutableLiveData<Boolean> isTaskOnSave = new MutableLiveData<>(false);
-    private MutableLiveData<Boolean> isTaskOnDelete = new MutableLiveData<>(false);
-    private MutableLiveData<String> nameInputError = new MutableLiveData<>();
+    private String newSelectedContact = "";
+    private final MutableLiveData<Boolean> isTaskOnSave = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> isTaskOnDelete = new MutableLiveData<>(false);
+    private final MutableLiveData<String> nameInputError = new MutableLiveData<>();
 
-    public Task getTask() {
-        return task;
-    }
+    public Task getTask() { return task; }
 
     public void setTask(Task task) {
         this.task = task;
     }
+
+    public String getNewSelectedContact(){ return newSelectedContact; }
+    public void setNewSelectedContact(String newSelectedContact) { this.newSelectedContact = newSelectedContact; }
 
     public void saveTask() {
         isTaskOnSave.setValue(true);
