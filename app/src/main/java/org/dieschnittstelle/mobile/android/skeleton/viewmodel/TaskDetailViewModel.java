@@ -8,17 +8,25 @@ import androidx.lifecycle.ViewModel;
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
 import org.dieschnittstelle.mobile.android.skeleton.util.DateConverter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TaskDetailViewModel extends ViewModel {
     private Task task;
     private String newSelectedContact = "";
     private final MutableLiveData<Boolean> isTaskOnSave = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> isTaskOnDelete = new MutableLiveData<>(false);
     private final MutableLiveData<String> nameInputError = new MutableLiveData<>();
+    private ArrayList<String> availableContacts = new ArrayList<>();
+
+    public ArrayList<String> getAvailableContacts() { return availableContacts; }
+    public void setAvailableContacts(ArrayList<String> availableContacts) { this.availableContacts = availableContacts; }
 
     public Task getTask() { return task; }
 
     public void setTask(Task task) {
         this.task = task;
+        availableContacts.add("Choose a contact...");
     }
 
     public String getNewSelectedContact(){ return newSelectedContact; }
