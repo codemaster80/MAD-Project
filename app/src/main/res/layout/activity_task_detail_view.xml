@@ -127,6 +127,45 @@
             app:layout_constraintTop_toBottomOf="@id/taskCompleted">
         </com.google.android.material.checkbox.MaterialCheckBox>
 
+        <TextView
+            android:id="@+id/titleSelectedContact"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/title_detail_view_selected_contact"
+            app:layout_constraintTop_toBottomOf="@+id/taskFavorite" />
+
+        <Spinner
+            android:id="@+id/contactsDropdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:drawable/btn_dropdown"
+            app:layout_constraintTop_toBottomOf="@+id/titleSelectedContact" />
+
+        <TextView
+            android:id="@+id/textContacts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/contactsDropdown" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/contactsInputEditTextLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/placeholder_detail_view_add_contact_input"
+            android:inputType="text"
+            app:hintEnabled="true"
+            app:layout_constraintTop_toBottomOf="@id/textContacts">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/contactsInputEditText"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:gravity="start"
+                android:lines="5"
+                android:minLines="1"
+                android:text="@={taskDetailViewModel.newSelectedContact}" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/updateTaskAction"
             app:layout_constraintBottom_toBottomOf="parent"
