@@ -1,0 +1,44 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="contact"
+            type="String" />
+        <variable
+            name="taskDetailViewModel"
+            type="org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskDetailViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/contactName"
+            android:text="@{contact}"
+            android:textSize="16sp"
+            android:textColor="@color/colorAccent"
+            android:layout_marginStart="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintHeight="30dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/contactDeleteButton"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="@{() -> taskDetailViewModel.deleteContact(contact)}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/delete_contact_icon_text"
+            android:background="@color/common_google_signin_btn_text_dark"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="@+id/contactName"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/baseline_delete_white_24dp"
+            app:tint="@color/colorAccent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

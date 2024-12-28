@@ -113,6 +113,7 @@
             android:textSize="20sp"
             android:checked="@={taskDetailViewModel.task.completed}"
             android:text="@string/checkbox_done"
+            android:layout_marginTop="15dp"
             app:buttonTint="@color/colorAccent"
             app:layout_constraintTop_toBottomOf="@id/dropdownPriority" />
 
@@ -123,6 +124,7 @@
             android:checked="@={taskDetailViewModel.task.favorite}"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
             app:buttonTint="@color/colorAccent"
             app:layout_constraintTop_toBottomOf="@id/taskCompleted">
         </com.google.android.material.checkbox.MaterialCheckBox>
@@ -131,7 +133,11 @@
             android:id="@+id/titleSelectedContact"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/cardview_default_radius"
+            android:layout_marginTop="15dp"
+            app:layout_constraintHeight="30dp"
             android:text="@string/title_detail_view_available_contact"
+            android:textSize="18sp"
             app:layout_constraintTop_toBottomOf="@+id/taskFavorite" />
 
         <Spinner
@@ -146,7 +152,11 @@
             android:id="@+id/titleSelectedContacts"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/cardview_default_radius"
+            android:layout_marginTop="10dp"
+            app:layout_constraintHeight="40dp"
             android:text="@string/title_detail_view_selected_contact"
+            android:textSize="18sp"
             app:layout_constraintTop_toBottomOf="@+id/contactsDropdown" />
 
         <ListView

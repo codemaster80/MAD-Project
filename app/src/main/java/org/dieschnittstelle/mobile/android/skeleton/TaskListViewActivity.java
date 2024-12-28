@@ -30,6 +30,7 @@ import org.dieschnittstelle.mobile.android.skeleton.databinding.StructuredTaskVi
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
 import org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskListViewModel;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -208,10 +209,10 @@ public class TaskListViewActivity extends AppCompatActivity {
     }
 
     private void setPriorityDropDown(Task task, Spinner prioritySpinner, View taskView) {
-        List<String> priorities = Arrays.asList(Task.Priority.NONE.name(), Task.Priority.LOW.name(), Task.Priority.NORMAL.name(), Task.Priority.HIGH.name(), Task.Priority.CRITICAL.name());
+        List<String> priorities = new ArrayList<>(Arrays.asList(Task.Priority.NONE.name(), Task.Priority.LOW.name(), Task.Priority.NORMAL.name(), Task.Priority.HIGH.name(), Task.Priority.CRITICAL.name()));
 
         if (!task.getPriority().equals(Task.Priority.NONE)) {
-            priorities.set(0, task.getPriority().name());
+            priorities.add(0, task.getPriority().name());
             priorities = priorities.stream().distinct().collect(Collectors.toList());
         }
 
@@ -231,9 +232,9 @@ public class TaskListViewActivity extends AppCompatActivity {
                 // will also be called when the user click on sorts or any other ui components
                 boolean valueChanged = task.getPriority() != Task.Priority.valueOf(prioritySpinner.getSelectedItem().toString());
 
-                // this is necessary because of the automatic itemselection event being triggered
-                // when notifydatasetchanged is called and will create a cyclic loop of updating the
-                // view and retriggering the item select
+                // this is necessary because of the automatic item selection event being triggered
+                // when notifydatasetchanged is called, it will create a cyclic loop of updating the
+                // view and re-triggering the item selection
                 if (userIsInteracting && valueChanged) {
                     userIsInteracting = false;
                     viewModel.updateTask(task);
@@ -269,7 +270,7 @@ public class TaskListViewActivity extends AppCompatActivity {
                 taskView.setTag(taskViewBinding);
                 taskViewBinding.setTaskListViewModel(viewModel);
 
-                // recyclableTaskView exist, then reuse and access it with binding object
+            // recyclableTaskView exist, then reuse and access it with binding object
             } else {
                 taskView = recyclableTaskView;
                 taskViewBinding = (StructuredTaskViewBinding) taskView.getTag();

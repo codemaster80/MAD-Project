@@ -3,17 +3,23 @@ package org.dieschnittstelle.mobile.android.skeleton.util;
 import androidx.room.TypeConverter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-// TODO : Missing proper serialization and deserialization of contact information
 public class StringListConverter {
     @TypeConverter
     public static String fromList(List<String> list) {
-        return "";
+        if (list.isEmpty()) {
+            return "";
+        }
+        return String.join(",", list);
     }
 
     @TypeConverter
     public static List<String> toList(String str) {
-        return new ArrayList<>();
+        if (str.isBlank()) {
+            return new ArrayList<>();
+        }
+        return Arrays.asList(str.split(","));
     }
 }

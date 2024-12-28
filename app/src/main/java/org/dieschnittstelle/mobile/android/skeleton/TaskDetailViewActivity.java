@@ -12,9 +12,8 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -29,7 +28,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityTaskDetailViewBinding;
+import org.dieschnittstelle.mobile.android.skeleton.databinding.ContactItemViewBinding;
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
 import org.dieschnittstelle.mobile.android.skeleton.util.DateConverter;
 import org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskDetailViewModel;
@@ -47,16 +49,11 @@ public class TaskDetailViewActivity extends AppCompatActivity {
     protected static final int RESULT_DELETE_OK = 99;
     private Task task;
     private TaskDetailViewModel viewModel;
-    private Spinner taskPrioritySpinner;
     TextView taskDateTextView;
     private Button pickDateBtn;
     TextView taskTimeTextView;
     private Button pickTimeBtn;
     private ArrayAdapter<String> selectedContactsAdapter;
-
-    public ArrayAdapter<String> getSelectedContactsAdapter() {
-        return selectedContactsAdapter;
-    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -70,7 +67,7 @@ public class TaskDetailViewActivity extends AppCompatActivity {
             }
 
             viewModel.setTask(task);
-            getContactInformations();
+            getContactInformation();
         }
 
         ActivityTaskDetailViewBinding taskDetailViewBinding = DataBindingUtil.setContentView(
@@ -88,15 +85,19 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         taskTimeTextView = findViewById(R.id.taskTime);
         setTimeLimit();
 
-        taskPrioritySpinner = findViewById(R.id.dropdownPriority);
         setPriorityDropDown();
+        setContactDropDown();
 
         this.viewModel.isTaskOnSave().observe(this, onSave -> {
             if (onSave) {
+                if (task.getName() == null || task.getName().isBlank()) {
+                    showMessage("Cannot save mission. Please enter mission name");
+                    return;
+                }
                 String date = (String) pickDateBtn.getText();
                 String time = (String) pickTimeBtn.getText();
                 // DateFormat String 01.01.2025 01:00
-                Long expiryLong = DateConverter.fromDateString(date + " " + time);
+                long expiryLong = DateConverter.fromDateString(date + " " + time);
                 task.setExpiry(expiryLong);
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra(TASK_DETAIL_VIEW_KEY, task);
@@ -111,36 +112,20 @@ public class TaskDetailViewActivity extends AppCompatActivity {
             }
         });
 
-        // setup listview from selected contacts of the task
-        final ListView selectedContacts = findViewById(R.id.selectedContacts);
-        selectedContactsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, viewModel.getTask().getContacts());
-        selectedContacts.setAdapter(selectedContactsAdapter);
-        selectedContacts.setOnTouchListener(new OnSwipeTouchListener(this, selectedContacts));
-
-        // setup spinner from available contacts
-        final Spinner contactsSpinner = findViewById(R.id.contactsDropdown);
-        ArrayAdapter<String> contactAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, viewModel.getAvailableContacts());
-        contactsSpinner.setAdapter(contactAdapter);
-        contactsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                if (position == 0) { return; }
-                String selectedContact = contactsSpinner.getSelectedItem().toString();
-
-                if (viewModel.getTask().getContacts().stream().noneMatch(contact -> Objects.equals(contact, selectedContact))) {
-                    viewModel.getTask().getContacts().add(selectedContact);
-                }
-
-                contactsSpinner.setSelection(0, false);
+        this.viewModel.isContactOnDelete().observe(this, onDelete -> {
+            if (onDelete) {
                 selectedContactsAdapter.notifyDataSetChanged();
             }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
         });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == READ_CONTACTS_REQUEST_CODE && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            setupContactList();
+        }
     }
 
     private void deleteAlertDialog() {
@@ -234,17 +219,19 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         );
     }
 
+    private String to2Digits(int number) {
+        if (number < 10) {
+            return "0" + number;
+        }
+        return String.valueOf(number);
+    }
+
     private void setPriorityDropDown() {
+        final Spinner taskPrioritySpinner = findViewById(R.id.dropdownPriority);
         Task.Priority currentPriority = task.getPriority();
-        List<String> priorities = Arrays.asList(
-                Task.Priority.NONE.name(),
-                Task.Priority.LOW.name(),
-                Task.Priority.NORMAL.name(),
-                Task.Priority.HIGH.name(),
-                Task.Priority.CRITICAL.name()
-        );
+        List<String> priorities = new ArrayList<>(Arrays.asList(Task.Priority.NONE.name(), Task.Priority.LOW.name(), Task.Priority.NORMAL.name(), Task.Priority.HIGH.name(), Task.Priority.CRITICAL.name()));
         if (!currentPriority.equals(Task.Priority.NONE)) {
-            priorities.set(0, currentPriority.name());
+            priorities.add(0, currentPriority.name());
             priorities = priorities.stream().distinct().collect(Collectors.toList());
         }
         ArrayAdapter<String> dropDownPriorityAdapter = new ArrayAdapter<>(
@@ -265,28 +252,10 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         });
     }
 
-    private String to2Digits(int number) {
-        if (number < 10) {
-            return "0" + number;
-        }
-        return String.valueOf(number);
-    }
-
-    private void getContactInformations() {
+    private void getContactInformation() {
         if (getApplicationContext().checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, READ_CONTACTS_REQUEST_CODE);
         } else {
-            setupContactList();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == READ_CONTACTS_REQUEST_CODE &&
-                grantResults.length > 0 &&
-                grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             setupContactList();
         }
     }
@@ -295,103 +264,105 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         viewModel.getAvailableContacts().addAll(queryContacts());
     }
 
+    private void setContactDropDown() {
+        selectedContactsAdapter = new ContactListAdapter(this, R.layout.contact_item_view, viewModel.getTask().getContacts());
+        final ListView selectedContacts = findViewById(R.id.selectedContacts);
+        selectedContacts.setAdapter(selectedContactsAdapter);
+
+        final Spinner contactsSpinner = findViewById(R.id.contactsDropdown);
+        ArrayAdapter<String> contactAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, viewModel.getAvailableContacts());
+        contactsSpinner.setAdapter(contactAdapter);
+        contactsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) { return; }
+                String selectedContact = contactsSpinner.getSelectedItem().toString();
+
+                if (viewModel.getTask().getContacts().stream().noneMatch(contact -> Objects.equals(contact, selectedContact))) {
+                    viewModel.getTask().getContacts().add(selectedContact);
+                }
+
+                contactsSpinner.setSelection(0, false);
+                selectedContactsAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+    }
+
+    private void showMessage(String message) {
+        Snackbar.make(findViewById(R.id.taskDetailViewActivity), message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    // TODO: check if it's supposed to be done by opening Android Contacts app instead of dropdown
+    //suppress warning when column index = -1
     @SuppressLint("Range")
     private ArrayList<String> queryContacts() {
-
         // https://stackoverflow.com/a/12562234
         ArrayList<String> contacts = new ArrayList<>();
 
-        ContentResolver cr = getContentResolver();
-        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+        ContentResolver contentResolver = getContentResolver();
+        Cursor contactCursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+        int numOfRows = contactCursor != null ? contactCursor.getCount() : 0;
 
-        if ((cur != null ? cur.getCount() : 0) > 0) {
-            while (cur.moveToNext()) {
-                String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
-                String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+        if (numOfRows > 0) {
+            while (contactCursor.moveToNext()) {
+                String id = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts._ID));
+                String name = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
 
-                if (cur.getInt(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
-                    Cursor pCur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{id}, null);
-                    while (pCur != null && pCur.moveToNext()) {
-                        String phoneNo = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                if (contactCursor.getInt(contactCursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
+                    Cursor phoneCursor = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{id}, null);
+                    while (phoneCursor != null && phoneCursor.moveToNext()) {
+                        String phoneNo = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                         contacts.add(name);
                     }
 
-                    if (pCur != null) {
-                        pCur.close();
+                    if (phoneCursor != null) {
+                        phoneCursor.close();
                     }
                 }
             }
         }
 
-        if (cur != null) {
-            cur.close();
+        if (contactCursor != null) {
+            contactCursor.close();
         }
 
         return contacts;
     }
 
-    public class OnSwipeTouchListener implements View.OnTouchListener {
-
-        ListView list;
-        private GestureDetector gestureDetector;
-        private Context context;
-
-        public OnSwipeTouchListener(Context ctx, ListView list) {
-            gestureDetector = new GestureDetector(ctx, new GestureListener());
-            context = ctx;
-            this.list = list;
+    private class ContactListAdapter extends ArrayAdapter<String> {
+        public ContactListAdapter(Context owner, int resourceId, List<String> contactList) {
+            super(owner, resourceId, contactList);
         }
 
-        public OnSwipeTouchListener() {
-            super();
-        }
-
+        @NonNull
         @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            return gestureDetector.onTouchEvent(event);
-        }
+        public View getView(int position, @Nullable View recyclableContactView, @NonNull ViewGroup parent) {
+            View contactView;
+            ContactItemViewBinding contactItemViewBinding;
+            String contactFromList = getItem(position);
 
-        public void onSwipeRight(int pos) {
-            //Do what you want after swiping left to right
+            // recyclableContactView do not exist, then create one
+            if (recyclableContactView == null) {
+                contactItemViewBinding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.contact_item_view, null, false);
+                contactView = contactItemViewBinding.getRoot();
+                contactView.setTag(contactItemViewBinding);
+                contactItemViewBinding.setTaskDetailViewModel(viewModel);
 
-        }
-
-        public void onSwipeLeft(int pos) {
-            viewModel.getTask().getContacts().remove(pos);
-            selectedContactsAdapter.notifyDataSetChanged();
-        }
-
-        private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
-
-            private static final int SWIPE_THRESHOLD = 100;
-            private static final int SWIPE_VELOCITY_THRESHOLD = 100;
-
-            @Override
-            public boolean onDown(MotionEvent e) {
-                return true;
+            // recyclableContactView exist, then reuse and access it with binding object
+            } else {
+                contactView = recyclableContactView;
+                contactItemViewBinding = (ContactItemViewBinding) contactView.getTag();
             }
 
-            private int getPostion(MotionEvent e1) {
-                return list.pointToPosition((int) e1.getX(), (int) e1.getY());
+            if (contactFromList == null || contactFromList.isBlank()) {
+                return contactView;
             }
+            contactItemViewBinding.setContact(contactFromList);
 
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2,
-                                   float velocityX, float velocityY) {
-                float distanceX = e2.getX() - e1.getX();
-                float distanceY = e2.getY() - e1.getY();
-                if (Math.abs(distanceX) > Math.abs(distanceY)
-                        && Math.abs(distanceX) > SWIPE_THRESHOLD
-                        && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
-                    if (distanceX > 0)
-                        onSwipeRight(getPostion(e1));
-                    else
-                        onSwipeLeft(getPostion(e1));
-                    return true;
-                }
-                return false;
-            }
-
+            return contactView;
         }
     }
 }

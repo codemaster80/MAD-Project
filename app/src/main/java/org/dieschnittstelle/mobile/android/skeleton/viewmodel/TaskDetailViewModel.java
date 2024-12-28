@@ -13,24 +13,21 @@ import java.util.List;
 
 public class TaskDetailViewModel extends ViewModel {
     private Task task;
-    private String newSelectedContact = "";
     private final MutableLiveData<Boolean> isTaskOnSave = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> isTaskOnDelete = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> isContactOnDelete = new MutableLiveData<>(false);
     private final MutableLiveData<String> nameInputError = new MutableLiveData<>();
-    private ArrayList<String> availableContacts = new ArrayList<>();
+    private ArrayList<String> availableContacts = new ArrayList<>(List.of("Select a contact..."));
 
     public ArrayList<String> getAvailableContacts() { return availableContacts; }
+
     public void setAvailableContacts(ArrayList<String> availableContacts) { this.availableContacts = availableContacts; }
 
     public Task getTask() { return task; }
 
     public void setTask(Task task) {
         this.task = task;
-        availableContacts.add("Choose a contact...");
     }
-
-    public String getNewSelectedContact(){ return newSelectedContact; }
-    public void setNewSelectedContact(String newSelectedContact) { this.newSelectedContact = newSelectedContact; }
 
     public void saveTask() {
         isTaskOnSave.setValue(true);
@@ -45,6 +42,17 @@ public class TaskDetailViewModel extends ViewModel {
     public MutableLiveData<Boolean> isTaskOnDelete() {
         return isTaskOnDelete;
     }
+
+    public void deleteContact(String contact) {
+        task.getContacts().remove(contact);
+        isContactOnDelete.setValue(true);
+    }
+
+    public MutableLiveData<Boolean> isContactOnDelete() {
+        return isContactOnDelete;
+    }
+
+
 
     public boolean checkNameInputOnEnterKey(int keyId) {
         if (keyId == EditorInfo.IME_ACTION_NEXT || keyId == EditorInfo.IME_ACTION_DONE) {
