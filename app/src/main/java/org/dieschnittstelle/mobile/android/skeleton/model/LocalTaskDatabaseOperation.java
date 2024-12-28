@@ -93,10 +93,4 @@ public class LocalTaskDatabaseOperation implements ITaskDatabaseOperation {
         taskDatabase.getDao().deleteTask(task);
         return true;
     }
-
-    @Override
-    public boolean authenticateUser(User user) {
-        Log.i("Login", "Class: LocalTaskDatabaseOperation Method: authenticateUser");
-        return true;
-    }
 }

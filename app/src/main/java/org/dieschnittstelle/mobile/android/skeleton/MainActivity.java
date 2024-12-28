@@ -15,6 +15,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityMainBinding;
 import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityTaskDetailViewBinding;
+import org.dieschnittstelle.mobile.android.skeleton.model.IUserDatabaseOperation;
+import org.dieschnittstelle.mobile.android.skeleton.model.User;
 import org.dieschnittstelle.mobile.android.skeleton.viewmodel.MainViewModel;
 import org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskListViewModel;
 
@@ -25,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText password;
     private Button showTaskListAction;
     private MainViewModel viewModel;
+    private IUserDatabaseOperation userDBOperation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +41,19 @@ public class MainActivity extends AppCompatActivity {
         );
         MainViewBinding.setMainViewModel(this.viewModel);
         MainViewBinding.setLifecycleOwner(this);
+
+        userDBOperation = ((TaskApplication) getApplication()).getUserDatabaseOperation();
+        viewModel.setUserDBOperation(userDBOperation);
+
+        // testuser
+        User mockUser1 = new User("a@b.de", "test");
+
+        new Thread(() -> {
+            //Log.i("Login", String.valueOf(userDBOperation.authenticateUser("a@b.de", "test")));
+            //userDBOperation.deleteAllUsers();
+            //userDBOperation.createUser(mockUser1);
+            //userDBOperation.deleteUser(2);
+        }).start();
 
         welcomeText = findViewById(R.id.welcomeText);
         welcomeText.setText(R.string.welcome_message);

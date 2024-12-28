@@ -106,14 +106,4 @@ public class RemoteTaskDatabaseOperation implements ITaskDatabaseOperation {
             throw new RuntimeException(e);
         }
     }
-
-    @Override
-    public boolean authenticateUser(User user) {
-        try {
-            Log.i("Login", "Class: RemoteTaskDatabaseOperation Method: authenticateUser");
-            return Boolean.TRUE.equals(toDoRESTWebAPI.authenticateUser(user).execute().body());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
