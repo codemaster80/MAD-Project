@@ -1,6 +1,7 @@
 package org.dieschnittstelle.mobile.android.skeleton;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
@@ -12,6 +13,8 @@ import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityMainBinding;
+import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityTaskDetailViewBinding;
 import org.dieschnittstelle.mobile.android.skeleton.viewmodel.MainViewModel;
 import org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskListViewModel;
 
@@ -29,26 +32,26 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
+        ActivityMainBinding MainViewBinding = DataBindingUtil.setContentView(
+                this,
+                R.layout.activity_main
+        );
+        MainViewBinding.setMainViewModel(this.viewModel);
+        MainViewBinding.setLifecycleOwner(this);
+
         welcomeText = findViewById(R.id.welcomeText);
         welcomeText.setText(R.string.welcome_message);
-        welcomeText.setOnClickListener(view -> this.showTaskListView());
 
         emailAdress = findViewById(R.id.editTextTextEmailAddress);
         password = findViewById(R.id.editTextTextPassword);
 
-        showTaskListAction = findViewById(R.id.loginButton);
-        showTaskListAction.setOnClickListener(view -> this.showTaskListView());
-    }
-
-    protected void showTaskListView() {
-        if (viewModel.authenticateUser(String.valueOf(emailAdress.getText()), String.valueOf(password.getText())) == true) {
-            // Log.i("Login", "Login successful!");
-            // Switch view
-            Intent callTaskOverviewIntent = new Intent(this, TaskListViewActivity.class);
-            startActivity(callTaskOverviewIntent);
-            this.finish();
-        } else {
-            Log.i("Login", "Login error!");
-        }
+        this.viewModel.isUserAuthenticated().observe(this, onAuthenticated -> {
+            if (onAuthenticated) {
+                // Log.i("Login", "onAuthenticated");
+                Intent callTaskOverviewIntent = new Intent(this, TaskListViewActivity.class);
+                startActivity(callTaskOverviewIntent);
+                this.finish();
+            }
+        });
     }
 }

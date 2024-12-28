@@ -1,5 +1,7 @@
 package org.dieschnittstelle.mobile.android.skeleton.model;
 
+import androidx.annotation.Nullable;
+
 import java.io.Serializable;
 
 public class User implements Serializable {
@@ -13,7 +15,7 @@ public class User implements Serializable {
     public User() {
     }
 
-    public User(String email,String pwd) {
+    public User(String email, String pwd) {
         this.email = email;
         this.pwd = pwd;
     }
@@ -22,15 +24,16 @@ public class User implements Serializable {
         return pwd;
     }
 
-    public void setPwd(String pwd) {
+    public void setPwd(@Nullable String pwd) {
         this.pwd = pwd;
     }
 
+    @Nullable
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
+    public void setEmail(@Nullable String email) {
         this.email = email;
     }
 }
