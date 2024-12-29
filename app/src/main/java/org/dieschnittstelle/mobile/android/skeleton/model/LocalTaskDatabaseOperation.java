@@ -10,7 +10,11 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 import androidx.room.Update;
+
+import org.dieschnittstelle.mobile.android.skeleton.util.LocationConverter;
+import org.dieschnittstelle.mobile.android.skeleton.util.StringListConverter;
 
 import java.util.List;
 
@@ -39,6 +43,7 @@ public class LocalTaskDatabaseOperation implements ITaskDatabaseOperation {
     }
 
     @Database(entities = {Task.class}, version = 1)
+    @TypeConverters({StringListConverter.class, LocationConverter.class})
     public abstract static class TaskDatabase extends RoomDatabase {
 
         public abstract SQLiteTaskCRUDOperation getDao();

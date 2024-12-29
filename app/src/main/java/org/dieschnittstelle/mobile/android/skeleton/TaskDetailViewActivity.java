@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -17,6 +18,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
+
+import com.google.android.material.textfield.TextInputEditText;
 
 import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityTaskDetailViewBinding;
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
@@ -49,6 +52,11 @@ public class TaskDetailViewActivity extends AppCompatActivity {
             if (task == null) {
                 task = new Task();
             }
+
+            // TODO: REPLACE MOCK CONTACTS WITH REAL CONTACTS ----------------------------------------------------------
+            task.getContacts().addAll(List.of("Contact 1","Contact 2","Contact 3","Contact 4","Contact 5","Contact 6"));
+            // ---------------------------------------------------------------------------------------------------------
+
             this.viewModel.setTask(task);
         }
 
@@ -89,6 +97,33 @@ public class TaskDetailViewActivity extends AppCompatActivity {
                 deleteAlertDialog();
             }
         });
+
+        // setup contacts
+        final Spinner contactsSpinner = findViewById(R.id.contactsDropdown);
+        ArrayAdapter<String> contactAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, viewModel.getTask().getContacts());
+        contactsSpinner.setAdapter(contactAdapter);
+        contactsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
+        });
+
+        // setup textinput for new contact
+        final TextInputEditText editText = findViewById(R.id.contactsInputEditText);
+        editText.setOnKeyListener((v, keyCode, event) -> {
+            // If the event is a key-down event on the "enter" button
+            if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                viewModel.getTask().getContacts().add(editText.getText().toString());
+                contactsSpinner.setSelection(contactsSpinner.getCount());
+                contactAdapter.notifyDataSetChanged();
+                editText.setText("");
+                return true;
+            }
+            return false;
+        });
     }
 
     private void deleteAlertDialog() {
@@ -116,7 +151,7 @@ public class TaskDetailViewActivity extends AppCompatActivity {
             int currentYear, currentMonth, currentDay;
             DatePickerDialog datePickerDialog;
 
-            if (task.getExpiry() == null || task.getExpiry() == 0) {
+            if (task.getExpiry() == 0) {
                 calendar = Calendar.getInstance();
                 currentYear = calendar.get(Calendar.YEAR);
                 currentMonth = calendar.get(Calendar.MONTH);
@@ -154,7 +189,7 @@ public class TaskDetailViewActivity extends AppCompatActivity {
             int currentHour, currentMinute;
             TimePickerDialog timePickerDialog;
 
-            if(task.getExpiry() == null || task.getExpiry() == 0) {
+            if(task.getExpiry() == 0) {
                 calendar = Calendar.getInstance();
                 currentHour = calendar.get(Calendar.HOUR_OF_DAY);
                 currentMinute = calendar.get(Calendar.MINUTE);
