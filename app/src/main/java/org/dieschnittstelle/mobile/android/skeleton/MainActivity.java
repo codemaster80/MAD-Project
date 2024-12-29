@@ -65,13 +65,18 @@ public class MainActivity extends AppCompatActivity {
         // Authentication
         this.viewModel.isUsernameNotAnEMail().observe(this, onUsernameNotAnEMail -> {
             if (onUsernameNotAnEMail) {
-                showMessage(getString(R.string.login_username_error));
+                showMessage(getString(R.string.login_username_error),1);
+            }
+        });
+
+        this.viewModel.isUserAuthenticationFailed().observe(this, onUserAuthenticationFailed -> {
+            if (onUserAuthenticationFailed) {
+                showMessage(getString(R.string.login_authentication_failed),3);
             }
         });
 
         this.viewModel.isUserAuthenticated().observe(this, onAuthenticated -> {
             if (onAuthenticated) {
-                // Log.i("Login", "onAuthenticated");
                 Intent callTaskOverviewIntent = new Intent(this, TaskListViewActivity.class);
                 startActivity(callTaskOverviewIntent);
                 this.finish();
@@ -79,7 +84,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void showMessage(String message) {
-        Snackbar.make(findViewById(R.id.rootView), message, Snackbar.LENGTH_SHORT).show();
+    private void showMessage(String message, int snackbarDuration) {
+        switch (snackbarDuration) {
+            case 1:
+                Snackbar.make(findViewById(R.id.rootView), message, Snackbar.LENGTH_SHORT).show();
+            case 2:
+                Snackbar.make(findViewById(R.id.rootView), message, Snackbar.LENGTH_LONG).show();
+            case 3:
+                Snackbar.make(findViewById(R.id.rootView), message, Snackbar.LENGTH_INDEFINITE).show();
+        }
     }
 }

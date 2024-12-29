@@ -4,6 +4,7 @@ import static androidx.core.content.ContextCompat.startActivity;
 import android.content.Intent;
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -23,6 +24,7 @@ public class MainViewModel extends ViewModel {
         private IUserDatabaseOperation userDBOperation;
         private MutableLiveData<Boolean> isUserAuthenticated = new MutableLiveData<>(false);
         private MutableLiveData<Boolean> isUsernameNotAnEMail = new MutableLiveData<>(false);
+        private MutableLiveData<Boolean> isUserAuthenticationFailed = new MutableLiveData<>(false);
         private User user;
         public String email;
         public String pwd;
@@ -33,6 +35,8 @@ public class MainViewModel extends ViewModel {
                     // Log.i("Login", String.valueOf(userDBOperation.authenticateUser("a@b.de", "test")));
                     if (userDBOperation.authenticateUser(email, pwd)) {
                         isUserAuthenticated.postValue(true);
+                    } else {
+                        isUserAuthenticationFailed.postValue(true);
                     }
                 }).start();
             } else {
@@ -48,8 +52,11 @@ public class MainViewModel extends ViewModel {
             return isUsernameNotAnEMail;
         }
 
+        public MutableLiveData<Boolean> isUserAuthenticationFailed() {
+            return isUserAuthenticationFailed;
+        }
+
         public void setUserDBOperation(IUserDatabaseOperation userDBOperation) {
             this.userDBOperation = userDBOperation;
         }
-
-    }
+}
