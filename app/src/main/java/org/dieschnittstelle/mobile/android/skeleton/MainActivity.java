@@ -54,21 +54,13 @@ public class MainActivity extends AppCompatActivity {
         emailAdress = findViewById(R.id.editTextTextEmailAddress);
         password = findViewById(R.id.editTextTextPassword);
 
-        // Authentication
-        this.viewModel.isUsernameNotAnEMail().observe(this, onUsernameNotAnEMail -> {
-            if (onUsernameNotAnEMail) {
+        // Login
+        this.viewModel.getLoginLiveData().observe(this, onLogin -> {
+            if (onLogin == "usernameIsNotAnEMail") {
                 showMessage(getString(R.string.login_username_error),3);
-            }
-        });
-
-        this.viewModel.isUserAuthenticationFailed().observe(this, onUserAuthenticationFailed -> {
-            if (onUserAuthenticationFailed) {
+            } else if (onLogin == "userAuthenticationIsFailed"){
                 showMessage(getString(R.string.login_authentication_failed),3);
-            }
-        });
-
-        this.viewModel.isUserAuthenticated().observe(this, onAuthenticated -> {
-            if (onAuthenticated) {
+            } else if (onLogin == "userIsAuthenticated") {
                 Intent callTaskOverviewIntent = new Intent(this, TaskListViewActivity.class);
                 startActivity(callTaskOverviewIntent);
                 this.finish();

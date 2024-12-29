@@ -6,36 +6,26 @@ import org.dieschnittstelle.mobile.android.skeleton.model.IUserDatabaseOperation
 
 public class MainViewModel extends ViewModel {
         private IUserDatabaseOperation userDBOperation;
-        private MutableLiveData<Boolean> isUserAuthenticated = new MutableLiveData<>(false);
-        private MutableLiveData<Boolean> isUsernameNotAnEMail = new MutableLiveData<>(false);
-        private MutableLiveData<Boolean> isUserAuthenticationFailed = new MutableLiveData<>(false);
+        private MutableLiveData<String> loginLiveData = new MutableLiveData<>("initial");
         public String email;
         public String pwd;
 
-        public void authenticateUser() {
+    public MutableLiveData<String> getLoginLiveData() {
+        return loginLiveData;
+    }
+
+    public void authenticateUser() {
             if (android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 new Thread(() -> {
                     if (userDBOperation.authenticateUser(email, pwd)) {
-                        isUserAuthenticated.postValue(true);
+                        loginLiveData.postValue("userIsAuthenticated");
                     } else {
-                        isUserAuthenticationFailed.postValue(true);
+                        loginLiveData.postValue("userAuthenticationIsFailed");
                     }
                 }).start();
             } else {
-                isUsernameNotAnEMail.setValue(true);
+                loginLiveData.setValue("usernameIsNotAnEMail");
             }
-        }
-
-        public MutableLiveData<Boolean> isUserAuthenticated() {
-            return isUserAuthenticated;
-        }
-
-        public MutableLiveData<Boolean> isUsernameNotAnEMail() {
-            return isUsernameNotAnEMail;
-        }
-
-        public MutableLiveData<Boolean> isUserAuthenticationFailed() {
-            return isUserAuthenticationFailed;
         }
 
         public void setUserDBOperation(IUserDatabaseOperation userDBOperation) {
