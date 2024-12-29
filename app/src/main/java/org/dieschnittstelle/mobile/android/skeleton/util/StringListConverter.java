@@ -20,6 +20,6 @@ public class StringListConverter {
         if (str.isBlank()) {
             return new ArrayList<>();
         }
-        return Arrays.asList(str.split(","));
+        return new ArrayList<>(Arrays.asList(str.split(",")));
     }
 }
