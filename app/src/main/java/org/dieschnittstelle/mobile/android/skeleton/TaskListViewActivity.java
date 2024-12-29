@@ -63,12 +63,6 @@ public class TaskListViewActivity extends AppCompatActivity {
     });
 
     @Override
-    public void onUserInteraction() {
-        super.onUserInteraction();
-        userIsInteracting = true;
-    }
-
-    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_list_view);
@@ -88,6 +82,12 @@ public class TaskListViewActivity extends AppCompatActivity {
         addTaskAction.setOnClickListener(view -> showNewTaskDetailView());
 
         progressBar = findViewById(R.id.progressBar);
+    }
+
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        userIsInteracting = true;
     }
 
     @Override

@@ -11,6 +11,7 @@ import org.dieschnittstelle.mobile.android.skeleton.util.LocationConverter;
 import org.dieschnittstelle.mobile.android.skeleton.util.StringListConverter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,7 +29,7 @@ public class Task implements Serializable {
     // TODO : Missing on remote db, will fail to create a task on remote db.
     private Priority priority = Priority.NONE;
     @TypeConverters(StringListConverter.class)
-    private List<String> contacts;
+    private List<String> contacts = new ArrayList<>();
     @TypeConverters(LocationConverter.class)
     private Location location;
 
