@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         // Authentication
         this.viewModel.isUsernameNotAnEMail().observe(this, onUsernameNotAnEMail -> {
             if (onUsernameNotAnEMail) {
-                showMessage(getString(R.string.login_username_error),1);
+                showMessage(getString(R.string.login_username_error),3);
             }
         });
 
