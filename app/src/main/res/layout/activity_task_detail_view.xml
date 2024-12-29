@@ -113,6 +113,7 @@
             android:textSize="20sp"
             android:checked="@={taskDetailViewModel.task.completed}"
             android:text="@string/checkbox_done"
+            android:layout_marginTop="15dp"
             app:buttonTint="@color/colorAccent"
             app:layout_constraintTop_toBottomOf="@id/dropdownPriority" />
 
@@ -123,6 +124,7 @@
             android:checked="@={taskDetailViewModel.task.favorite}"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
             app:buttonTint="@color/colorAccent"
             app:layout_constraintTop_toBottomOf="@id/taskCompleted">
         </com.google.android.material.checkbox.MaterialCheckBox>
@@ -131,7 +133,11 @@
             android:id="@+id/titleSelectedContact"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/title_detail_view_selected_contact"
+            android:layout_marginStart="@dimen/cardview_default_radius"
+            android:layout_marginTop="15dp"
+            app:layout_constraintHeight="30dp"
+            android:text="@string/title_detail_view_available_contact"
+            android:textSize="18sp"
             app:layout_constraintTop_toBottomOf="@+id/taskFavorite" />
 
         <Spinner
@@ -139,32 +145,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:drawable/btn_dropdown"
+            android:prompt="@string/placeholder_detail_view_add_contact_input"
             app:layout_constraintTop_toBottomOf="@+id/titleSelectedContact" />
 
         <TextView
-            android:id="@+id/textContacts"
+            android:id="@+id/titleSelectedContacts"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/cardview_default_radius"
+            android:layout_marginTop="10dp"
+            app:layout_constraintHeight="40dp"
+            android:text="@string/title_detail_view_selected_contact"
+            android:textSize="18sp"
             app:layout_constraintTop_toBottomOf="@+id/contactsDropdown" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/contactsInputEditTextLayout"
+        <ListView
+            android:id="@+id/selectedContacts"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/placeholder_detail_view_add_contact_input"
-            android:inputType="text"
-            app:hintEnabled="true"
-            app:layout_constraintTop_toBottomOf="@id/textContacts">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/contactsInputEditText"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:gravity="start"
-                android:lines="5"
-                android:minLines="1"
-                android:text="@={taskDetailViewModel.newSelectedContact}" />
-        </com.google.android.material.textfield.TextInputLayout>
+            app:layout_constraintTop_toBottomOf="@+id/titleSelectedContacts" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/updateTaskAction"

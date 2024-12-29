@@ -1,6 +1,7 @@
 package org.dieschnittstelle.mobile.android.skeleton.viewmodel;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -45,10 +46,6 @@ public class TaskListViewModel extends ViewModel {
     public List<Task> getTaskList() {
         return taskList;
     }
-
-    /**
-     * Public member setters/getters
-     */
 
     /**
      * Gets the LiveData object representing the processing state of the ViewModel.
@@ -111,6 +108,7 @@ public class TaskListViewModel extends ViewModel {
             try {
                 taskList.add(localDatabase.createTask(task));
                 taskList.sort(currentSorter);
+                // update the remote db with created task
                 remoteDatabase.createTask(task);
                 processingState.postValue(ProcessingState.DONE);
             } catch (Exception e) {
@@ -150,7 +148,7 @@ public class TaskListViewModel extends ViewModel {
             boolean isUpdated = localDatabase.updateTask(task);
             if (isUpdated) {
                 try {
-                    // update the tasklist with new task
+                    // update the taskList model with new task
                     taskList.removeIf(t -> t.getId() == task.getId());
                     taskList.add(task);
                     taskList.sort(currentSorter);
@@ -182,10 +180,10 @@ public class TaskListViewModel extends ViewModel {
             boolean isDeleted = localDatabase.deleteTask(id);
             if (isDeleted) {
                 try {
-                    // update the model
+                    // update the taskList model with the removed task
                     taskList.removeIf(t -> t.getId() == id);
 
-                    // delete the tasks from the server
+                    // delete the task from the remote db
                     remoteDatabase.deleteTask(id);
 
                     processingState.postValue(ProcessingState.DONE);
@@ -278,11 +276,11 @@ public class TaskListViewModel extends ViewModel {
 
     /**
      * Synchronizes the local and remote databases.
-     * <p>
      * If there are no local tasks, all tasks are transmitted from the remote to the local database.
      * If there are local tasks, then all tasks on the remote database are deleted and the local tasks are transferred to the remote database.
      */
     public void synchronizeDb() {
+        processingState.setValue(ProcessingState.RUNNING_LONG);
         executorService.execute(() -> {
             try {
                 List<Task> localTasks = localDatabase.readAllTasks();
@@ -304,7 +302,7 @@ public class TaskListViewModel extends ViewModel {
             } catch (Exception e) {
                 processingState.postValue(ProcessingState.CONNECT_REMOTE_FAIL);
                 if (e.getMessage().contains("unexpected end of stream")){
-                    System.out.println("check data in between client and server, there is a mismatch");
+                    Log.e("error", "check data in between client and server, there is a mismatch");
                 }
             }
         });
@@ -312,8 +310,24 @@ public class TaskListViewModel extends ViewModel {
     }
 
     public enum SortOrder {
-        SORT_BY_COMPLETED_AND_NAME(Comparator.comparing(Task::isCompleted).thenComparing(Task::getName)),
-        SORT_BY_PRIO_AND_DATE(Comparator.comparing(Task::getPriority).thenComparing(task -> task.getExpiry() == 0));
+        SORT_BY_COMPLETED_AND_NAME(
+                Comparator.comparing(Task::isCompleted)
+                        .thenComparing(Task::getName)
+                        .thenComparing(
+                                Comparator.nullsLast(
+                                        Comparator.comparing(Task::getName, Comparator.nullsLast(Comparator.naturalOrder()))
+                                )
+                        )
+        ),
+        SORT_BY_PRIO_AND_DATE(
+                Comparator.comparing(Task::getPriority)
+                        .thenComparing(Task::getExpiry)
+                        .thenComparing(
+                                Comparator.nullsLast(
+                                        Comparator.comparing(Task::getExpiry, Comparator.nullsLast(Comparator.naturalOrder()))
+                                )
+                        )
+        );
 
         private final Comparator<Task> value;
 
