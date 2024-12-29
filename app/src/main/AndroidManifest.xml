@@ -20,8 +20,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".TaskListViewActivity"/>
-        <activity android:name=".TaskDetailViewActivity"/>
+<!--        disable recreation for screen orientation changes-->
+        <activity android:name=".TaskListViewActivity" android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"/>
+        <activity android:name=".TaskDetailViewActivity" android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"/>
     </application>
 
 </manifest>

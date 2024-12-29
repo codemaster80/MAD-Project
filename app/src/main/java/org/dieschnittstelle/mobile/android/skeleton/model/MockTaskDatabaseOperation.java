@@ -13,10 +13,10 @@ public class MockTaskDatabaseOperation implements ITaskDatabaseOperation {
     private final List<Task> tasks = new ArrayList<>();
 
     public MockTaskDatabaseOperation() {
-        createTask(new Task("Aufgabe 1", "Beschreibung 1", DateConverter.fromDateString("01.01.2025 12:00"), false, false, Task.Priority.CRITICAL));
-        createTask(new Task("Aufgabe 2", "Beschreibung 2", DateConverter.fromDateString("05.12.2024 10:00"),false, false, Task.Priority.HIGH));
-        createTask(new Task("Aufgabe 3", "Beschreibung 3", DateConverter.fromDateString("01.10.2024 09:00"),false, false, Task.Priority.NORMAL));
-        createTask(new Task("Aufgabe 4", "Beschreibung 4", DateConverter.fromDateString("15.01.2024 08:00"),false, false, Task.Priority.LOW));
+        createTask(new Task("Aufgabe 1", "Beschreibung 1", DateConverter.fromDateString("01.01.2025 12:00"), false, false, Task.Priority.CRITICAL, new ArrayList<>()));
+        createTask(new Task("Aufgabe 2", "Beschreibung 2", DateConverter.fromDateString("05.12.2024 10:00"),false, false, Task.Priority.HIGH, new ArrayList<>()));
+        createTask(new Task("Aufgabe 3", "Beschreibung 3", DateConverter.fromDateString("01.10.2024 09:00"),false, false, Task.Priority.NORMAL, new ArrayList<>()));
+        createTask(new Task("Aufgabe 4", "Beschreibung 4", DateConverter.fromDateString("15.01.2024 08:00"),false, false, Task.Priority.LOW, new ArrayList<>()));
     }
 
     @Override

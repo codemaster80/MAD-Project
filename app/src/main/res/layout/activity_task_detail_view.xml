@@ -6,188 +6,194 @@
             name="taskDetailViewModel"
             type="org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskDetailViewModel" />
     </data>
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/taskDetailViewActivity">
-
-        <com.google.android.material.textfield.TextInputLayout
-            app:layout_constraintTop_toTopOf="parent"
-            app:hintEnabled="true"
-            android:hint="@string/task_name"
+        android:fillViewport="true">
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/taskName"
-            android:inputType="text"
-            android:error="@{taskDetailViewModel.nameInputError}">
-            <com.google.android.material.textfield.TextInputEditText
-                android:text="@={taskDetailViewModel.task.name}"
-                android:onEditorAction="@{(view, keyId, event) -> taskDetailViewModel.checkNameInputOnEnterKey(keyId)}"
-                android:onTextChanged="@{() -> taskDetailViewModel.onNameInputChanged()}"
+            android:id="@+id/taskDetailViewActivity">
+
+            <com.google.android.material.textfield.TextInputLayout
+                app:layout_constraintTop_toTopOf="parent"
+                app:hintEnabled="true"
+                android:hint="@string/task_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:singleLine="true">
-            </com.google.android.material.textfield.TextInputEditText>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:id="@+id/taskName"
+                android:inputType="text"
+                android:error="@{taskDetailViewModel.nameInputError}">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:text="@={taskDetailViewModel.task.name}"
+                    android:onEditorAction="@{(view, keyId, event) -> taskDetailViewModel.checkNameInputOnEnterKey(keyId)}"
+                    android:onTextChanged="@{() -> taskDetailViewModel.onNameInputChanged()}"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            app:layout_constraintTop_toBottomOf="@+id/taskName"
-            app:hintEnabled="true"
-            android:hint="@string/task_description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/taskDescription"
-            android:inputType="text">
-            <com.google.android.material.textfield.TextInputEditText
-                android:text="@={taskDetailViewModel.task.description}"
+            <com.google.android.material.textfield.TextInputLayout
+                app:layout_constraintTop_toBottomOf="@+id/taskName"
+                app:hintEnabled="true"
+                android:hint="@string/task_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="start"
-                android:lines="5"
-                android:minLines="1">
-            </com.google.android.material.textfield.TextInputEditText>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:id="@+id/taskDescription"
+                android:inputType="text">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:text="@={taskDetailViewModel.task.description}"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:lines="5"
+                    android:minLines="1">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
-            android:id="@+id/taskDate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/btnPickDueDate"
-            android:layout_marginStart="@dimen/cardview_default_radius"
-            android:text="@string/task_due_date"
-            android:textSize="18sp"
-            app:layout_constraintHeight="30dp"
-            app:layout_constraintTop_toBottomOf="@+id/taskDescription" />
-
-        <Button
-            android:id="@+id/btnPickDueDate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/select_due_date_btn"
-            android:text="@{taskDetailViewModel.toDueDateString()}"
-            android:textAllCaps="false"
-            app:layout_constraintTop_toBottomOf="@+id/taskDate" />
-
-        <TextView
-            android:id="@+id/taskTime"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/btnPickTime"
-            android:layout_marginStart="@dimen/cardview_default_radius"
-            android:text="@string/task_time_limit"
-            android:textSize="18sp"
-            app:layout_constraintHeight="30dp"
-            app:layout_constraintTop_toBottomOf="@+id/btnPickDueDate" />
-
-        <Button
-            android:id="@+id/btnPickTime"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/select_time_limit_btn"
-            android:text="@{taskDetailViewModel.toTimeLimitString()}"
-            android:textAllCaps="false"
-            app:layout_constraintTop_toBottomOf="@+id/taskTime" />
-
-        <TextView
-            android:id="@+id/priorityText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/cardview_default_radius"
-            android:layout_marginEnd="50dp"
-            android:text="@string/priority_info_message"
-            android:textSize="18sp"
-            app:layout_constraintHeight="30dp"
-            app:layout_constraintTop_toBottomOf="@+id/btnPickTime" />
-
-        <Spinner
-            android:id="@+id/dropdownPriority"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/btn_dropdown"
-            app:layout_constraintTop_toBottomOf="@+id/priorityText" />
-
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/taskCompleted"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:checked="@={taskDetailViewModel.task.completed}"
-            android:text="@string/checkbox_done"
-            app:buttonTint="@color/colorAccent"
-            app:layout_constraintTop_toBottomOf="@id/dropdownPriority" />
-
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/taskFavorite"
-            android:text="@string/checkbox_favorite"
-            android:textSize="20sp"
-            android:checked="@={taskDetailViewModel.task.favorite}"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:buttonTint="@color/colorAccent"
-            app:layout_constraintTop_toBottomOf="@id/taskCompleted">
-        </com.google.android.material.checkbox.MaterialCheckBox>
-
-        <TextView
-            android:id="@+id/titleSelectedContact"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/title_detail_view_selected_contact"
-            app:layout_constraintTop_toBottomOf="@+id/taskFavorite" />
-
-        <Spinner
-            android:id="@+id/contactsDropdown"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/btn_dropdown"
-            app:layout_constraintTop_toBottomOf="@+id/titleSelectedContact" />
-
-        <TextView
-            android:id="@+id/textContacts"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/contactsDropdown" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/contactsInputEditTextLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/placeholder_detail_view_add_contact_input"
-            android:inputType="text"
-            app:hintEnabled="true"
-            app:layout_constraintTop_toBottomOf="@id/textContacts">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/contactsInputEditText"
+            <TextView
+                android:id="@+id/taskDate"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:gravity="start"
-                android:lines="5"
-                android:minLines="1"
-                android:text="@={taskDetailViewModel.newSelectedContact}" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/btnPickDueDate"
+                android:layout_marginStart="@dimen/cardview_default_radius"
+                android:text="@string/task_due_date"
+                android:textSize="18sp"
+                app:layout_constraintHeight="30dp"
+                app:layout_constraintTop_toBottomOf="@+id/taskDescription" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/updateTaskAction"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:srcCompat="@drawable/baseline_save_white_24dp"
-            android:onClick="@{() -> taskDetailViewModel.saveTask()}"
-            android:contentDescription="@string/save_task_message"
-            android:layout_margin="16dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-        </com.google.android.material.floatingactionbutton.FloatingActionButton>
+            <Button
+                android:id="@+id/btnPickDueDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/select_due_date_btn"
+                android:text="@{taskDetailViewModel.toDueDateString()}"
+                android:textAllCaps="false"
+                app:layout_constraintTop_toBottomOf="@+id/taskDate" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/deleteTaskAction"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:contentDescription="@string/delete_task_message"
-            android:onClick="@{() -> taskDetailViewModel.deleteTask()}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:srcCompat="@drawable/baseline_delete_white_24dp">
-        </com.google.android.material.floatingactionbutton.FloatingActionButton>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/taskTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/btnPickTime"
+                android:layout_marginStart="@dimen/cardview_default_radius"
+                android:text="@string/task_time_limit"
+                android:textSize="18sp"
+                app:layout_constraintHeight="30dp"
+                app:layout_constraintTop_toBottomOf="@+id/btnPickDueDate" />
+
+            <Button
+                android:id="@+id/btnPickTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/select_time_limit_btn"
+                android:text="@{taskDetailViewModel.toTimeLimitString()}"
+                android:textAllCaps="false"
+                app:layout_constraintTop_toBottomOf="@+id/taskTime" />
+
+            <TextView
+                android:id="@+id/priorityText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/cardview_default_radius"
+                android:layout_marginEnd="50dp"
+                android:text="@string/priority_info_message"
+                android:textSize="18sp"
+                app:layout_constraintHeight="30dp"
+                app:layout_constraintTop_toBottomOf="@+id/btnPickTime" />
+
+            <Spinner
+                android:id="@+id/dropdownPriority"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:drawable/btn_dropdown"
+                app:layout_constraintTop_toBottomOf="@+id/priorityText" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/taskCompleted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:checked="@={taskDetailViewModel.task.completed}"
+                android:text="@string/checkbox_done"
+                android:layout_marginTop="15dp"
+                app:buttonTint="@color/colorAccent"
+                app:layout_constraintTop_toBottomOf="@id/dropdownPriority" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/taskFavorite"
+                android:text="@string/checkbox_favorite"
+                android:textSize="20sp"
+                android:checked="@={taskDetailViewModel.task.favorite}"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                app:buttonTint="@color/colorAccent"
+                app:layout_constraintTop_toBottomOf="@id/taskCompleted">
+            </com.google.android.material.checkbox.MaterialCheckBox>
+
+            <TextView
+                android:id="@+id/titleSelectedContact"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/cardview_default_radius"
+                android:layout_marginTop="15dp"
+                app:layout_constraintHeight="30dp"
+                android:text="@string/title_detail_view_available_contact"
+                android:textSize="18sp"
+                app:layout_constraintTop_toBottomOf="@+id/taskFavorite" />
+
+            <Spinner
+                android:id="@+id/contactsDropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:drawable/btn_dropdown"
+                android:prompt="@string/placeholder_detail_view_add_contact_input"
+                app:layout_constraintTop_toBottomOf="@+id/titleSelectedContact" />
+
+            <TextView
+                android:id="@+id/titleSelectedContacts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/cardview_default_radius"
+                android:layout_marginTop="10dp"
+                app:layout_constraintHeight="40dp"
+                android:text="@string/title_detail_view_selected_contact"
+                android:textSize="18sp"
+                app:layout_constraintTop_toBottomOf="@+id/contactsDropdown" />
+
+            <ListView
+                android:id="@+id/selectedContacts"
+                android:layout_width="match_parent"
+                android:layout_height="160dp"
+                android:nestedScrollingEnabled="true"
+                app:layout_constraintTop_toBottomOf="@+id/titleSelectedContacts" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/updateTaskAction"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:srcCompat="@drawable/baseline_save_white_24dp"
+                android:onClick="@{() -> taskDetailViewModel.saveTask()}"
+                android:contentDescription="@string/save_task_message"
+                android:layout_margin="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+            </com.google.android.material.floatingactionbutton.FloatingActionButton>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/deleteTaskAction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:contentDescription="@string/delete_task_message"
+                android:onClick="@{() -> taskDetailViewModel.deleteTask()}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:srcCompat="@drawable/baseline_delete_white_24dp">
+            </com.google.android.material.floatingactionbutton.FloatingActionButton>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 </layout>

@@ -10,7 +10,7 @@
     <string name="task_due_date">Mission Due Date</string>
     <string name="task_time_limit">Mission Time Limit</string>
     <string name="task_added_feedback_message">Mission successfully added: </string>
-    <string name="task_db_connect_fail_message">Cannot connect to remote database. Connecting to local database…</string>
+    <string name="task_db_connect_fail_message">Cannot connect to remote database. Connected to local database</string>
     <string name="remote_db_create_fail_message">Cannot create mission on remote database. Only created mission on local database</string>
     <string name="db_read_fail_message">Cannot read all missions from initialized database</string>
     <string name="remote_db_update_fail_message">Cannot update mission on remote database. Only updated mission on local database</string>
@@ -27,6 +27,8 @@
     <string name="delete_all_local_menu_text">DELETE ALL LOCAL</string>
     <string name="delete_all_remote_menu_text">DELETE ALL REMOTE</string>
     <string name="sync_database_menu_text">SYNC DATABASE</string>
-    <string name="title_detail_view_selected_contact">Selected Contact</string>
+    <string name="title_detail_view_available_contact">Available Contacts</string>
+    <string name="title_detail_view_selected_contact">Selected Contacts</string>
     <string name="placeholder_detail_view_add_contact_input">Enter new contact</string>
+    <string name="delete_contact_icon_text">Delete Contact</string>
 </resources>

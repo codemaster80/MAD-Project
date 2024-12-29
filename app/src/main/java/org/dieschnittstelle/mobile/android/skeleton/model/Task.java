@@ -11,6 +11,7 @@ import org.dieschnittstelle.mobile.android.skeleton.util.LocationConverter;
 import org.dieschnittstelle.mobile.android.skeleton.util.StringListConverter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,24 +26,24 @@ public class Task implements Serializable {
     private boolean completed;
     @SerializedName("favourite")
     private boolean favorite;
-    // TODO : Missing on remotedatabase, will fail to create a task on the remote db.
+    // TODO : Missing on remote db, will fail to create a task on remote db.
     private Priority priority = Priority.NONE;
     @TypeConverters(StringListConverter.class)
-    private List<String> contacts;
+    private List<String> contacts = new ArrayList<>();
     @TypeConverters(LocationConverter.class)
     private Location location;
 
     public Task() {
     }
 
-    public Task(String name, String description, long expiry, boolean completed, boolean favorite, Priority priority) {
+    public Task(String name, String description, long expiry, boolean completed, boolean favorite, Priority priority, List<String> contacts) {
         this.name = name;
         this.description = description;
         this.expiry = expiry;
         this.completed = completed;
         this.favorite = favorite;
         this.priority = priority;
-        this.contacts = List.of("");
+        this.contacts = contacts;
         this.location = new Location();
     }
 

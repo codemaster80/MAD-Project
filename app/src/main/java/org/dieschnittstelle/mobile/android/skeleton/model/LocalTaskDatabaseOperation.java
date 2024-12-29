@@ -42,7 +42,7 @@ public class LocalTaskDatabaseOperation implements ITaskDatabaseOperation {
         void deleteTask(Task task);
     }
 
-    @Database(entities = {Task.class}, version = 1)
+    @Database(entities = {Task.class}, version = 2)
     @TypeConverters({StringListConverter.class, LocationConverter.class})
     public abstract static class TaskDatabase extends RoomDatabase {
 
