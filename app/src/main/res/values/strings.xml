@@ -31,4 +31,9 @@
     <string name="title_detail_view_selected_contact">Selected Contacts</string>
     <string name="placeholder_detail_view_add_contact_input">Enter new contact</string>
     <string name="delete_contact_icon_text">Delete Contact</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+    <string name="mail">Mail</string>
+    <string name="login_username_error">Username is not a mailadress</string>
+    <string name="login_authentication_failed">Authentication failed</string>
 </resources>

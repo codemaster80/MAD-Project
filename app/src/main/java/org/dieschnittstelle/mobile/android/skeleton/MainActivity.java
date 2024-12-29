@@ -46,15 +46,7 @@ public class MainActivity extends AppCompatActivity {
         userDBOperation = ((TaskApplication) getApplication()).getUserDatabaseOperation();
         viewModel.setUserDBOperation(userDBOperation);
 
-        // testuser
-        User mockUser1 = new User("a@b.de", "test");
-
-        new Thread(() -> {
-            //Log.i("Login", String.valueOf(userDBOperation.authenticateUser("a@b.de", "test")));
-            //userDBOperation.deleteAllUsers();
-            //userDBOperation.createUser(mockUser1);
-            //userDBOperation.deleteUser(2);
-        }).start();
+        userDbInitialise(); // insert testdata
 
         welcomeText = findViewById(R.id.welcomeText);
         welcomeText.setText(R.string.welcome_message);
@@ -93,5 +85,14 @@ public class MainActivity extends AppCompatActivity {
             case 3:
                 Snackbar.make(findViewById(R.id.rootView), message, Snackbar.LENGTH_INDEFINITE).show();
         }
+    }
+
+    private void userDbInitialise() {
+        new Thread(() -> {
+            if (!(userDBOperation.authenticateUser("s@bht.de", "000000"))) {
+                userDBOperation.deleteAllUsers();
+                userDBOperation.createUser(new User("s@bht.de","000000"));
+            }
+        }).start();
     }
 }
