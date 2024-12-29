@@ -22,23 +22,30 @@ import java.util.concurrent.Executors;
 public class MainViewModel extends ViewModel {
         private IUserDatabaseOperation userDBOperation;
         private MutableLiveData<Boolean> isUserAuthenticated = new MutableLiveData<>(false);
+        private MutableLiveData<Boolean> isUsernameNotAnEMail = new MutableLiveData<>(false);
         private User user;
         public String email;
         public String pwd;
 
         public void authenticateUser() {
-            Log.i("Login", "Authenticate User Method Model");
-            new Thread(() -> {
-                // Log.i("Login", String.valueOf(userDBOperation.authenticateUser("a@b.de", "test")));
-                if (userDBOperation.authenticateUser(email, pwd)) {
-                    Log.i("Login", "Authenticate User Method Model2");
-                    isUserAuthenticated.postValue(true);
-                }
-            }).start();
+            if (android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                new Thread(() -> {
+                    // Log.i("Login", String.valueOf(userDBOperation.authenticateUser("a@b.de", "test")));
+                    if (userDBOperation.authenticateUser(email, pwd)) {
+                        isUserAuthenticated.postValue(true);
+                    }
+                }).start();
+            } else {
+                isUsernameNotAnEMail.setValue(true);
+            }
         }
 
         public MutableLiveData<Boolean> isUserAuthenticated() {
             return isUserAuthenticated;
+        }
+
+        public MutableLiveData<Boolean> isUsernameNotAnEMail() {
+            return isUsernameNotAnEMail;
         }
 
         public void setUserDBOperation(IUserDatabaseOperation userDBOperation) {

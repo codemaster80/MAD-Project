@@ -26,4 +26,5 @@
     <string name="login">Login</string>
     <string name="password">Password</string>
     <string name="mail">Mail</string>
+    <string name="login_username_error">Username is not a mailadress</string>
 </resources>

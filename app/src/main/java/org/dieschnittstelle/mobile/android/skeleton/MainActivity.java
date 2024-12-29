@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityMainBinding;
 import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityTaskDetailViewBinding;
@@ -61,6 +62,13 @@ public class MainActivity extends AppCompatActivity {
         emailAdress = findViewById(R.id.editTextTextEmailAddress);
         password = findViewById(R.id.editTextTextPassword);
 
+        // Authentication
+        this.viewModel.isUsernameNotAnEMail().observe(this, onUsernameNotAnEMail -> {
+            if (onUsernameNotAnEMail) {
+                showMessage(getString(R.string.login_username_error));
+            }
+        });
+
         this.viewModel.isUserAuthenticated().observe(this, onAuthenticated -> {
             if (onAuthenticated) {
                 // Log.i("Login", "onAuthenticated");
@@ -69,5 +77,9 @@ public class MainActivity extends AppCompatActivity {
                 this.finish();
             }
         });
+    }
+
+    private void showMessage(String message) {
+        Snackbar.make(findViewById(R.id.rootView), message, Snackbar.LENGTH_SHORT).show();
     }
 }
