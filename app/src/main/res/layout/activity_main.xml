@@ -3,9 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
         <variable
-            name="user"
-            type="org.dieschnittstelle.mobile.android.skeleton.model.User" />
-        <variable
             name="mainViewModel"
             type="org.dieschnittstelle.mobile.android.skeleton.viewmodel.MainViewModel" />
     </data>
@@ -30,7 +27,7 @@
 
         <EditText
             android:id="@+id/editTextTextEmailAddress"
-            android:text="@={mainViewModel.email}"
+            android:text="@={mainViewModel.user.email}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
@@ -43,7 +40,7 @@
 
         <EditText
             android:id="@+id/editTextTextPassword"
-            android:text="@={mainViewModel.pwd}"
+            android:text="@={mainViewModel.user.pwd}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="380dp"

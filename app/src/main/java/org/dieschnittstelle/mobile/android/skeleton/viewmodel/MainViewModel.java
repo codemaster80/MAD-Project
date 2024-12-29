@@ -1,8 +1,11 @@
 package org.dieschnittstelle.mobile.android.skeleton.viewmodel;
 
+import android.util.Log;
+
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import org.dieschnittstelle.mobile.android.skeleton.model.IUserDatabaseOperation;
+import org.dieschnittstelle.mobile.android.skeleton.model.User;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,16 +14,16 @@ public class MainViewModel extends ViewModel {
         private IUserDatabaseOperation userDBOperation;
         private MutableLiveData<String> loginLiveData = new MutableLiveData<>("initial");
         private Pattern passwordPattern = Pattern.compile("[0-9]{6}");
-        public String email;
-        public String pwd;
+        public User user;
 
     public MutableLiveData<String> getLoginLiveData() {
         return loginLiveData;
     }
 
     public void authenticateUser() {
-        boolean emailCheck = android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
-        Matcher pwdMatcher = passwordPattern.matcher(pwd);
+        Log.i("Login", user.getEmail());
+        boolean emailCheck = android.util.Patterns.EMAIL_ADDRESS.matcher(user.getEmail()).matches();
+        Matcher pwdMatcher = passwordPattern.matcher(user.getPwd());
         boolean pwdCheck = pwdMatcher.find();
 
         if (!(emailCheck)) {
@@ -29,7 +32,7 @@ public class MainViewModel extends ViewModel {
             loginLiveData.setValue("passwordIsNotAllowed");
         } else if (pwdCheck == true && emailCheck == true) {
                 new Thread(() -> {
-                    if (userDBOperation.authenticateUser(email, pwd)) {
+                    if (userDBOperation.authenticateUser(user.getEmail(), user.getPwd())) {
                         loginLiveData.postValue("userIsAuthenticated");
                     } else {
                         loginLiveData.postValue("userAuthenticationIsFailed");
@@ -40,7 +43,11 @@ public class MainViewModel extends ViewModel {
             }
         }
 
-        public void setUserDBOperation(IUserDatabaseOperation userDBOperation) {
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setUserDBOperation(IUserDatabaseOperation userDBOperation) {
             this.userDBOperation = userDBOperation;
         }
 }

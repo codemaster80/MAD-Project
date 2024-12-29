@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private Button showTaskListAction;
     private MainViewModel viewModel;
     private IUserDatabaseOperation userDBOperation;
+    private User user = new User("", "");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
 
         userDBOperation = ((TaskApplication) getApplication()).getUserDatabaseOperation();
         viewModel.setUserDBOperation(userDBOperation);
+
+        viewModel.setUser(user);
 
         userDbInitialise(); // insert testdata
 

@@ -17,8 +17,8 @@ public class TaskApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-//        this.taskDatabaseOperation = new MockTaskDatabaseOperation();
-//        this.taskDatabaseOperation = new LocalTaskDatabaseOperation(this);
+        // this.taskDatabaseOperation = new MockTaskDatabaseOperation();
+        // this.taskDatabaseOperation = new LocalTaskDatabaseOperation(this);
         this.taskDatabaseOperation = new RemoteTaskDatabaseOperation();
         this.userDatabaseOperation = new LocalUserDatabaseOperation(this);
     }
