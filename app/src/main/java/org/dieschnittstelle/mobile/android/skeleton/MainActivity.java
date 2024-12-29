@@ -57,11 +57,11 @@ public class MainActivity extends AppCompatActivity {
         // Login
         this.viewModel.getLoginLiveData().observe(this, onLogin -> {
             if (onLogin == "usernameIsNotAnEMail") {
-                showMessage(getString(R.string.login_username_error),3);
+                showPersistentMessage(getString(R.string.login_username_error));
             } else if (onLogin == "userAuthenticationIsFailed"){
-                showMessage(getString(R.string.login_authentication_failed),3);
+                showPersistentMessage(getString(R.string.login_authentication_failed));
             } else if (onLogin == "passwordIsNotAllowed"){
-                showMessage(getString(R.string.login_password_not_allowed),3);
+                showPersistentMessage(getString(R.string.login_password_not_allowed));
             } else if (onLogin == "userIsAuthenticated") {
                 Intent callTaskOverviewIntent = new Intent(this, TaskListViewActivity.class);
                 startActivity(callTaskOverviewIntent);
@@ -70,21 +70,19 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void showMessage(String message, int snackbarDuration) {
-        switch (snackbarDuration) {
-            case 1:
-                Snackbar.make(findViewById(R.id.rootView), message, Snackbar.LENGTH_SHORT).show();
-            case 2:
-                Snackbar.make(findViewById(R.id.rootView), message, Snackbar.LENGTH_LONG).show();
-            case 3:
+    private void showMessage(String message) {
+        Snackbar.make(findViewById(R.id.rootView), message, Snackbar.LENGTH_SHORT).show();
                 Snackbar.make(findViewById(R.id.rootView), message, Snackbar.LENGTH_INDEFINITE).show();
-        }
     }
+
+    private void showPersistentMessage(String message) {
+        Snackbar.make(findViewById(R.id.rootView), message, Snackbar.LENGTH_INDEFINITE).show();
+    }
+
 
     private void userDbInitialise() {
         new Thread(() -> {
             if (!(userDBOperation.authenticateUser("s@bht.de", "000000"))) {
-                userDBOperation.deleteAllUsers();
                 userDBOperation.createUser(new User("s@bht.de","000000"));
             }
         }).start();
