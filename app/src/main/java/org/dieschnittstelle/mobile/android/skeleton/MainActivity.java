@@ -60,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
                 showMessage(getString(R.string.login_username_error),3);
             } else if (onLogin == "userAuthenticationIsFailed"){
                 showMessage(getString(R.string.login_authentication_failed),3);
+            } else if (onLogin == "passwordIsNotAllowed"){
+                showMessage(getString(R.string.login_password_not_allowed),3);
             } else if (onLogin == "userIsAuthenticated") {
                 Intent callTaskOverviewIntent = new Intent(this, TaskListViewActivity.class);
                 startActivity(callTaskOverviewIntent);
