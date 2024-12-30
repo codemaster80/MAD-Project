@@ -112,29 +112,34 @@
 
             <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/taskCompleted"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
                 android:checked="@={taskDetailViewModel.task.completed}"
                 android:text="@string/checkbox_done"
                 android:layout_marginTop="15dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
                 app:buttonTint="@color/colorAccent"
-                app:layout_constraintTop_toBottomOf="@id/dropdownPriority" />
+                app:layout_constraintTop_toBottomOf="@id/dropdownPriority"
+                app:layout_constraintLeft_toLeftOf="parent" />
 
             <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/taskFavorite"
                 android:text="@string/checkbox_favorite"
                 android:textSize="20sp"
                 android:checked="@={taskDetailViewModel.task.favorite}"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginStart="10dp"
                 app:buttonTint="@color/colorAccent"
-                app:layout_constraintTop_toBottomOf="@id/taskCompleted">
+                app:layout_constraintTop_toBottomOf="@id/dropdownPriority"
+                app:layout_constraintStart_toEndOf="@id/taskCompleted">
             </com.google.android.material.checkbox.MaterialCheckBox>
 
             <TextView
-                android:id="@+id/titleSelectedContact"
+                android:id="@+id/titleAvailableContact"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/cardview_default_radius"
@@ -142,7 +147,7 @@
                 app:layout_constraintHeight="30dp"
                 android:text="@string/title_detail_view_available_contact"
                 android:textSize="18sp"
-                app:layout_constraintTop_toBottomOf="@+id/taskFavorite" />
+                app:layout_constraintTop_toBottomOf="@+id/taskCompleted" />
 
             <Spinner
                 android:id="@+id/contactsDropdown"
@@ -150,7 +155,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:drawable/btn_dropdown"
                 android:prompt="@string/placeholder_detail_view_add_contact_input"
-                app:layout_constraintTop_toBottomOf="@+id/titleSelectedContact" />
+                app:layout_constraintTop_toBottomOf="@+id/titleAvailableContact" />
 
             <TextView
                 android:id="@+id/titleSelectedContacts"
@@ -158,7 +163,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/cardview_default_radius"
                 android:layout_marginTop="10dp"
-                app:layout_constraintHeight="40dp"
+                app:layout_constraintHeight="30dp"
                 android:text="@string/title_detail_view_selected_contact"
                 android:textSize="18sp"
                 app:layout_constraintTop_toBottomOf="@+id/contactsDropdown" />
@@ -166,7 +171,7 @@
             <ListView
                 android:id="@+id/selectedContacts"
                 android:layout_width="match_parent"
-                android:layout_height="160dp"
+                android:layout_height="210dp"
                 android:nestedScrollingEnabled="true"
                 app:layout_constraintTop_toBottomOf="@+id/titleSelectedContacts" />
 
