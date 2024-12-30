@@ -6,35 +6,33 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputLayout;
 
 import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityMainBinding;
-import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityTaskDetailViewBinding;
 import org.dieschnittstelle.mobile.android.skeleton.model.IUserDatabaseOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.User;
 import org.dieschnittstelle.mobile.android.skeleton.viewmodel.MainViewModel;
-import org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskListViewModel;
 
 public class MainActivity extends AppCompatActivity {
 
     private TextView welcomeText;
+    private TextInputLayout emailAdressLayout;
+    private TextInputLayout passwordLayout;
     private EditText emailAdress;
     private EditText password;
     private Button showTaskListAction;
     private MainViewModel viewModel;
     private IUserDatabaseOperation userDBOperation;
-    private User user = new User("", "");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        User user = new User("", "");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         ActivityMainBinding MainViewBinding = DataBindingUtil.setContentView(
@@ -54,34 +52,44 @@ public class MainActivity extends AppCompatActivity {
         welcomeText = findViewById(R.id.welcomeText);
         welcomeText.setText(R.string.welcome_message);
 
-        emailAdress = findViewById(R.id.editTextTextEmailAddress);
-        password = findViewById(R.id.editTextTextPassword);
+        emailAdressLayout = findViewById(R.id.editTextEmailAddress);
+        emailAdress = emailAdressLayout.getEditText();
+        passwordLayout = findViewById(R.id.editTextPassword);
+        password = passwordLayout.getEditText();
 
-        // Login
-        this.viewModel.getLoginLiveData().observe(this, onLogin -> {
-            if (onLogin == "usernameIsNotAnEMail") {
-                showPersistentMessage(getString(R.string.login_username_error));
-            } else if (onLogin == "userAuthenticationIsFailed"){
-                showPersistentMessage(getString(R.string.login_authentication_failed));
-            } else if (onLogin == "passwordIsNotAllowed"){
-                showPersistentMessage(getString(R.string.login_password_not_allowed));
-            } else if (onLogin == "userIsAuthenticated") {
-                Intent callTaskOverviewIntent = new Intent(this, TaskListViewActivity.class);
-                startActivity(callTaskOverviewIntent);
-                this.finish();
+        this.viewModel.getLoginState().observe(this, this::handleUserLoginState);
+    }
+
+    private void handleUserLoginState(MainViewModel.LoginState loginState) {
+        if (loginState != null) {
+            switch (loginState) {
+                case INVALID_EMAIL:
+                    showMessage(getString(R.string.login_username_error));
+                    break;
+                case WRONG_PASSWORD:
+                    showMessage(getString(R.string.login_password_not_allowed));
+                    break;
+                case AUTHENTICATION_FAIL:
+                    showPersistentMessage(getString(R.string.login_authentication_failed));
+                    break;
+                case AUTHENTICATION_SUCCESS:
+                    Intent callTaskListViewIntent = new Intent(this, TaskListViewActivity.class);
+                    startActivity(callTaskListViewIntent);
+                    this.finish();
+                    break;
+                default:
+                    break;
             }
-        });
+        }
     }
 
     private void showMessage(String message) {
         Snackbar.make(findViewById(R.id.rootView), message, Snackbar.LENGTH_SHORT).show();
-                Snackbar.make(findViewById(R.id.rootView), message, Snackbar.LENGTH_INDEFINITE).show();
     }
 
     private void showPersistentMessage(String message) {
         Snackbar.make(findViewById(R.id.rootView), message, Snackbar.LENGTH_INDEFINITE).show();
     }
-
 
     private void userDbInitialise() {
         new Thread(() -> {

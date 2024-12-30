@@ -19,7 +19,6 @@ import java.util.List;
 public class LocalUserDatabaseOperation implements IUserDatabaseOperation {
 
     @Dao
-    @TypeConverters(UserTypeConverter.class)
     public interface SQLITEUserCRUDOperation {
 
         @Query("SELECT * FROM user WHERE email=(:username) AND pwd=(:password)")

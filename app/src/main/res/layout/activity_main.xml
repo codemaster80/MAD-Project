@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
         <variable
             name="mainViewModel"
             type="org.dieschnittstelle.mobile.android.skeleton.viewmodel.MainViewModel" />
     </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/rootView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/rootView">
+        android:layout_height="match_parent">
 
         <TextView
             android:id="@+id/welcomeText"
@@ -25,46 +27,60 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.188" />
 
-        <EditText
-            android:id="@+id/editTextTextEmailAddress"
-            android:text="@={mainViewModel.user.email}"
-            android:layout_width="wrap_content"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/editTextEmailAddress"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:ems="10"
+            android:error="@{mainViewModel.mailInputError}"
             android:hint="@string/mail"
-            android:inputType="textEmailAddress"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/welcomeText" />
-
-        <EditText
-            android:id="@+id/editTextTextPassword"
-            android:text="@={mainViewModel.user.pwd}"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="380dp"
-            android:ems="10"
-            android:hint="@string/password"
-            android:inputType="textPassword"
+            android:inputType="text"
+            app:hintEnabled="true"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextTextEmailAddress"
-            app:layout_constraintVertical_bias="0.100000024" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.32">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onEditorAction="@{(view, keyId, event) -> mainViewModel.checkMailInputOnEnterKey(keyId)}"
+                android:onTextChanged="@{() -> mainViewModel.onLoginInputChanged()}"
+                android:singleLine="true"
+                android:text="@={mainViewModel.user.email}">
+            </com.google.android.material.textfield.TextInputEditText>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/editTextPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:error="@{mainViewModel.passwordInputError}"
+            android:hint="@string/password"
+            android:inputType="text"
+            app:hintEnabled="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editTextEmailAddress"
+            app:layout_constraintVertical_bias="0.0">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onEditorAction="@{(view, keyId, event) -> mainViewModel.checkPasswordInputOnEnterKey(keyId)}"
+                android:onTextChanged="@{() -> mainViewModel.onLoginInputChanged()}"
+                android:singleLine="true"
+                android:text="@={mainViewModel.user.pwd}">
+            </com.google.android.material.textfield.TextInputEditText>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/loginButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/login"
             android:onClick="@{() -> mainViewModel.authenticateUser()}"
+            android:text="@string/login"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword"
-            app:layout_constraintVertical_bias="0.100000024" />
+            app:layout_constraintTop_toBottomOf="@+id/editTextPassword"
+            app:layout_constraintVertical_bias="0.26" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

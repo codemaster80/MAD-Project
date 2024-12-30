@@ -52,8 +52,6 @@ public class TaskDetailViewModel extends ViewModel {
         return isContactOnDelete;
     }
 
-
-
     public boolean checkNameInputOnEnterKey(int keyId) {
         if (keyId == EditorInfo.IME_ACTION_NEXT || keyId == EditorInfo.IME_ACTION_DONE) {
             if (task.getName().length() <= 2) {
