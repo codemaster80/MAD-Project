@@ -1,19 +1,17 @@
 package org.dieschnittstelle.mobile.android.skeleton.viewmodel;
 
 import android.util.Log;
-import android.view.inputmethod.EditorInfo;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import org.dieschnittstelle.mobile.android.skeleton.model.IUserDatabaseOperation;
+import org.dieschnittstelle.mobile.android.skeleton.model.ITaskDatabaseOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.User;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MainViewModel extends ViewModel {
-    private IUserDatabaseOperation userDBOperation;
+    private ITaskDatabaseOperation taskDBOperation;
     private final MutableLiveData<LoginState> loginState = new MutableLiveData<>();
     private MutableLiveData<String> mailInputError = new MutableLiveData<>();
     private MutableLiveData<String> passwordInputError = new MutableLiveData<>();
@@ -23,7 +21,7 @@ public class MainViewModel extends ViewModel {
         if ((checkMailInput() == true) && (checkPasswordInput() == true)) {
             Log.i("Login", "auth");
             new Thread(() -> {
-                if (userDBOperation.authenticateUser(user.getEmail(), user.getPwd())) {
+                if (taskDBOperation.authenticateUser(user)) {
                     loginState.postValue(LoginState.AUTHENTICATION_SUCCESS);
                 } else {
                     loginState.postValue(LoginState.AUTHENTICATION_FAIL);
@@ -80,8 +78,8 @@ public class MainViewModel extends ViewModel {
         this.user = user;
     }
 
-    public void setUserDBOperation(IUserDatabaseOperation userDBOperation) {
-        this.userDBOperation = userDBOperation;
+    public void setTaskDBOperation(ITaskDatabaseOperation taskDBOperation) {
+        this.taskDBOperation = taskDBOperation;
     }
 
     public enum LoginState {

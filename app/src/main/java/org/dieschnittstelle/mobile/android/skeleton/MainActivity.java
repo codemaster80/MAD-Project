@@ -14,7 +14,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 
 import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityMainBinding;
-import org.dieschnittstelle.mobile.android.skeleton.model.IUserDatabaseOperation;
+import org.dieschnittstelle.mobile.android.skeleton.model.ITaskDatabaseOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.User;
 import org.dieschnittstelle.mobile.android.skeleton.viewmodel.MainViewModel;
 
@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText password;
     private Button showTaskListAction;
     private MainViewModel viewModel;
-    private IUserDatabaseOperation userDBOperation;
+    private ITaskDatabaseOperation taskDBOperation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,12 +42,10 @@ public class MainActivity extends AppCompatActivity {
         MainViewBinding.setMainViewModel(this.viewModel);
         MainViewBinding.setLifecycleOwner(this);
 
-        userDBOperation = ((TaskApplication) getApplication()).getUserDatabaseOperation();
-        viewModel.setUserDBOperation(userDBOperation);
+        taskDBOperation = ((TaskApplication) getApplication()).getTaskDatabaseOperation();
+        viewModel.setTaskDBOperation(taskDBOperation);
 
         viewModel.setUser(user);
-
-        userDbInitialise(); // insert testdata
 
         welcomeText = findViewById(R.id.welcomeText);
         welcomeText.setText(R.string.welcome_message);
@@ -89,13 +87,5 @@ public class MainActivity extends AppCompatActivity {
 
     private void showPersistentMessage(String message) {
         Snackbar.make(findViewById(R.id.rootView), message, Snackbar.LENGTH_INDEFINITE).show();
-    }
-
-    private void userDbInitialise() {
-        new Thread(() -> {
-            if (!(userDBOperation.authenticateUser("s@bht.de", "000000"))) {
-                userDBOperation.createUser(new User("s@bht.de","000000"));
-            }
-        }).start();
     }
 }
