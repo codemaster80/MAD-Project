@@ -61,12 +61,6 @@ public class MainActivity extends AppCompatActivity {
     private void handleUserLoginState(MainViewModel.LoginState loginState) {
         if (loginState != null) {
             switch (loginState) {
-                case INVALID_EMAIL:
-                    showMessage(getString(R.string.login_username_error));
-                    break;
-                case WRONG_PASSWORD:
-                    showMessage(getString(R.string.login_password_not_allowed));
-                    break;
                 case AUTHENTICATION_FAIL:
                     showPersistentMessage(getString(R.string.login_authentication_failed));
                     break;

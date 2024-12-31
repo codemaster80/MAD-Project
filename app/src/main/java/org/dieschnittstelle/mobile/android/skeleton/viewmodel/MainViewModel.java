@@ -83,6 +83,6 @@ public class MainViewModel extends ViewModel {
     }
 
     public enum LoginState {
-        INVALID_EMAIL, WRONG_PASSWORD, AUTHENTICATION_SUCCESS, AUTHENTICATION_FAIL
+        AUTHENTICATION_SUCCESS, AUTHENTICATION_FAIL
     }
 }
