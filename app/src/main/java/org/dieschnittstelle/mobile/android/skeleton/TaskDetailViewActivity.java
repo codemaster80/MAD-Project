@@ -1,22 +1,20 @@
 package org.dieschnittstelle.mobile.android.skeleton;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -124,7 +122,7 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == READ_CONTACTS_REQUEST_CODE && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            setupContactList();
+            viewModel.setupContactList(getContentResolver());
         }
     }
 
@@ -256,21 +254,25 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         if (getApplicationContext().checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, READ_CONTACTS_REQUEST_CODE);
         } else {
-            setupContactList();
+            viewModel.setupContactList(getContentResolver());
         }
     }
 
-    private void setupContactList() {
-        viewModel.getAvailableContacts().addAll(queryContacts());
-    }
-
+    // TODO: check if it's supposed to be done by opening Android Contacts app instead of dropdown
     private void setContactDropDown() {
         selectedContactsAdapter = new ContactListAdapter(this, R.layout.contact_item_view, viewModel.getTask().getContacts());
         final ListView selectedContacts = findViewById(R.id.selectedContacts);
         selectedContacts.setAdapter(selectedContactsAdapter);
 
         final Spinner contactsSpinner = findViewById(R.id.contactsDropdown);
-        ArrayAdapter<String> contactAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, viewModel.getAvailableContacts());
+        List<String> availableContactNames = new ArrayList<>(List.of("Select a contact..."));
+        availableContactNames.addAll(
+                viewModel.getAvailableContacts().stream()
+                        .map(TaskDetailViewModel.Contact::getName)
+                        .collect(Collectors.toList())
+        );
+
+        ArrayAdapter<String> contactAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, availableContactNames);
         contactsSpinner.setAdapter(contactAdapter);
         contactsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -291,45 +293,42 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         });
     }
 
-    private void showMessage(String message) {
-        Snackbar.make(findViewById(R.id.taskDetailViewActivity), message, Snackbar.LENGTH_SHORT).show();
+    private void openSMSApp(String contactName, String taskName, String taskDescription) {
+        TaskDetailViewModel.Contact recipient = viewModel.getAvailableContacts().stream()
+                .filter(contact -> contact.getName().equals(contactName))
+                .findAny()
+                .orElse(null);
+
+        if (recipient == null || recipient.getPhoneNumbers() == null || recipient.getPhoneNumbers().isEmpty()) {
+            return;
+        }
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + recipient.getPhoneNumbers().get(0)));
+        String message = "Mission Name: " + taskName + " Mission Description: " + taskDescription;
+        intent.putExtra("sms_body", message);
+        startActivity(intent);
     }
 
-    // TODO: check if it's supposed to be done by opening Android Contacts app instead of dropdown
-    //suppress warning when column index = -1
-    @SuppressLint("Range")
-    private ArrayList<String> queryContacts() {
-        // https://stackoverflow.com/a/12562234
-        ArrayList<String> contacts = new ArrayList<>();
+    private void openMailApp(String contactName, String taskName, String taskDescription) {
+        TaskDetailViewModel.Contact recipient = viewModel.getAvailableContacts().stream()
+                .filter(contact -> contact.getName().equals(contactName))
+                .findAny()
+                .orElse(null);
 
-        ContentResolver contentResolver = getContentResolver();
-        Cursor contactCursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
-        int numOfRows = contactCursor != null ? contactCursor.getCount() : 0;
-
-        if (numOfRows > 0) {
-            while (contactCursor.moveToNext()) {
-                String id = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts._ID));
-                String name = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-
-                if (contactCursor.getInt(contactCursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
-                    Cursor phoneCursor = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{id}, null);
-                    while (phoneCursor != null && phoneCursor.moveToNext()) {
-                        String phoneNo = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        contacts.add(name);
-                    }
-
-                    if (phoneCursor != null) {
-                        phoneCursor.close();
-                    }
-                }
-            }
+        if (recipient == null || recipient.getEmails() == null || recipient.getEmails().isEmpty()) {
+            return;
         }
 
-        if (contactCursor != null) {
-            contactCursor.close();
-        }
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setData(Uri.parse("mailto:")); // only email apps should handle this
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{recipient.getEmails().get(0)});
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Mission Name: " + taskName);
+        intent.putExtra(Intent.EXTRA_TEXT, " Mission Description: " + taskDescription);
+        startActivity(intent);
+    }
 
-        return contacts;
+    private void showMessage(String message) {
+        Snackbar.make(findViewById(R.id.taskDetailViewActivity), message, Snackbar.LENGTH_SHORT).show();
     }
 
     private class ContactListAdapter extends ArrayAdapter<String> {
@@ -361,6 +360,12 @@ public class TaskDetailViewActivity extends AppCompatActivity {
                 return contactView;
             }
             contactItemViewBinding.setContact(contactFromList);
+
+            ImageButton smsButton = contactView.findViewById(R.id.contactSmsButton);
+            smsButton.setOnClickListener(it -> openSMSApp(contactFromList, task.getName(), task.getDescription()));
+
+            ImageButton mailButton = contactView.findViewById(R.id.contactMailButton);
+            mailButton.setOnClickListener(it -> openMailApp(contactFromList, task.getName(), task.getDescription()));
 
             return contactView;
         }

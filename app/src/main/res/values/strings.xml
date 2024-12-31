@@ -30,9 +30,7 @@
     <string name="title_detail_view_available_contact">Available Contacts</string>
     <string name="title_detail_view_selected_contact">Selected Contacts</string>
     <string name="placeholder_detail_view_add_contact_input">Enter new contact</string>
-    <string name="delete_contact_icon_text">Delete Contact</string>
-    <string name="login">Login</string>
-    <string name="password">Password</string>
-    <string name="mail">Mail</string>
-    <string name="login_authentication_failed">Authentication failed</string>
+    <string name="delete_contact_button_text">Delete contact</string>
+    <string name="mail_contact_button_text">Mail contact</string>
+    <string name="sms_contact_button_text">Sms contact</string>
 </resources>
