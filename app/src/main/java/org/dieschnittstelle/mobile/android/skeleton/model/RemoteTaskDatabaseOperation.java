@@ -49,6 +49,8 @@ public class RemoteTaskDatabaseOperation implements ITaskDatabaseOperation {
 
     @Override
     public Task createTask(Task task) {
+        // Priority is missing on remote db, will fail to create a task on remote db, if priority has value.
+        task.setPriority(null);
         try {
             return toDoRESTWebAPI.createTask(task).execute().body();
         } catch (IOException e) {
@@ -76,6 +78,8 @@ public class RemoteTaskDatabaseOperation implements ITaskDatabaseOperation {
 
     @Override
     public boolean updateTask(Task task) {
+        // Priority is missing on remote db, will fail to create a task on remote db, if priority has value.
+        task.setPriority(null);
         try {
             toDoRESTWebAPI.updateTask(task.getId(), task).execute().body();
             return true;

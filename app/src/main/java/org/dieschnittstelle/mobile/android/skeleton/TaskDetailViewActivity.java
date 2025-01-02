@@ -1,6 +1,7 @@
 package org.dieschnittstelle.mobile.android.skeleton;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -17,8 +18,9 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -38,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -47,11 +50,17 @@ public class TaskDetailViewActivity extends AppCompatActivity {
     protected static final int RESULT_DELETE_OK = 99;
     private Task task;
     private TaskDetailViewModel viewModel;
-    TextView taskDateTextView;
     private Button pickDateBtn;
-    TextView taskTimeTextView;
     private Button pickTimeBtn;
+    private Button pickLocationBtn;
     private ArrayAdapter<String> selectedContactsAdapter;
+
+    private final ActivityResultLauncher<Intent> mapViewLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), activityResult -> {
+        if (activityResult.getResultCode() == TaskLocationViewActivity.RESULT_OK && activityResult.getData() != null) {
+            Task.Location location = (Task.Location) activityResult.getData().getSerializableExtra(TaskLocationViewActivity.LOCATION_VIEW_KEY);
+            viewModel.setSelectedLocation(location);
+        }
+    });
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,9 +72,7 @@ public class TaskDetailViewActivity extends AppCompatActivity {
             if (task == null) {
                 task = new Task();
             }
-
             viewModel.setTask(task);
-            getContactInformation();
         }
 
         ActivityTaskDetailViewBinding taskDetailViewBinding = DataBindingUtil.setContentView(
@@ -76,12 +83,13 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         taskDetailViewBinding.setLifecycleOwner(this);
 
         pickDateBtn = findViewById(R.id.btnPickDueDate);
-        taskDateTextView = findViewById(R.id.taskDate);
         setDueDate();
 
         pickTimeBtn = findViewById(R.id.btnPickTime);
-        taskTimeTextView = findViewById(R.id.taskTime);
         setTimeLimit();
+
+        pickLocationBtn = findViewById(R.id.btnPickLocation);
+        setLocation();
 
         setPriorityDropDown();
         setContactDropDown();
@@ -97,6 +105,9 @@ public class TaskDetailViewActivity extends AppCompatActivity {
                 // DateFormat String 01.01.2025 01:00
                 long expiryLong = DateConverter.fromDateString(date + " " + time);
                 task.setExpiry(expiryLong);
+                if (viewModel.getSelectedLocation() != null) {
+                    task.setLocation(viewModel.getSelectedLocation());
+                }
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra(TASK_DETAIL_VIEW_KEY, task);
                 this.setResult(TaskDetailViewActivity.RESULT_OK, returnIntent);
@@ -224,11 +235,69 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         return String.valueOf(number);
     }
 
+    private void showTaskLocationMapView() {
+        Intent callLocationViewIntent = new Intent(this, TaskLocationViewActivity.class);
+        callLocationViewIntent.putExtra(TaskDetailViewActivity.TASK_DETAIL_VIEW_KEY, task);
+        mapViewLauncher.launch(callLocationViewIntent);
+    }
+
+    @SuppressLint("PotentialBehaviorOverride")
+    private void setLocation() {
+        pickLocationBtn.setOnClickListener(it -> showTaskLocationMapView());
+
+//        pickLocationBtn.setOnClickListener(it -> openGoogleMap());
+
+//        TODO: read lat long of pinned location
+//        GoogleMap map;
+//        map.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+//            @Override
+//            public void onMarkerDragStart(Marker marker) {}
+//
+//            @Override
+//            public void onMarkerDrag(Marker marker) {}
+//
+//            @Override
+//            public void onMarkerDragEnd(Marker marker) {
+//                // Get the position of the marker
+//                LatLng position = marker.getPosition();
+//
+//                // Initialize Geocoder
+//                Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+//
+//                try {
+//                    // Get the address from the latitude and longitude
+//                    List<Address> addresses = geocoder.getFromLocation(position.latitude, position.longitude, 1);
+//
+//                    if (addresses != null && !addresses.isEmpty()) {
+//                        Address address = addresses.get(0);
+//                        String city = address.getLocality();
+//                        Toast.makeText(getApplicationContext(), city, Toast.LENGTH_SHORT).show();
+//                    }
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+    }
+
+    private void openGoogleMap() {
+        String uri;
+        Task.LatLng defaultLatLng = viewModel.getDefaultLatLng();
+
+        if (task.getLocation() == null || task.getLocation().getName() == null || task.getLocation().getName().isBlank() || task.getLocation().getLatlng() == null) {
+            uri = String.format(Locale.getDefault(), "geo:%f,%f", defaultLatLng.getLat(), defaultLatLng.getLng());
+        } else {
+            uri = String.format(Locale.getDefault(), "geo:%f,%f", task.getLocation().getLatlng().getLat(), task.getLocation().getLatlng().getLng());
+        }
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+        startActivity(intent);
+    }
+
     private void setPriorityDropDown() {
         final Spinner taskPrioritySpinner = findViewById(R.id.dropdownPriority);
         Task.Priority currentPriority = task.getPriority();
         List<String> priorities = new ArrayList<>(Arrays.asList(Task.Priority.NONE.name(), Task.Priority.LOW.name(), Task.Priority.NORMAL.name(), Task.Priority.HIGH.name(), Task.Priority.CRITICAL.name()));
-        if (!currentPriority.equals(Task.Priority.NONE)) {
+        if (task.getPriority() != null && !currentPriority.equals(Task.Priority.NONE)) {
             priorities.add(0, currentPriority.name());
             priorities = priorities.stream().distinct().collect(Collectors.toList());
         }
@@ -250,22 +319,15 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         });
     }
 
-    private void getContactInformation() {
-        if (getApplicationContext().checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, READ_CONTACTS_REQUEST_CODE);
-        } else {
-            viewModel.setupContactList(getContentResolver());
-        }
-    }
-
     // TODO: check if it's supposed to be done by opening Android Contacts app instead of dropdown
     private void setContactDropDown() {
+        getContactInformation();
         selectedContactsAdapter = new ContactListAdapter(this, R.layout.contact_item_view, viewModel.getTask().getContacts());
         final ListView selectedContacts = findViewById(R.id.selectedContacts);
         selectedContacts.setAdapter(selectedContactsAdapter);
 
         final Spinner contactsSpinner = findViewById(R.id.contactsDropdown);
-        List<String> availableContactNames = new ArrayList<>(List.of("Select a contact..."));
+        List<String> availableContactNames = new ArrayList<>(List.of("Select contact"));
         availableContactNames.addAll(
                 viewModel.getAvailableContacts().stream()
                         .map(TaskDetailViewModel.Contact::getName)
@@ -291,6 +353,14 @@ public class TaskDetailViewActivity extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
+    }
+
+    private void getContactInformation() {
+        if (getApplicationContext().checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, READ_CONTACTS_REQUEST_CODE);
+        } else {
+            viewModel.setupContactList(getContentResolver());
+        }
     }
 
     private void openSMSApp(String contactName, String taskName, String taskDescription) {

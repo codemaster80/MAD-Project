@@ -23,6 +23,10 @@ public class TaskDetailViewModel extends ViewModel {
     private final MutableLiveData<String> nameInputError = new MutableLiveData<>();
     private final List<Contact> availableContacts = new ArrayList<>();
 
+    private final Task.LatLng defaultLatLng = new Task.LatLng();
+
+    private Task.Location selectedLocation = new Task.Location();
+
     public Task getTask() { return task; }
 
     public void setTask(Task task) {
@@ -54,6 +58,18 @@ public class TaskDetailViewModel extends ViewModel {
 
     public List<Contact> getAvailableContacts() {
         return availableContacts;
+    }
+
+    public Task.LatLng getDefaultLatLng() {
+        return defaultLatLng;
+    }
+
+    public Task.Location getSelectedLocation() {
+        return selectedLocation;
+    }
+
+    public void setSelectedLocation(Task.Location selectedLocation) {
+        this.selectedLocation = selectedLocation;
     }
 
     public boolean checkNameInputOnEnterKey(int keyId) {
@@ -89,6 +105,11 @@ public class TaskDetailViewModel extends ViewModel {
             return dateTime;
         }
         return dateTime.split(" ")[1];
+    }
+
+    public void setupDefaultLatLng(double lat, double lng) {
+        defaultLatLng.setLat(lat);
+        defaultLatLng.setLng(lng);
     }
 
     public void setupContactList(ContentResolver contentResolver) {
