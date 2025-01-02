@@ -83,5 +83,10 @@
             app:layout_constraintTop_toBottomOf="@+id/editTextPassword"
             app:layout_constraintVertical_bias="0.26" />
 
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

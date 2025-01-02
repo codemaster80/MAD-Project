@@ -20,8 +20,13 @@ public class MainViewModel extends ViewModel {
 
     public void authenticateUser() {
         if ((checkMailInput() == true) && (checkPasswordInput() == true)) {
-            Log.i("Login", "auth");
+           loginState.setValue(LoginState.RUNNING);
             new Thread(() -> {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 if (taskDBOperation.authenticateUser(user)) {
                     loginState.postValue(LoginState.AUTHENTICATION_SUCCESS);
                 } else {
@@ -108,6 +113,6 @@ public class MainViewModel extends ViewModel {
     }
 
     public enum LoginState {
-        AUTHENTICATION_SUCCESS, AUTHENTICATION_FAIL
+        AUTHENTICATION_SUCCESS, AUTHENTICATION_FAIL, RUNNING
     }
 }

@@ -6,8 +6,10 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -28,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private Button showTaskListAction;
     private MainViewModel viewModel;
     private ITaskDatabaseOperation taskDBOperation;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +68,10 @@ public class MainActivity extends AppCompatActivity {
                     emailAdress = emailAdressLayout.getEditText();
                     passwordLayout = findViewById(R.id.editTextPassword);
                     password = passwordLayout.getEditText();
+
+                    progressBar = findViewById(R.id.progressBar);
+                    progressBar.setVisibility(View.GONE);
+
                     break;
             }
         }
@@ -73,10 +80,15 @@ public class MainActivity extends AppCompatActivity {
     private void handleUserLoginState(MainViewModel.LoginState loginState) {
         if (loginState != null) {
             switch (loginState) {
+                case RUNNING:
+                    progressBar.setVisibility(View.VISIBLE);
+                    break;
                 case AUTHENTICATION_FAIL:
+                    progressBar.setVisibility(View.GONE);
                     showPersistentMessage(getString(R.string.login_authentication_failed));
                     break;
                 case AUTHENTICATION_SUCCESS:
+                    progressBar.setVisibility(View.GONE);
                     callTaskListViewIntent();
                     break;
                 default:
