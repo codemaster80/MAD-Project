@@ -56,18 +56,6 @@ public class MainViewModel extends ViewModel {
         }
     }
 
-    public boolean onMailInputChanged() {
-        Log.i("Login", "onLoginInputChanged");
-        this.mailInputError.setValue(null);
-        return false;
-    }
-
-    public boolean onPasswordInputChanged() {
-        Log.i("Login", "onLoginInputChanged");
-        this.passwordInputError.setValue(null);
-        return false;
-    }
-
     public MutableLiveData<DatabaseState> getDatabaseState() {
         return databaseState;
     }
@@ -98,12 +86,9 @@ public class MainViewModel extends ViewModel {
                 Socket socket = new Socket();
                 socket.connect(new InetSocketAddress("10.0.2.2", 8080), 2000);
                 socket.close();
-                Log.i("Login", "Remote database reachable...");
                 databaseState.postValue(DatabaseState.CONNECT_REMOTE_SUCCESS);
             } catch (IOException e) {
                 databaseState.postValue(DatabaseState.CONNECT_REMOTE_FAIL);
-                Log.i("Login", "Remote database not reachable...");
-                Log.e("Login", "checkRemoteTaskDatabaseOperation: " + e.toString());
             }
         }).start();
     }

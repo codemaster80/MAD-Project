@@ -2,10 +2,16 @@ package org.dieschnittstelle.mobile.android.skeleton;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -72,9 +78,68 @@ public class MainActivity extends AppCompatActivity {
                     progressBar = findViewById(R.id.progressBar);
                     progressBar.setVisibility(View.GONE);
 
+                    emailAdressValidation();
+                    passwordValidation();
+
                     break;
             }
         }
+    }
+
+    private void emailAdressValidation() {
+        emailAdress.addTextChangedListener(new TextWatcher() {
+            private Handler emailAdressValidationHandler = new Handler(Looper.getMainLooper());
+
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                viewModel.getMailInputError().setValue(null);
+                emailAdressValidationHandler.removeCallbacksAndMessages(null); // Remove pending validations
+                emailAdressValidationHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (viewModel.checkMailInput()) {
+                            viewModel.getMailInputError().setValue(null); // Clear any previous error
+                        } else {
+                            viewModel.getMailInputError().setValue("Input not valid, must be an e-mail address");
+                        }
+                    }
+                }, 2000);
+            }
+        });
+    }
+
+    private void passwordValidation() {
+        password.addTextChangedListener(new TextWatcher() {
+            private Handler passwordAdressValidationHandler = new Handler(Looper.getMainLooper());
+
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                viewModel.getPasswordInputError().setValue(null);
+                passwordAdressValidationHandler.removeCallbacksAndMessages(null); // Remove pending validations
+                passwordAdressValidationHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (viewModel.checkPasswordInput()) {
+                            viewModel.getPasswordInputError().setValue(null); // Clear any previous error
+                        } else {
+                            viewModel.getPasswordInputError().setValue("Input not valid, must consist of 6 numbers");
+                        }
+                    }
+                }, 2000);
+            }
+        });
     }
 
     private void handleUserLoginState(MainViewModel.LoginState loginState) {

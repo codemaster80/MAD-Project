@@ -5,7 +5,7 @@
     <data>
         <variable
             name="mainViewModel"
-            type="org.dieschnittstelle.mobile.android.skeleton.viewmodel.MainViewModel" />
+            type="org.dieschnittstelle.mobile.android.skeleton.viewmodel.MainViewModel"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -41,8 +41,6 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:onEditorAction="@{() -> mainViewModel.checkMailInput()}"
-                android:onTextChanged="@{() -> mainViewModel.onMailInputChanged()}"
                 android:singleLine="true"
                 android:text="@={mainViewModel.user.email}">
             </com.google.android.material.textfield.TextInputEditText>
@@ -64,8 +62,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
-                android:onEditorAction="@{() -> mainViewModel.checkPasswordInput()}"
-                android:onTextChanged="@{() -> mainViewModel.onPasswordInputChanged()}"
                 android:singleLine="true"
                 android:text="@={mainViewModel.user.pwd}">
             </com.google.android.material.textfield.TextInputEditText>
