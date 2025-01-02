@@ -1,6 +1,7 @@
 package org.dieschnittstelle.mobile.android.skeleton;
 
 import android.app.Application;
+import android.util.Log;
 
 import org.dieschnittstelle.mobile.android.skeleton.model.ITaskDatabaseOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.RemoteTaskDatabaseOperation;

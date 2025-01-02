@@ -1,17 +1,18 @@
 package org.dieschnittstelle.mobile.android.skeleton.viewmodel;
 
 import android.util.Log;
-
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-
 import org.dieschnittstelle.mobile.android.skeleton.model.ITaskDatabaseOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.User;
-
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.regex.Pattern;
 
 public class MainViewModel extends ViewModel {
     private ITaskDatabaseOperation taskDBOperation;
+    private final MutableLiveData<DatabaseState> databaseState = new MutableLiveData<>();
     private final MutableLiveData<LoginState> loginState = new MutableLiveData<>();
     private MutableLiveData<String> mailInputError = new MutableLiveData<>();
     private MutableLiveData<String> passwordInputError = new MutableLiveData<>();
@@ -62,6 +63,10 @@ public class MainViewModel extends ViewModel {
         return false;
     }
 
+    public MutableLiveData<DatabaseState> getDatabaseState() {
+        return databaseState;
+    }
+
     public MutableLiveData<LoginState> getLoginState() {
         return loginState;
     }
@@ -80,6 +85,26 @@ public class MainViewModel extends ViewModel {
 
     public void setTaskDBOperation(ITaskDatabaseOperation taskDBOperation) {
         this.taskDBOperation = taskDBOperation;
+    }
+
+    public void checkRemoteTaskDatabaseOperation() {
+        new Thread(() -> {
+            try {
+                Socket socket = new Socket();
+                socket.connect(new InetSocketAddress("10.0.2.2", 8080), 2000);
+                socket.close();
+                Log.i("Login", "Remote database reachable...");
+                databaseState.postValue(DatabaseState.CONNECT_REMOTE_SUCCESS);
+            } catch (IOException e) {
+                databaseState.postValue(DatabaseState.CONNECT_REMOTE_FAIL);
+                Log.i("Login", "Remote database not reachable...");
+                Log.e("Login", "checkRemoteTaskDatabaseOperation: " + e.toString());
+            }
+        }).start();
+    }
+
+    public enum DatabaseState {
+        CONNECT_REMOTE_SUCCESS, CONNECT_REMOTE_FAIL
     }
 
     public enum LoginState {

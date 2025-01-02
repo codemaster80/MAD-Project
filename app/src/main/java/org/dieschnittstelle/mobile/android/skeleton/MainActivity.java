@@ -31,31 +31,43 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        User user = new User("", "");
         super.onCreate(savedInstanceState);
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
-
-        ActivityMainBinding MainViewBinding = DataBindingUtil.setContentView(
-                this,
-                R.layout.activity_main
-        );
-        MainViewBinding.setMainViewModel(this.viewModel);
-        MainViewBinding.setLifecycleOwner(this);
-
-        taskDBOperation = ((TaskApplication) getApplication()).getTaskDatabaseOperation();
-        viewModel.setTaskDBOperation(taskDBOperation);
-
-        viewModel.setUser(user);
-
-        welcomeText = findViewById(R.id.welcomeText);
-        welcomeText.setText(R.string.welcome_message);
-
-        emailAdressLayout = findViewById(R.id.editTextEmailAddress);
-        emailAdress = emailAdressLayout.getEditText();
-        passwordLayout = findViewById(R.id.editTextPassword);
-        password = passwordLayout.getEditText();
-
+        this.viewModel.getDatabaseState().observe(this, this::handleDatabaseState);
         this.viewModel.getLoginState().observe(this, this::handleUserLoginState);
+        this.viewModel.checkRemoteTaskDatabaseOperation();
+    }
+
+    private void handleDatabaseState(MainViewModel.DatabaseState databaseState) {
+        if (databaseState != null) {
+            switch (databaseState) {
+                case CONNECT_REMOTE_FAIL:
+                    callTaskListViewIntent();
+                    break;
+                case CONNECT_REMOTE_SUCCESS:
+                    User user = new User("", "");
+                    ActivityMainBinding MainViewBinding = DataBindingUtil.setContentView(
+                            this,
+                            R.layout.activity_main
+                    );
+                    MainViewBinding.setMainViewModel(this.viewModel);
+                    MainViewBinding.setLifecycleOwner(this);
+
+                    taskDBOperation = ((TaskApplication) getApplication()).getTaskDatabaseOperation();
+                    viewModel.setTaskDBOperation(taskDBOperation);
+
+                    viewModel.setUser(user);
+
+                    welcomeText = findViewById(R.id.welcomeText);
+                    welcomeText.setText(R.string.welcome_message);
+
+                    emailAdressLayout = findViewById(R.id.editTextEmailAddress);
+                    emailAdress = emailAdressLayout.getEditText();
+                    passwordLayout = findViewById(R.id.editTextPassword);
+                    password = passwordLayout.getEditText();
+                    break;
+            }
+        }
     }
 
     private void handleUserLoginState(MainViewModel.LoginState loginState) {
@@ -65,14 +77,18 @@ public class MainActivity extends AppCompatActivity {
                     showPersistentMessage(getString(R.string.login_authentication_failed));
                     break;
                 case AUTHENTICATION_SUCCESS:
-                    Intent callTaskListViewIntent = new Intent(this, TaskListViewActivity.class);
-                    startActivity(callTaskListViewIntent);
-                    this.finish();
+                    callTaskListViewIntent();
                     break;
                 default:
                     break;
             }
         }
+    }
+
+    private void callTaskListViewIntent() {
+        Intent callTaskListViewIntent = new Intent(this, TaskListViewActivity.class);
+        startActivity(callTaskListViewIntent);
+        this.finish();
     }
 
     private void showMessage(String message) {
