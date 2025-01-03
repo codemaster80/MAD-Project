@@ -25,8 +25,6 @@ public class TaskDetailViewModel extends ViewModel {
 
     private final Task.LatLng defaultLatLng = new Task.LatLng();
 
-    private Task.Location selectedLocation = new Task.Location();
-
     public Task getTask() { return task; }
 
     public void setTask(Task task) {
@@ -62,14 +60,6 @@ public class TaskDetailViewModel extends ViewModel {
 
     public Task.LatLng getDefaultLatLng() {
         return defaultLatLng;
-    }
-
-    public Task.Location getSelectedLocation() {
-        return selectedLocation;
-    }
-
-    public void setSelectedLocation(Task.Location selectedLocation) {
-        this.selectedLocation = selectedLocation;
     }
 
     public boolean checkNameInputOnEnterKey(int keyId) {

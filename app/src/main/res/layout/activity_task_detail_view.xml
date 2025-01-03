@@ -148,42 +148,33 @@
                 app:layout_constraintTop_toBottomOf="@+id/btnPickLocation"
                 app:layout_constraintStart_toEndOf="@id/priorityText"/>
 
-            <TextView
-                android:id="@+id/titleAvailableContact"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingStart="5dp"
-                android:paddingEnd="5dp"
-                android:text="@string/title_detail_view_available_contact"
-                android:textSize="18sp"
-                android:gravity="center"
-                app:layout_constraintHeight="50dp"
-                app:layout_constraintTop_toBottomOf="@+id/priorityText"
-                app:layout_constraintEnd_toStartOf="@id/contactsDropdown"/>
-
             <Spinner
                 android:id="@+id/contactsDropdown"
                 android:layout_width="215dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="34dp"
+                android:layout_marginStart="37dp"
                 android:background="@android:drawable/btn_dropdown"
                 app:layout_constraintTop_toBottomOf="@+id/dropdownPriority"
-                app:layout_constraintStart_toEndOf="@id/titleAvailableContact"/>
+                app:layout_constraintStart_toEndOf="@id/titleSelectedContacts"/>
 
             <TextView
                 android:id="@+id/titleSelectedContacts"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="10dp"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
                 android:text="@string/title_detail_view_selected_contact"
                 android:textSize="18sp"
-                app:layout_constraintTop_toBottomOf="@+id/contactsDropdown" />
+                android:gravity="center"
+                app:layout_constraintHeight="50dp"
+                app:layout_constraintTop_toBottomOf="@+id/priorityText"
+                app:layout_constraintEnd_toStartOf="@+id/contactsDropdown" />
 
             <ListView
                 android:id="@+id/selectedContacts"
                 android:layout_width="match_parent"
                 android:layout_height="210dp"
+                android:paddingTop="5dp"
                 android:nestedScrollingEnabled="true"
                 app:layout_constraintTop_toBottomOf="@+id/titleSelectedContacts" />
 
