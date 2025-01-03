@@ -1,7 +1,6 @@
 package org.dieschnittstelle.mobile.android.skeleton;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -62,8 +61,6 @@ public class TaskLocationViewActivity extends AppCompatActivity implements OnMap
         }
     }
 
-    // suppress warning for Android Map SDK overriding
-    @SuppressLint("PotentialBehaviorOverride")
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         if (taskLocation == null || taskLocation.getLatlng() == null) {
