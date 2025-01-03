@@ -1,10 +1,9 @@
 package org.dieschnittstelle.mobile.android.skeleton;
 
 import android.app.Application;
+import android.util.Log;
 
 import org.dieschnittstelle.mobile.android.skeleton.model.ITaskDatabaseOperation;
-import org.dieschnittstelle.mobile.android.skeleton.model.LocalTaskDatabaseOperation;
-import org.dieschnittstelle.mobile.android.skeleton.model.MockTaskDatabaseOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.RemoteTaskDatabaseOperation;
 
 public class TaskApplication extends Application {
@@ -14,8 +13,8 @@ public class TaskApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-//        this.taskDatabaseOperation = new MockTaskDatabaseOperation();
-//        this.taskDatabaseOperation = new LocalTaskDatabaseOperation(this);
+        // this.taskDatabaseOperation = new MockTaskDatabaseOperation();
+        // this.taskDatabaseOperation = new LocalTaskDatabaseOperation(this);
         this.taskDatabaseOperation = new RemoteTaskDatabaseOperation();
     }
 

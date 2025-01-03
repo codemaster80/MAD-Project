@@ -15,4 +15,8 @@ public interface ITaskDatabaseOperation {
     boolean deleteAllTasks();
 
     boolean deleteTask(long id);
+
+    boolean authenticateUser(User user);
+
+    boolean prepare(User user);
 }

@@ -1,5 +1,7 @@
 package org.dieschnittstelle.mobile.android.skeleton.model;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -33,6 +35,12 @@ public class RemoteTaskDatabaseOperation implements ITaskDatabaseOperation {
 
         @DELETE("/api/todos/{todoId}")
         Call<Boolean> deleteTask(@Path("todoId") long id);
+
+        @PUT("/api/users/auth")
+        Call<Boolean> authenticateUser(@Body User user);
+
+        @PUT("/api/users/prepare")
+        Call<Boolean> prepare(@Body User user);
     }
 
     private final ToDoRESTWebAPI toDoRESTWebAPI;
@@ -97,6 +105,26 @@ public class RemoteTaskDatabaseOperation implements ITaskDatabaseOperation {
     public boolean deleteTask(long id) {
         try {
             return Boolean.TRUE.equals(toDoRESTWebAPI.deleteTask(id).execute().body());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean authenticateUser(User user) {
+
+        try {
+            return Boolean.TRUE.equals(toDoRESTWebAPI.authenticateUser(user).execute().body());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean prepare(User user) {
+        Log.i("DBAuth prepare", user.getEmail() + " " + user.getPwd());
+        try {
+            return Boolean.TRUE.equals(toDoRESTWebAPI.prepare(user).execute().body());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
