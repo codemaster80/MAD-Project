@@ -35,12 +35,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-public class TaskLocationViewActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerDragListener {
+public class TaskLocationViewActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener {
     protected static final String LOCATION_VIEW_KEY = "locationViewObject";
     private static final int ACCESS_FINE_LOCATION_CODE = 100;
     private TaskDetailViewModel viewModel;
 
     private Task.Location taskLocation;
+
+    private Marker pinMarker;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -66,7 +68,7 @@ public class TaskLocationViewActivity extends AppCompatActivity implements OnMap
     public void onMapReady(@NonNull GoogleMap googleMap) {
         if (taskLocation == null || taskLocation.getLatlng() == null) {
             LatLng defaultLatLng = new LatLng(viewModel.getDefaultLatLng().getLat(), viewModel.getDefaultLatLng().getLng());
-            googleMap.addMarker(
+            pinMarker = googleMap.addMarker(
                     new MarkerOptions()
                             .draggable(true)
                             .position(defaultLatLng)
@@ -78,7 +80,7 @@ public class TaskLocationViewActivity extends AppCompatActivity implements OnMap
                     taskLocation.getLatlng().getLat(),
                     taskLocation.getLatlng().getLng()
             );
-            googleMap.addMarker(
+            pinMarker = googleMap.addMarker(
                     new MarkerOptions()
                             .draggable(true)
                             .position(selectedLatLng)
@@ -87,24 +89,18 @@ public class TaskLocationViewActivity extends AppCompatActivity implements OnMap
             googleMap.animateCamera(CameraUpdateFactory.newLatLng(selectedLatLng));
         }
 
-        googleMap.setOnMarkerDragListener(this);
+        googleMap.setOnMapClickListener(this);
     }
 
     @Override
-    public void onMarkerDrag(@NonNull Marker marker) {}
-
-    @Override
-    public void onMarkerDragEnd(@NonNull Marker marker) {
-        // Get the position of the pin marker
-        LatLng position = marker.getPosition();
-
+    public void onMapClick(@NonNull LatLng latLng) {
         // Initialize Geocoder and addresses container
         Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
         List<Address> addresses = new ArrayList<>();
 
         try {
             // Get the address from the latitude and longitude
-            addresses = geocoder.getFromLocation(position.latitude, position.longitude, 1);
+            addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
         } catch (IOException e) {
             Log.e("TaskLocationViewActivity", Objects.requireNonNull(e.getMessage()));
         }
@@ -112,15 +108,13 @@ public class TaskLocationViewActivity extends AppCompatActivity implements OnMap
         if (addresses != null && !addresses.isEmpty()) {
             Address address = addresses.get(0);
             String city = address.getLocality();
-            marker.setTitle(city);
-            Task.LatLng pinnedLatLng = new Task.LatLng(position.latitude, position.longitude);
+            pinMarker.setPosition(latLng);
+            pinMarker.setTitle(city);
+            Task.LatLng pinnedLatLng = new Task.LatLng(latLng.latitude, latLng.longitude);
             Task.Location pinnedLocation = new Task.Location(city, pinnedLatLng);
             selectLocationAlertDialog(pinnedLocation);
         }
     }
-
-    @Override
-    public void onMarkerDragStart(@NonNull Marker marker) {}
 
     private void getUserDefaultLocation() {
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
