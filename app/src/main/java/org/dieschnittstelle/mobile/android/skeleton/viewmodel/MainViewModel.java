@@ -1,5 +1,8 @@
 package org.dieschnittstelle.mobile.android.skeleton.viewmodel;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.text.Editable;
 import android.util.Log;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -54,6 +57,40 @@ public class MainViewModel extends ViewModel {
         } else {
             return true;
         }
+    }
+
+    public boolean onMailInputChanged() {
+        Handler emailAdressValidationHandler = new Handler(Looper.getMainLooper());
+        getMailInputError().setValue(null);
+        emailAdressValidationHandler.removeCallbacksAndMessages(null); // Remove pending validations
+        emailAdressValidationHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (checkMailInput()) {
+                    mailInputError.setValue(null); // Clear any previous error
+                } else {
+                    mailInputError.setValue("Input not valid, must be an e-mail address");
+                }
+            }
+        }, 2000);
+        return true;
+    }
+
+    public boolean onPasswordInputChanged() {
+        Handler passwordAdressValidationHandler = new Handler(Looper.getMainLooper());
+        getPasswordInputError().setValue(null);
+        passwordAdressValidationHandler.removeCallbacksAndMessages(null); // Remove pending validations
+        passwordAdressValidationHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (checkPasswordInput()) {
+                    passwordInputError.setValue(null); // Clear any previous error
+                } else {
+                    passwordInputError.setValue("Input not valid, must consist of 6 numbers");
+                }
+            }
+        }, 2000);
+        return true;
     }
 
     public MutableLiveData<DatabaseState> getDatabaseState() {

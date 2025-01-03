@@ -41,6 +41,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:onTextChanged="@{() -> mainViewModel.onMailInputChanged()}"
                 android:singleLine="true"
                 android:text="@={mainViewModel.user.email}">
             </com.google.android.material.textfield.TextInputEditText>
@@ -61,6 +62,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:onTextChanged="@{() -> mainViewModel.onPasswordInputChanged()}"
                 android:inputType="textPassword"
                 android:singleLine="true"
                 android:text="@={mainViewModel.user.pwd}">
