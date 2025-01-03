@@ -3,23 +3,20 @@ package org.dieschnittstelle.mobile.android.skeleton.util;
 import androidx.room.TypeConverter;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
 
-import java.lang.reflect.Type;
 
-// TODO : Missing proper serialization and deserialization of longitude and latitude of location.
 public class LocationConverter {
+    private static final Gson gson = new Gson();
+
     @TypeConverter
-    public static Task.Location fromLocationString(String locationString) {
-        Type listType = new TypeToken<Task.Location>() {}.getType();
-        return new Gson().fromJson(locationString, listType);
+    public static Task.Location toLocation(String locationString) {
+        return gson.fromJson(locationString, Task.Location.class);
     }
 
     @TypeConverter
-    public static String toLocationString(Task.Location location) {
-        Gson gson = new Gson();
+    public static String fromLocation(Task.Location location) {
         return gson.toJson(location);
     }
 }

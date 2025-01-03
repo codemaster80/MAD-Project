@@ -17,8 +17,9 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -47,11 +48,20 @@ public class TaskDetailViewActivity extends AppCompatActivity {
     protected static final int RESULT_DELETE_OK = 99;
     private Task task;
     private TaskDetailViewModel viewModel;
-    TextView taskDateTextView;
     private Button pickDateBtn;
-    TextView taskTimeTextView;
     private Button pickTimeBtn;
     private ArrayAdapter<String> selectedContactsAdapter;
+
+    private final ActivityResultLauncher<Intent> mapViewLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), activityResult -> {
+        if (activityResult.getResultCode() == TaskLocationViewActivity.RESULT_OK && activityResult.getData() != null) {
+            Task.Location selectedLocation = (Task.Location) activityResult.getData().getSerializableExtra(TaskLocationViewActivity.LOCATION_VIEW_KEY);
+            if (selectedLocation != null && selectedLocation.getName() != null && selectedLocation.getLatlng() != null) {
+                Button locationBtn = findViewById(R.id.btnPickLocation);
+                locationBtn.setText(selectedLocation.getName());
+                task.setLocation(selectedLocation);
+            }
+        }
+    });
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,9 +73,7 @@ public class TaskDetailViewActivity extends AppCompatActivity {
             if (task == null) {
                 task = new Task();
             }
-
             viewModel.setTask(task);
-            getContactInformation();
         }
 
         ActivityTaskDetailViewBinding taskDetailViewBinding = DataBindingUtil.setContentView(
@@ -76,12 +84,13 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         taskDetailViewBinding.setLifecycleOwner(this);
 
         pickDateBtn = findViewById(R.id.btnPickDueDate);
-        taskDateTextView = findViewById(R.id.taskDate);
         setDueDate();
 
         pickTimeBtn = findViewById(R.id.btnPickTime);
-        taskTimeTextView = findViewById(R.id.taskTime);
         setTimeLimit();
+
+        Button pickLocationBtn = findViewById(R.id.btnPickLocation);
+        pickLocationBtn.setOnClickListener(it -> showTaskLocationMapView());
 
         setPriorityDropDown();
         setContactDropDown();
@@ -224,11 +233,17 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         return String.valueOf(number);
     }
 
+    private void showTaskLocationMapView() {
+        Intent callLocationViewIntent = new Intent(this, TaskLocationViewActivity.class);
+        callLocationViewIntent.putExtra(TaskLocationViewActivity.LOCATION_VIEW_KEY, task.getLocation());
+        mapViewLauncher.launch(callLocationViewIntent);
+    }
+
     private void setPriorityDropDown() {
         final Spinner taskPrioritySpinner = findViewById(R.id.dropdownPriority);
         Task.Priority currentPriority = task.getPriority();
         List<String> priorities = new ArrayList<>(Arrays.asList(Task.Priority.NONE.name(), Task.Priority.LOW.name(), Task.Priority.NORMAL.name(), Task.Priority.HIGH.name(), Task.Priority.CRITICAL.name()));
-        if (!currentPriority.equals(Task.Priority.NONE)) {
+        if (task.getPriority() != null && !currentPriority.equals(Task.Priority.NONE)) {
             priorities.add(0, currentPriority.name());
             priorities = priorities.stream().distinct().collect(Collectors.toList());
         }
@@ -250,22 +265,15 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         });
     }
 
-    private void getContactInformation() {
-        if (getApplicationContext().checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, READ_CONTACTS_REQUEST_CODE);
-        } else {
-            viewModel.setupContactList(getContentResolver());
-        }
-    }
-
     // TODO: check if it's supposed to be done by opening Android Contacts app instead of dropdown
     private void setContactDropDown() {
+        getContactListFromContactApp();
         selectedContactsAdapter = new ContactListAdapter(this, R.layout.contact_item_view, viewModel.getTask().getContacts());
         final ListView selectedContacts = findViewById(R.id.selectedContacts);
         selectedContacts.setAdapter(selectedContactsAdapter);
 
         final Spinner contactsSpinner = findViewById(R.id.contactsDropdown);
-        List<String> availableContactNames = new ArrayList<>(List.of("Select a contact..."));
+        List<String> availableContactNames = new ArrayList<>(List.of("Select contact"));
         availableContactNames.addAll(
                 viewModel.getAvailableContacts().stream()
                         .map(TaskDetailViewModel.Contact::getName)
@@ -293,13 +301,27 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         });
     }
 
+    private void getContactListFromContactApp() {
+        if (getApplicationContext().checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, READ_CONTACTS_REQUEST_CODE);
+        } else {
+            viewModel.setupContactList(getContentResolver());
+        }
+    }
+
     private void openSMSApp(String contactName, String taskName, String taskDescription) {
         TaskDetailViewModel.Contact recipient = viewModel.getAvailableContacts().stream()
                 .filter(contact -> contact.getName().equals(contactName))
                 .findAny()
                 .orElse(null);
 
-        if (recipient == null || recipient.getPhoneNumbers() == null || recipient.getPhoneNumbers().isEmpty()) {
+        if (recipient == null) {
+            showMessage("Cannot find phone number of non existing recipient");
+            return;
+        }
+
+        if (recipient.getPhoneNumbers() == null || recipient.getPhoneNumbers().isEmpty()) {
+            showMessage("Cannot find phone number of " + recipient.getName());
             return;
         }
 
@@ -315,7 +337,13 @@ public class TaskDetailViewActivity extends AppCompatActivity {
                 .findAny()
                 .orElse(null);
 
-        if (recipient == null || recipient.getEmails() == null || recipient.getEmails().isEmpty()) {
+        if (recipient == null) {
+            showMessage("Cannot find mail address of non existing recipient");
+            return;
+        }
+
+        if (recipient.getEmails() == null || recipient.getEmails().isEmpty()) {
+            showMessage("Cannot find mail address of " + recipient.getName());
             return;
         }
 

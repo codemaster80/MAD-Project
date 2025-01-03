@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:name=".TaskApplication"
@@ -23,6 +25,11 @@
 <!--        disable recreation for screen orientation changes-->
         <activity android:name=".TaskListViewActivity" android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"/>
         <activity android:name=".TaskDetailViewActivity" android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"/>
+        <activity android:name=".TaskLocationViewActivity"/>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}">
+        </meta-data>
     </application>
 
 </manifest>
