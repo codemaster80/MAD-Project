@@ -211,7 +211,7 @@ public class TaskListViewActivity extends AppCompatActivity {
     private void setPriorityDropDown(Task task, Spinner prioritySpinner, View taskView) {
         List<String> priorities = new ArrayList<>(Arrays.asList(Task.Priority.NONE.name(), Task.Priority.LOW.name(), Task.Priority.NORMAL.name(), Task.Priority.HIGH.name(), Task.Priority.CRITICAL.name()));
 
-        if (!task.getPriority().equals(Task.Priority.NONE)) {
+        if (task.getPriority() != null && !task.getPriority().equals(Task.Priority.NONE)) {
             priorities.add(0, task.getPriority().name());
             priorities = priorities.stream().distinct().collect(Collectors.toList());
         }
@@ -283,7 +283,9 @@ public class TaskListViewActivity extends AppCompatActivity {
 
             taskViewBinding.setTask(taskFromList);
 
-            taskView.setBackgroundResource(taskFromList.getPriority().resourceId);
+            if (taskFromList.getPriority() != null) {
+                taskView.setBackgroundResource(taskFromList.getPriority().resourceId);
+            }
             taskView.setOnClickListener(v -> {
                 Task selectedTask = taskListViewAdapter.getItem(position);
                 showEditTaskDetailView(selectedTask);

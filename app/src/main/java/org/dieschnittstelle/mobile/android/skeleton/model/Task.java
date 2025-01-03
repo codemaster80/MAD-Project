@@ -26,7 +26,7 @@ public class Task implements Serializable {
     private boolean completed;
     @SerializedName("favourite")
     private boolean favorite;
-    // TODO : Missing on remote db, will fail to create a task on remote db.
+    //TODO: Priority is missing on remote db, will fail to create a task on remote db
     private Priority priority = Priority.NONE;
     @TypeConverters(StringListConverter.class)
     private List<String> contacts = new ArrayList<>();
@@ -146,10 +146,10 @@ public class Task implements Serializable {
         private String name;
         private LatLng latlng;
 
-        private Location() {
+        public Location() {
         }
 
-        private Location(String name, LatLng latlng) {
+        public Location(String name, LatLng latlng) {
             this.name = name;
             this.latlng = latlng;
         }
@@ -168,11 +168,6 @@ public class Task implements Serializable {
 
         public void setLatlng(LatLng latlng) {
             this.latlng = latlng;
-        }
-
-        @Override
-        public String toString() {
-            return "Location{" + "name='" + name + '\'' + ", latlng=" + latlng + '}';
         }
     }
 
@@ -203,11 +198,6 @@ public class Task implements Serializable {
 
         public void setLng(double lng) {
             this.lng = lng;
-        }
-
-        @Override
-        public String toString() {
-            return "LatLng{" + "lat=" + lat + ", lng=" + lng + '}';
         }
     }
 }
