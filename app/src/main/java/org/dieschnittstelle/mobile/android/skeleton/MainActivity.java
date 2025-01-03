@@ -1,5 +1,6 @@
 package org.dieschnittstelle.mobile.android.skeleton;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.MutableLiveData;
@@ -33,10 +34,10 @@ public class MainActivity extends AppCompatActivity {
     private TextInputLayout passwordLayout;
     private EditText emailAdress;
     private EditText password;
-    private Button showTaskListAction;
     private MainViewModel viewModel;
     private ITaskDatabaseOperation taskDBOperation;
     private ProgressBar progressBar;
+    private User user = new User("", "");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         this.viewModel.getDatabaseState().observe(this, this::handleDatabaseState);
         this.viewModel.getLoginState().observe(this, this::handleUserLoginState);
         this.viewModel.checkRemoteTaskDatabaseOperation();
+        viewModel.setUser(user);
     }
 
     private void handleDatabaseState(MainViewModel.DatabaseState databaseState) {
@@ -54,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
                     callTaskListViewIntent();
                     break;
                 case CONNECT_REMOTE_SUCCESS:
-                    User user = new User("", "");
                     ActivityMainBinding MainViewBinding = DataBindingUtil.setContentView(
                             this,
                             R.layout.activity_main
@@ -64,8 +65,6 @@ public class MainActivity extends AppCompatActivity {
 
                     taskDBOperation = ((TaskApplication) getApplication()).getTaskDatabaseOperation();
                     viewModel.setTaskDBOperation(taskDBOperation);
-
-                    viewModel.setUser(user);
 
                     welcomeText = findViewById(R.id.welcomeText);
                     welcomeText.setText(R.string.welcome_message);

@@ -19,7 +19,7 @@ public class MainViewModel extends ViewModel {
     private final MutableLiveData<LoginState> loginState = new MutableLiveData<>();
     private MutableLiveData<String> mailInputError = new MutableLiveData<>();
     private MutableLiveData<String> passwordInputError = new MutableLiveData<>();
-    public User user;
+    private User user;
 
     public void authenticateUser() {
         if ((checkMailInput() == true) && (checkPasswordInput() == true)) {
@@ -113,6 +113,10 @@ public class MainViewModel extends ViewModel {
         this.user = user;
     }
 
+    public User getUser() {
+        return user;
+    }
+
     public void setTaskDBOperation(ITaskDatabaseOperation taskDBOperation) {
         this.taskDBOperation = taskDBOperation;
     }
@@ -121,7 +125,7 @@ public class MainViewModel extends ViewModel {
         new Thread(() -> {
             try {
                 Socket socket = new Socket();
-                socket.connect(new InetSocketAddress("10.0.2.2", 8080), 2000);
+                socket.connect(new InetSocketAddress("10.0.2.2", 8080), 500);
                 socket.close();
                 databaseState.postValue(DatabaseState.CONNECT_REMOTE_SUCCESS);
             } catch (IOException e) {
