@@ -1,6 +1,7 @@
 package org.dieschnittstelle.mobile.android.skeleton.model;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.room.Dao;
 import androidx.room.Database;
@@ -96,5 +97,15 @@ public class LocalTaskDatabaseOperation implements ITaskDatabaseOperation {
         task.setId(id);
         taskDatabase.getDao().deleteTask(task);
         return true;
+    }
+
+    @Override
+    public boolean authenticateUser(User user) {
+        return false;
+    }
+
+    @Override
+    public boolean prepare(User user) {
+        return false;
     }
 }

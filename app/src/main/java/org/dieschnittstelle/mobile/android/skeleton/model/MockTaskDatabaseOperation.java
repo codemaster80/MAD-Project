@@ -1,5 +1,7 @@
 package org.dieschnittstelle.mobile.android.skeleton.model;
 
+import android.util.Log;
+
 import org.dieschnittstelle.mobile.android.skeleton.util.DateConverter;
 
 import java.util.ArrayList;
@@ -67,5 +69,15 @@ public class MockTaskDatabaseOperation implements ITaskDatabaseOperation {
     public boolean deleteTask(long id) {
         tasks.removeIf(existingTask -> existingTask.getId() == (id));
         return true;
+    }
+
+    @Override
+    public boolean authenticateUser(User user) {
+        return false;
+    }
+
+    @Override
+    public boolean prepare(User user) {
+        return false;
     }
 }

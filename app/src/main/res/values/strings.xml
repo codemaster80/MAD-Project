@@ -27,10 +27,16 @@
     <string name="delete_all_local_menu_text">DELETE ALL LOCAL</string>
     <string name="delete_all_remote_menu_text">DELETE ALL REMOTE</string>
     <string name="sync_database_menu_text">SYNC DATABASE</string>
+    <string name="title_detail_view_available_contact">Available Contacts</string>
     <string name="title_detail_view_selected_contact">Selected Contacts</string>
+    <string name="placeholder_detail_view_add_contact_input">Enter new contact</string>
     <string name="delete_contact_button_text">Delete contact</string>
     <string name="mail_contact_button_text">Mail contact</string>
     <string name="sms_contact_button_text">Sms contact</string>
     <string name="title_location">Mission Location</string>
     <string name="select_location_button_text">Select Mission Location</string>
+    <string name="login_authentication_failed">Authentication failed</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+    <string name="mail">Mail</string>
 </resources>
