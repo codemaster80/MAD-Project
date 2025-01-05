@@ -1,26 +1,16 @@
 package org.dieschnittstelle.mobile.android.skeleton;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputLayout;
 
 import org.dieschnittstelle.mobile.android.skeleton.databinding.ActivityMainBinding;
 import org.dieschnittstelle.mobile.android.skeleton.model.ITaskDatabaseOperation;
@@ -28,16 +18,9 @@ import org.dieschnittstelle.mobile.android.skeleton.model.User;
 import org.dieschnittstelle.mobile.android.skeleton.viewmodel.MainViewModel;
 
 public class MainActivity extends AppCompatActivity {
-
-    private TextView welcomeText;
-    private TextInputLayout emailAdressLayout;
-    private TextInputLayout passwordLayout;
-    private EditText emailAdress;
-    private EditText password;
     private MainViewModel viewModel;
-    private ITaskDatabaseOperation taskDBOperation;
     private ProgressBar progressBar;
-    private User user = new User("", "");
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +29,9 @@ public class MainActivity extends AppCompatActivity {
         this.viewModel.getDatabaseState().observe(this, this::handleDatabaseState);
         this.viewModel.getLoginState().observe(this, this::handleUserLoginState);
         this.viewModel.checkRemoteTaskDatabaseOperation();
+        if (user == null) {
+            user = new User();
+        }
         viewModel.setUser(user);
     }
 
@@ -63,20 +49,16 @@ public class MainActivity extends AppCompatActivity {
                     MainViewBinding.setMainViewModel(this.viewModel);
                     MainViewBinding.setLifecycleOwner(this);
 
-                    taskDBOperation = ((TaskApplication) getApplication()).getTaskDatabaseOperation();
+                    ITaskDatabaseOperation taskDBOperation = ((TaskApplication) getApplication()).getTaskDatabaseOperation();
                     viewModel.setTaskDBOperation(taskDBOperation);
 
-                    welcomeText = findViewById(R.id.welcomeText);
+                    TextView welcomeText = findViewById(R.id.welcomeText);
                     welcomeText.setText(R.string.welcome_message);
-
-                    emailAdressLayout = findViewById(R.id.editTextEmailAddress);
-                    emailAdress = emailAdressLayout.getEditText();
-                    passwordLayout = findViewById(R.id.editTextPassword);
-                    password = passwordLayout.getEditText();
 
                     progressBar = findViewById(R.id.progressBar);
                     progressBar.setVisibility(View.GONE);
-
+                    break;
+                default:
                     break;
             }
         }
@@ -106,10 +88,6 @@ public class MainActivity extends AppCompatActivity {
         Intent callTaskListViewIntent = new Intent(this, TaskListViewActivity.class);
         startActivity(callTaskListViewIntent);
         this.finish();
-    }
-
-    private void showMessage(String message) {
-        Snackbar.make(findViewById(R.id.rootView), message, Snackbar.LENGTH_SHORT).show();
     }
 
     private void showPersistentMessage(String message) {

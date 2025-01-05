@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -301,7 +302,7 @@ public class TaskListViewModel extends ViewModel {
 
             } catch (Exception e) {
                 processingState.postValue(ProcessingState.CONNECT_REMOTE_FAIL);
-                if (e.getMessage().contains("unexpected end of stream")){
+                if (Objects.requireNonNull(e.getMessage()).contains("unexpected end of stream")){
                     Log.e("error", "check data in between client and server, there is a mismatch");
                 }
             }
