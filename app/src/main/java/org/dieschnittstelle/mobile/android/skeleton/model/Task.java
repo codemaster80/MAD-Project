@@ -26,7 +26,7 @@ public class Task implements Serializable {
     private boolean completed;
     @SerializedName("favourite")
     private boolean favorite;
-    //TODO: Priority is missing on remote db, will fail to create a task on remote db
+    @RemoteTaskDatabaseOperation.Exclude
     private Priority priority = Priority.NONE;
     @TypeConverters(StringListConverter.class)
     private List<String> contacts = new ArrayList<>();

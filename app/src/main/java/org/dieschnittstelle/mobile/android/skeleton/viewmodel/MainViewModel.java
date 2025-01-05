@@ -2,8 +2,7 @@ package org.dieschnittstelle.mobile.android.skeleton.viewmodel;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Editable;
-import android.util.Log;
+
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import org.dieschnittstelle.mobile.android.skeleton.model.ITaskDatabaseOperation;
@@ -17,12 +16,12 @@ public class MainViewModel extends ViewModel {
     private ITaskDatabaseOperation taskDBOperation;
     private final MutableLiveData<DatabaseState> databaseState = new MutableLiveData<>();
     private final MutableLiveData<LoginState> loginState = new MutableLiveData<>();
-    private MutableLiveData<String> mailInputError = new MutableLiveData<>();
-    private MutableLiveData<String> passwordInputError = new MutableLiveData<>();
+    private final MutableLiveData<String> mailInputError = new MutableLiveData<>();
+    private final MutableLiveData<String> passwordInputError = new MutableLiveData<>();
     private User user;
 
     public void authenticateUser() {
-        if ((checkMailInput() == true) && (checkPasswordInput() == true)) {
+        if (isValidEMail() && isSixDigitPwd()) {
            loginState.setValue(LoginState.RUNNING);
             new Thread(() -> {
                 try {
@@ -39,38 +38,32 @@ public class MainViewModel extends ViewModel {
         }
     }
 
-    public boolean checkMailInput() {
-        Log.i("Login", "checkMailInputOnEnterKey");
-        if (!(android.util.Patterns.EMAIL_ADDRESS.matcher(user.getEmail()).matches())) {
-            this.mailInputError.setValue("Input not valid, must be an e-mail address");
-            return false;
-        } else {
+    public boolean isValidEMail() {
+        if (android.util.Patterns.EMAIL_ADDRESS.matcher(user.getEmail()).matches()) {
             return true;
         }
+        this.mailInputError.setValue("Input not valid, must be an e-mail address");
+        return false;
     }
 
-    public boolean checkPasswordInput() {
-        boolean pwdCheck = Pattern.matches("[0-9]{6}", user.getPwd());
-        if (!(pwdCheck)) {
-            this.passwordInputError.setValue("Input not valid, must consist of 6 numbers");
-            return false;
-        } else {
+    public boolean isSixDigitPwd() {
+        boolean sixDigitPattern = Pattern.matches("[0-9]{6}", user.getPwd());
+        if (sixDigitPattern) {
             return true;
         }
+        this.passwordInputError.setValue("Input not valid, must consist of 6 numbers");
+        return false;
     }
 
     public boolean onMailInputChanged() {
         Handler emailAdressValidationHandler = new Handler(Looper.getMainLooper());
         getMailInputError().setValue(null);
         emailAdressValidationHandler.removeCallbacksAndMessages(null); // Remove pending validations
-        emailAdressValidationHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (checkMailInput()) {
-                    mailInputError.setValue(null); // Clear any previous error
-                } else {
-                    mailInputError.setValue("Input not valid, must be an e-mail address");
-                }
+        emailAdressValidationHandler.postDelayed(() -> {
+            if (isValidEMail()) {
+                mailInputError.setValue(null); // Clear any previous error
+            } else {
+                mailInputError.setValue("Input not valid, must be an e-mail address");
             }
         }, 2000);
         return true;
@@ -80,14 +73,11 @@ public class MainViewModel extends ViewModel {
         Handler passwordAdressValidationHandler = new Handler(Looper.getMainLooper());
         getPasswordInputError().setValue(null);
         passwordAdressValidationHandler.removeCallbacksAndMessages(null); // Remove pending validations
-        passwordAdressValidationHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (checkPasswordInput()) {
-                    passwordInputError.setValue(null); // Clear any previous error
-                } else {
-                    passwordInputError.setValue("Input not valid, must consist of 6 numbers");
-                }
+        passwordAdressValidationHandler.postDelayed(() -> {
+            if (isSixDigitPwd()) {
+                passwordInputError.setValue(null); // Clear any previous error
+            } else {
+                passwordInputError.setValue("Input not valid, must consist of 6 numbers");
             }
         }, 2000);
         return true;

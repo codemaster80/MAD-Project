@@ -243,7 +243,7 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         final Spinner taskPrioritySpinner = findViewById(R.id.dropdownPriority);
         Task.Priority currentPriority = task.getPriority();
         List<String> priorities = new ArrayList<>(Arrays.asList(Task.Priority.NONE.name(), Task.Priority.LOW.name(), Task.Priority.NORMAL.name(), Task.Priority.HIGH.name(), Task.Priority.CRITICAL.name()));
-        if (task.getPriority() != null && !currentPriority.equals(Task.Priority.NONE)) {
+        if (!currentPriority.equals(Task.Priority.NONE)) {
             priorities.add(0, currentPriority.name());
             priorities = priorities.stream().distinct().collect(Collectors.toList());
         }
