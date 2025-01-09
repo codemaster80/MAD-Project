@@ -26,7 +26,6 @@
                 map:uiTiltGestures="true"
                 map:mapType="normal"
                 map:cameraZoom="15"/>
-
         </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

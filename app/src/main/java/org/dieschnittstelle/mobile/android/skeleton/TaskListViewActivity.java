@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -21,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -40,6 +42,7 @@ public class TaskListViewActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private TaskListViewModel viewModel;
     private boolean userIsInteracting;
+    private FragmentManager fragmentManager = getSupportFragmentManager();
 
     private final ActivityResultLauncher<Intent> taskDetailViewForEditLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), activityResult -> {
         if (activityResult.getData() != null) {
@@ -66,6 +69,13 @@ public class TaskListViewActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_list_view);
+//        if (savedInstanceState == null) {
+//            fragmentManager.beginTransaction()
+//                    .setReorderingAllowed(true)
+//                    .addToBackStack("map")
+//                    .add(R.id.map_fragment_container_view, MapsFragment.class, null)
+//                    .commit();
+//        }
 
         viewModel = new ViewModelProvider(this).get(TaskListViewModel.class);
         viewModel.setContext(getApplicationContext());
@@ -125,6 +135,18 @@ public class TaskListViewActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.syncLocalRemoteDB) {
             showMessage("Syncing all missions between database...");
             viewModel.synchronizeDb();
+            return true;
+        }
+
+        if (item.getItemId() == R.id.showMapView) {
+//            Intent callLocationViewIntent = new Intent(this, TaskListViewMapActivity.class);
+//            callLocationViewIntent.putExtra(TaskListViewMapActivity.LOCATION_VIEW_KEY, task.getLocation());
+//            mapViewLauncher.launch(callLocationViewIntent);
+            fragmentManager.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .addToBackStack("map")
+                    .add(R.id.map_fragment_container_view, TaskListViewMapActivity.class, null)
+                    .commit();
             return true;
         }
 
