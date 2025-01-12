@@ -69,7 +69,7 @@ public class TaskListViewActivity extends AppCompatActivity {
 
     private final ActivityResultLauncher<Intent> taskListViewMapLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), activityResult -> {
         if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_OK && activityResult.getData() != null) {
-            Task task = (Task) activityResult.getData().getSerializableExtra(TaskListViewMapActivity.TASK_LIST_VIEW_MAP_KEY);
+            // Task task = (Task) activityResult.getData().getSerializableExtra(TaskListViewMapActivity.TASK_LIST_VIEW_MAP_KEY);
         }
     });
 
@@ -159,17 +159,10 @@ public class TaskListViewActivity extends AppCompatActivity {
     }
 
     private void showTaskMapView() {
-        // Works not
+        List<Task> tasks = viewModel.getTaskList();
         Intent callTaskListViewMapIntent = new Intent(this, TaskListViewMapActivity.class);
-        startActivity(callTaskListViewMapIntent);
-
-        // Works
-//        fragmentManager.beginTransaction()
-//                    .setReorderingAllowed(true)
-//                    .addToBackStack("map")
-//                    .add(R.id.map_fragment_container_view, TaskListViewMapActivity.class, null)
-//                    .commit();
-
+        callTaskListViewMapIntent.putExtra(TaskListViewMapActivity.TASK_LIST_VIEW_MAP_KEY, (Serializable) tasks);
+        taskListViewMapLauncher.launch(callTaskListViewMapIntent);
     }
 
     private void handleTaskProcessingState(TaskListViewModel.ProcessingState processingState) {

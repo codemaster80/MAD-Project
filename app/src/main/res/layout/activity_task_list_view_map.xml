@@ -1,12 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:map="http://schemas.android.com/apk/res-auto"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
-    android:id="@+id/map"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    map:cameraZoom="13"
-    map:mapType="normal"
-    map:liteMode="true"
-    tools:context=".TaskListViewMapActivity"/>
+    xmlns:map="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="taskListViewModel"
+            type="org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskListViewModel"/>
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".TaskListViewActivity">
+
+            <fragment
+                class="com.google.android.gms.maps.SupportMapFragment"
+                android:id="@+id/map"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                map:uiZoomControls="true"
+                map:uiRotateGestures="true"
+                map:uiTiltGestures="true"
+                map:mapType="normal"
+                map:cameraZoom="15"/>
+        </FrameLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

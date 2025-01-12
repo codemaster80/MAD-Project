@@ -49,6 +49,7 @@
             android:name=".TaskDetailViewActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden" />
         <activity android:name=".TaskLocationViewActivity" />
+        <activity android:name=".TaskListViewMapActivity" />
     </application>
 
 </manifest>
