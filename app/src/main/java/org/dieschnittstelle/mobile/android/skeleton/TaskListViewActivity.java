@@ -1,5 +1,6 @@
 package org.dieschnittstelle.mobile.android.skeleton;
 
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -32,6 +33,7 @@ import org.dieschnittstelle.mobile.android.skeleton.databinding.StructuredTaskVi
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
 import org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskListViewModel;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -65,17 +67,16 @@ public class TaskListViewActivity extends AppCompatActivity {
         }
     });
 
+    private final ActivityResultLauncher<Intent> taskListViewMapLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), activityResult -> {
+        if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_OK && activityResult.getData() != null) {
+            Task task = (Task) activityResult.getData().getSerializableExtra(TaskListViewMapActivity.TASK_LIST_VIEW_MAP_KEY);
+        }
+    });
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_list_view);
-//        if (savedInstanceState == null) {
-//            fragmentManager.beginTransaction()
-//                    .setReorderingAllowed(true)
-//                    .addToBackStack("map")
-//                    .add(R.id.map_fragment_container_view, MapsFragment.class, null)
-//                    .commit();
-//        }
 
         viewModel = new ViewModelProvider(this).get(TaskListViewModel.class);
         viewModel.setContext(getApplicationContext());
@@ -139,14 +140,7 @@ public class TaskListViewActivity extends AppCompatActivity {
         }
 
         if (item.getItemId() == R.id.showMapView) {
-//            Intent callLocationViewIntent = new Intent(this, TaskListViewMapActivity.class);
-//            callLocationViewIntent.putExtra(TaskListViewMapActivity.LOCATION_VIEW_KEY, task.getLocation());
-//            mapViewLauncher.launch(callLocationViewIntent);
-            fragmentManager.beginTransaction()
-                    .setReorderingAllowed(true)
-                    .addToBackStack("map")
-                    .add(R.id.map_fragment_container_view, TaskListViewMapActivity.class, null)
-                    .commit();
+            showTaskMapView();
             return true;
         }
 
@@ -162,6 +156,20 @@ public class TaskListViewActivity extends AppCompatActivity {
     private void showNewTaskDetailView() {
         Intent callTaskDetailViewIntent = new Intent(this, TaskDetailViewActivity.class);
         taskDetailViewForAddLauncher.launch(callTaskDetailViewIntent);
+    }
+
+    private void showTaskMapView() {
+        // Works not
+        Intent callTaskListViewMapIntent = new Intent(this, TaskListViewMapActivity.class);
+        startActivity(callTaskListViewMapIntent);
+
+        // Works
+//        fragmentManager.beginTransaction()
+//                    .setReorderingAllowed(true)
+//                    .addToBackStack("map")
+//                    .add(R.id.map_fragment_container_view, TaskListViewMapActivity.class, null)
+//                    .commit();
+
     }
 
     private void handleTaskProcessingState(TaskListViewModel.ProcessingState processingState) {

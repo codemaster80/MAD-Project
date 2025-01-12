@@ -3,9 +3,7 @@ package org.dieschnittstelle.mobile.android.skeleton;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 
-import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,17 +15,25 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
-import org.dieschnittstelle.mobile.android.skeleton.util.LocationConverter;
 import org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskListViewModel;
 
 import java.util.List;
 
 public class TaskListViewMapActivity extends Fragment {
 
+    public static final String TASK_LIST_VIEW_MAP_KEY = "taskListViewMapObject";
     private TaskListViewModel viewmodel;
+    private final LatLng BRISBANE = new LatLng(-27.47093, 153.0235);
+    private final LatLng MELBOURNE = new LatLng(-37.81319, 144.96298);
+    private final LatLng SYDNEY = new LatLng(-33.87365, 151.20689);
+    private final LatLng ADELAIDE = new LatLng(-34.92873, 138.59995);
+    private final LatLng PERTH = new LatLng(-31.952854, 115.857342);
+    private final LatLng DARWIN = new LatLng(-12.459501, 130.839915);
+    private GoogleMap map;
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -42,11 +48,13 @@ public class TaskListViewMapActivity extends Fragment {
          */
         @Override
         public void onMapReady(GoogleMap googleMap) {
-            LatLng sydney = new LatLng(-34, 151);
-            googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-          
+            map = googleMap;
+            addMarker(BRISBANE, "Test1");
+            addMarker(MELBOURNE, "Test2");
+            showAustralia();
+
 //            List<Task> tasks = viewmodel.getTaskList();
+
 //            Log.i("Location", String.valueOf(tasks.size()));
 //            for (Task t : tasks) {
 //                Task.LatLng location = t.getLocation().getLatlng();
@@ -75,5 +83,35 @@ public class TaskListViewMapActivity extends Fragment {
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
         }
+    }
+
+     /**
+     * Move the camera to show all of Australia.
+     * Construct a {@link com.google.android.gms.maps.model.LatLngBounds} from markers positions,
+     * then move the camera.
+     */
+    public void showAustralia() {
+        // Wait until map is ready
+        if (map == null) {
+            return;
+        }
+
+        // Create bounds that include all locations of the map
+        LatLngBounds.Builder boundsBuilder = LatLngBounds.builder()
+                .include(PERTH)
+                .include(ADELAIDE)
+                .include(MELBOURNE)
+                .include(SYDNEY)
+                .include(DARWIN)
+                .include(BRISBANE);
+
+        // Move camera to show all markers and locations
+        map.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 20));
+    }
+
+    private void addMarker(LatLng coordinates, String title) {
+        map.addMarker(new MarkerOptions()
+                .position(coordinates)
+                .title(title));
     }
 }
