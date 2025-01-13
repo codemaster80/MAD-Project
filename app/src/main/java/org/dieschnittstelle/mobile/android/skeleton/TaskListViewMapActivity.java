@@ -19,6 +19,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
 import org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskListViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TaskListViewMapActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener {
@@ -34,6 +35,9 @@ public class TaskListViewMapActivity extends AppCompatActivity implements OnMapR
         setContentView(R.layout.activity_task_list_view_map);
         viewModel = new ViewModelProvider(this).get(TaskListViewModel.class);
         tasks = (List<Task>) getIntent().getSerializableExtra(TASK_LIST_VIEW_MAP_KEY);
+        if (tasks == null) {
+            tasks = new ArrayList<>();
+        }
         // Get the SupportMapFragment and request notification when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
@@ -42,21 +46,15 @@ public class TaskListViewMapActivity extends AppCompatActivity implements OnMapR
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
         showTasksOnMap();
     }
 
     public void showTasksOnMap() {
         LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
-
-        // Wait until map is ready
-        if (map == null) {
-            return;
-        }
-
         for (Task t : tasks) {
-            if(t.getLocation().getLatlng() != null) {
+            if(t.getLocation() != null && t.getLocation().getLatlng() != null) {
                 Task.LatLng location = t.getLocation().getLatlng();
                 LatLng coordinate = new LatLng(location.getLat(), location.getLng());
                 // Create bound that include locations on the map

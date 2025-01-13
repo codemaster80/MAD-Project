@@ -68,8 +68,8 @@ public class TaskListViewActivity extends AppCompatActivity {
     });
 
     private final ActivityResultLauncher<Intent> taskListViewMapLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), activityResult -> {
-        if (activityResult.getResultCode() == TaskDetailViewActivity.RESULT_OK && activityResult.getData() != null) {
-            // Task task = (Task) activityResult.getData().getSerializableExtra(TaskListViewMapActivity.TASK_LIST_VIEW_MAP_KEY);
+        if (activityResult.getResultCode() == TaskListViewMapActivity.RESULT_OK && activityResult.getData() != null) {
+            // result from map
         }
     });
 
