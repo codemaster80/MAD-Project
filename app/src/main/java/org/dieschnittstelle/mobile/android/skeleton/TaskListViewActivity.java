@@ -1,5 +1,6 @@
 package org.dieschnittstelle.mobile.android.skeleton;
 
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -21,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -30,6 +33,7 @@ import org.dieschnittstelle.mobile.android.skeleton.databinding.StructuredTaskVi
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
 import org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskListViewModel;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +44,7 @@ public class TaskListViewActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private TaskListViewModel viewModel;
     private boolean userIsInteracting;
+    private FragmentManager fragmentManager = getSupportFragmentManager();
 
     private final ActivityResultLauncher<Intent> taskDetailViewForEditLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), activityResult -> {
         if (activityResult.getData() != null) {
@@ -59,6 +64,12 @@ public class TaskListViewActivity extends AppCompatActivity {
             Task task = (Task) activityResult.getData().getSerializableExtra(TaskDetailViewActivity.TASK_DETAIL_VIEW_KEY);
             viewModel.createTask(task);
             showMessage(getString(R.string.task_added_feedback_message) + " " + (task != null ? task.getName() : ""));
+        }
+    });
+
+    private final ActivityResultLauncher<Intent> taskListViewMapLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), activityResult -> {
+        if (activityResult.getResultCode() == TaskListViewMapActivity.RESULT_OK && activityResult.getData() != null) {
+            // result from map
         }
     });
 
@@ -128,6 +139,11 @@ public class TaskListViewActivity extends AppCompatActivity {
             return true;
         }
 
+        if (item.getItemId() == R.id.showMapView) {
+            showTaskMapView();
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -140,6 +156,13 @@ public class TaskListViewActivity extends AppCompatActivity {
     private void showNewTaskDetailView() {
         Intent callTaskDetailViewIntent = new Intent(this, TaskDetailViewActivity.class);
         taskDetailViewForAddLauncher.launch(callTaskDetailViewIntent);
+    }
+
+    private void showTaskMapView() {
+        List<Task> tasks = viewModel.getTaskList();
+        Intent callTaskListViewMapIntent = new Intent(this, TaskListViewMapActivity.class);
+        callTaskListViewMapIntent.putExtra(TaskListViewMapActivity.TASK_LIST_VIEW_MAP_KEY, (Serializable) tasks);
+        taskListViewMapLauncher.launch(callTaskListViewMapIntent);
     }
 
     private void handleTaskProcessingState(TaskListViewModel.ProcessingState processingState) {
