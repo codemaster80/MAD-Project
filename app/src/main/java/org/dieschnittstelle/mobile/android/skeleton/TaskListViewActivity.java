@@ -1,6 +1,5 @@
 package org.dieschnittstelle.mobile.android.skeleton;
 
-import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -11,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -23,7 +21,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -44,7 +41,6 @@ public class TaskListViewActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private TaskListViewModel viewModel;
     private boolean userIsInteracting;
-    private FragmentManager fragmentManager = getSupportFragmentManager();
 
     private final ActivityResultLauncher<Intent> taskDetailViewForEditLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), activityResult -> {
         if (activityResult.getData() != null) {
@@ -103,7 +99,7 @@ public class TaskListViewActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_overview_menu, menu);
+        getMenuInflater().inflate(R.menu.activity_task_list_menu, menu);
         return true;
     }
 

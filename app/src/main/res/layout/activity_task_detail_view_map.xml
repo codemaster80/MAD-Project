@@ -18,15 +18,14 @@
 
             <fragment
                 class="com.google.android.gms.maps.SupportMapFragment"
-                android:id="@+id/task_location_map_fragment"
+                android:id="@+id/task_detail_map_fragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 map:uiZoomControls="true"
                 map:uiRotateGestures="true"
                 map:uiTiltGestures="true"
                 map:mapType="normal"
-                map:cameraZoom="15"
-                map:liteMode="true"/>
+                map:cameraZoom="15"/>
         </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

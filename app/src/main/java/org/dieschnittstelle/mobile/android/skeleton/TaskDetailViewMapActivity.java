@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-public class TaskLocationViewActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener {
+public class TaskDetailViewMapActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener {
     protected static final String LOCATION_VIEW_KEY = "locationViewObject";
     private static final int ACCESS_FINE_LOCATION_CODE = 100;
     private TaskDetailViewModel viewModel;
@@ -46,7 +46,7 @@ public class TaskLocationViewActivity extends AppCompatActivity implements OnMap
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_task_location_map_view);
+        setContentView(R.layout.activity_task_detail_view_map);
         viewModel = new ViewModelProvider(this).get(TaskDetailViewModel.class);
         taskLocation = (Task.Location) getIntent().getSerializableExtra(LOCATION_VIEW_KEY);
         if (taskLocation == null || taskLocation.getLatlng() == null) {
@@ -55,7 +55,7 @@ public class TaskLocationViewActivity extends AppCompatActivity implements OnMap
 
         getUserDefaultLocation();
         // Get the SupportMapFragment and request notification when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.task_location_map_fragment);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.task_detail_map_fragment);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
@@ -67,19 +67,17 @@ public class TaskLocationViewActivity extends AppCompatActivity implements OnMap
             LatLng defaultLatLng = new LatLng(viewModel.getDefaultLatLng().getLat(), viewModel.getDefaultLatLng().getLng());
             pinMarker = googleMap.addMarker(
                     new MarkerOptions()
-                            .draggable(true)
                             .position(defaultLatLng)
                             .title("Your location")
             );
             googleMap.animateCamera(CameraUpdateFactory.newLatLng(defaultLatLng));
         } else {
-            LatLng selectedLatLng= new LatLng(
+            LatLng selectedLatLng = new LatLng(
                     taskLocation.getLatlng().getLat(),
                     taskLocation.getLatlng().getLng()
             );
             pinMarker = googleMap.addMarker(
                     new MarkerOptions()
-                            .draggable(true)
                             .position(selectedLatLng)
                             .title(taskLocation.getName())
             );
@@ -141,7 +139,7 @@ public class TaskLocationViewActivity extends AppCompatActivity implements OnMap
     private void saveLocationIntent(Task.Location pinnedLocation) {
         Intent returnIntent = new Intent();
         returnIntent.putExtra(LOCATION_VIEW_KEY, pinnedLocation);
-        this.setResult(TaskLocationViewActivity.RESULT_OK, returnIntent);
+        this.setResult(TaskDetailViewMapActivity.RESULT_OK, returnIntent);
         this.finish();
     }
 }

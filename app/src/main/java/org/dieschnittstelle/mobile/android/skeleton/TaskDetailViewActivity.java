@@ -53,8 +53,8 @@ public class TaskDetailViewActivity extends AppCompatActivity {
     private ArrayAdapter<String> selectedContactsAdapter;
 
     private final ActivityResultLauncher<Intent> mapViewLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), activityResult -> {
-        if (activityResult.getResultCode() == TaskLocationViewActivity.RESULT_OK && activityResult.getData() != null) {
-            Task.Location selectedLocation = (Task.Location) activityResult.getData().getSerializableExtra(TaskLocationViewActivity.LOCATION_VIEW_KEY);
+        if (activityResult.getResultCode() == TaskDetailViewMapActivity.RESULT_OK && activityResult.getData() != null) {
+            Task.Location selectedLocation = (Task.Location) activityResult.getData().getSerializableExtra(TaskDetailViewMapActivity.LOCATION_VIEW_KEY);
             if (selectedLocation != null && selectedLocation.getName() != null && selectedLocation.getLatlng() != null) {
                 Button locationBtn = findViewById(R.id.btnPickLocation);
                 locationBtn.setText(selectedLocation.getName());
@@ -234,8 +234,8 @@ public class TaskDetailViewActivity extends AppCompatActivity {
     }
 
     private void showTaskLocationMapView() {
-        Intent callLocationViewIntent = new Intent(this, TaskLocationViewActivity.class);
-        callLocationViewIntent.putExtra(TaskLocationViewActivity.LOCATION_VIEW_KEY, task.getLocation());
+        Intent callLocationViewIntent = new Intent(this, TaskDetailViewMapActivity.class);
+        callLocationViewIntent.putExtra(TaskDetailViewMapActivity.LOCATION_VIEW_KEY, task.getLocation());
         mapViewLauncher.launch(callLocationViewIntent);
     }
 
@@ -265,7 +265,6 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         });
     }
 
-    // TODO: check if it's supposed to be done by opening Android Contacts app instead of dropdown
     private void setContactDropDown() {
         getContactListFromContactApp();
         selectedContactsAdapter = new ContactListAdapter(this, R.layout.contact_item_view, viewModel.getTask().getContacts());
@@ -331,19 +330,19 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void openMailApp(String contactName, String taskName, String taskDescription) {
+    private void openEMailApp(String contactName, String taskName, String taskDescription) {
         TaskDetailViewModel.Contact recipient = viewModel.getAvailableContacts().stream()
                 .filter(contact -> contact.getName().equals(contactName))
                 .findAny()
                 .orElse(null);
 
         if (recipient == null) {
-            showMessage("Cannot find mail address of non existing recipient");
+            showMessage("Cannot find email address of non existing recipient");
             return;
         }
 
         if (recipient.getEmails() == null || recipient.getEmails().isEmpty()) {
-            showMessage("Cannot find mail address of " + recipient.getName());
+            showMessage("Cannot find email address of " + recipient.getName());
             return;
         }
 
@@ -393,7 +392,7 @@ public class TaskDetailViewActivity extends AppCompatActivity {
             smsButton.setOnClickListener(it -> openSMSApp(contactFromList, task.getName(), task.getDescription()));
 
             ImageButton mailButton = contactView.findViewById(R.id.contactMailButton);
-            mailButton.setOnClickListener(it -> openMailApp(contactFromList, task.getName(), task.getDescription()));
+            mailButton.setOnClickListener(it -> openEMailApp(contactFromList, task.getName(), task.getDescription()));
 
             return contactView;
         }
