@@ -3,10 +3,8 @@ package org.dieschnittstelle.mobile.android.skeleton;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -17,15 +15,13 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
-import org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskListViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TaskListViewMapActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener {
+public class TaskListViewMapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     public static final String TASK_LIST_VIEW_MAP_KEY = "taskListViewMapObject";
-    private TaskListViewModel viewModel;
     private List<Task> tasks;
     private GoogleMap map;
 
@@ -33,15 +29,14 @@ public class TaskListViewMapActivity extends AppCompatActivity implements OnMapR
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_list_view_map);
-        viewModel = new ViewModelProvider(this).get(TaskListViewModel.class);
         tasks = (List<Task>) getIntent().getSerializableExtra(TASK_LIST_VIEW_MAP_KEY);
         if (tasks == null) {
             tasks = new ArrayList<>();
         }
         // Get the SupportMapFragment and request notification when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.task_list_map_fragment);
         if (mapFragment != null) {
-            mapFragment.getMapAsync((OnMapReadyCallback) this);
+            mapFragment.getMapAsync(this);
         }
     }
 
@@ -71,10 +66,5 @@ public class TaskListViewMapActivity extends AppCompatActivity implements OnMapR
         map.addMarker(new MarkerOptions()
                 .position(coordinates)
                 .title(title));
-    }
-
-    @Override
-    public void onMapClick(@NonNull LatLng latLng) {
-
     }
 }
