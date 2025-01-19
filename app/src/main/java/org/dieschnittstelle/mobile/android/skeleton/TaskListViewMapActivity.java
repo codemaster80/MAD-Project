@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TaskListViewMapActivity extends AppCompatActivity implements OnMapReadyCallback {
-
     public static final String TASK_LIST_VIEW_MAP_KEY = "taskListViewMapObject";
     private List<Task> tasks;
     private GoogleMap map;
@@ -46,7 +45,7 @@ public class TaskListViewMapActivity extends AppCompatActivity implements OnMapR
         showTasksOnMap();
     }
 
-    public void showTasksOnMap() {
+    private void showTasksOnMap() {
         LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
         for (Task t : tasks) {
             if(t.getLocation() != null && t.getLocation().getLatlng() != null) {

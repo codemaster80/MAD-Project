@@ -102,7 +102,7 @@ public class TaskDetailViewMapActivity extends AppCompatActivity implements OnMa
 
         if (addresses != null && !addresses.isEmpty()) {
             Address address = addresses.get(0);
-            String city = address.getLocality();
+            String city = address.getLocality() != null ? address.getLocality() : address.getAdminArea();
             pinMarker.setPosition(latLng);
             pinMarker.setTitle(city);
             Task.LatLng pinnedLatLng = new Task.LatLng(latLng.latitude, latLng.longitude);
