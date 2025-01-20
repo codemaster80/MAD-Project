@@ -30,7 +30,6 @@ import org.dieschnittstelle.mobile.android.skeleton.databinding.StructuredTaskVi
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
 import org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskListViewModel;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -149,9 +148,7 @@ public class TaskListViewActivity extends AppCompatActivity {
     }
 
     private void showTaskMapView() {
-        List<Task> tasks = viewModel.getTaskList();
         Intent callTaskListViewMapIntent = new Intent(this, TaskListViewMapActivity.class);
-        callTaskListViewMapIntent.putExtra(TaskListViewMapActivity.TASK_LIST_VIEW_MAP_KEY, (Serializable) tasks);
         startActivity(callTaskListViewMapIntent);
     }
 

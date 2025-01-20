@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class TaskListViewModel extends ViewModel {
-    private final List<Task> taskList = new ArrayList<>();
+    private static final List<Task> taskList = new ArrayList<>();
     private final ExecutorService executorService = Executors.newFixedThreadPool(4);
     private final MutableLiveData<ProcessingState> processingState = new MutableLiveData<>();
     private ITaskDatabaseOperation taskDbOperation;
