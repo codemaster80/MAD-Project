@@ -3,6 +3,7 @@ package org.dieschnittstelle.mobile.android.skeleton;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Bundle;
 
@@ -15,23 +16,21 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.dieschnittstelle.mobile.android.skeleton.model.Task;
+import org.dieschnittstelle.mobile.android.skeleton.viewmodel.TaskListViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class TaskListViewMapActivity extends AppCompatActivity implements OnMapReadyCallback {
-    public static final String TASK_LIST_VIEW_MAP_KEY = "taskListViewMapObject";
-    private List<Task> tasks;
+    private static List<Task> tasks;
     private GoogleMap map;
+    private TaskListViewModel viewModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_list_view_map);
-        tasks = (List<Task>) getIntent().getSerializableExtra(TASK_LIST_VIEW_MAP_KEY);
-        if (tasks == null) {
-            tasks = new ArrayList<>();
-        }
+        viewModel = new ViewModelProvider(this).get(TaskListViewModel.class);
+
         // Get the SupportMapFragment and request notification when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.task_list_map_fragment);
         if (mapFragment != null) {
@@ -41,6 +40,9 @@ public class TaskListViewMapActivity extends AppCompatActivity implements OnMapR
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
+        if (tasks == null) {
+            tasks = viewModel.getTaskList();
+        }
         map = googleMap;
         showTasksOnMap();
     }
