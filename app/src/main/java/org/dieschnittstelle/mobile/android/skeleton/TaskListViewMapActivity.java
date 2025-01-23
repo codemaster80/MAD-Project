@@ -28,6 +28,8 @@ public class TaskListViewMapActivity extends AppCompatActivity implements OnMapR
     private GoogleMap map;
     private TaskListViewModel viewModel;
 
+    protected static final String TASK_LIST_VIEW_MAP_KEY = "taskListMapViewObject";
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,12 +80,15 @@ public class TaskListViewMapActivity extends AppCompatActivity implements OnMapR
     public boolean onMarkerClick(final Marker marker) {
         LatLng markerPosition = marker.getPosition();
         for (Task t : tasks) {
-            Task.LatLng taskLocation = t.getLocation().getLatlng();
-            LatLng taskLocationLatLng = new LatLng(taskLocation.getLat(), taskLocation.getLng());
-            if (markerPosition.equals(taskLocationLatLng)) {
-                Intent callTaskDetailViewIntent = new Intent(this, TaskDetailViewActivity.class);
-                callTaskDetailViewIntent.putExtra(TaskDetailViewActivity.TASK_DETAIL_VIEW_KEY, t);
-                startActivity(callTaskDetailViewIntent);
+            if (t.getLocation() != null && t.getLocation().getLatlng() != null) {
+                Task.LatLng taskLocation = t.getLocation().getLatlng();
+                LatLng taskLocationLatLng = new LatLng(taskLocation.getLat(), taskLocation.getLng());
+                if (markerPosition.equals(taskLocationLatLng)) {
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra(TASK_LIST_VIEW_MAP_KEY, t);
+                    this.setResult(TaskListViewMapActivity.RESULT_OK, returnIntent);
+                    this.finish();
+                }
             }
         }
         return true;

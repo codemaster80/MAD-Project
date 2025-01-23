@@ -62,6 +62,13 @@ public class TaskListViewActivity extends AppCompatActivity {
         }
     });
 
+    private final ActivityResultLauncher<Intent> taskListMapViewLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), activityResult -> {
+        if (activityResult.getResultCode() == TaskListViewMapActivity.RESULT_OK && activityResult.getData() != null) {
+            Task task = (Task) activityResult.getData().getSerializableExtra(TaskListViewMapActivity.TASK_LIST_VIEW_MAP_KEY);
+            showEditTaskDetailView(task);
+        }
+    });
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -148,8 +155,8 @@ public class TaskListViewActivity extends AppCompatActivity {
     }
 
     private void showTaskMapView() {
-        Intent callTaskListViewMapIntent = new Intent(this, TaskListViewMapActivity.class);
-        startActivity(callTaskListViewMapIntent);
+        Intent callTaskListMapViewIntent = new Intent(this, TaskListViewMapActivity.class);
+        taskListMapViewLauncher.launch(callTaskListMapViewIntent);
     }
 
     private void handleTaskProcessingState(TaskListViewModel.ProcessingState processingState) {
