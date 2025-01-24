@@ -5,9 +5,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -41,9 +41,11 @@ public class TaskListViewMapActivity extends AppCompatActivity implements OnMapR
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
-        Log.i("map1", "onMap");
     }
 
+    // Using setOnMarkerClickListener may override behaviors set by the Maps SDK for Android Utility Library.
+    // Safely suppress warning because clustering, GeoJson, or KML are not used
+    @SuppressLint("PotentialBehaviorOverride")
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         if (tasks == null) {
@@ -60,14 +62,12 @@ public class TaskListViewMapActivity extends AppCompatActivity implements OnMapR
             if(t.getLocation() != null && t.getLocation().getLatlng() != null) {
                 Task.LatLng location = t.getLocation().getLatlng();
                 LatLng coordinate = new LatLng(location.getLat(), location.getLng());
-                // Create bound that include locations on the map
                 boundsBuilder.include(coordinate);
-                // Add marker to the map
                 addMarker(coordinate, t.getName());
             }
         }
         // Move camera to show all markers and locations
-        map.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 20));
+        map.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 50));
     }
 
     private void addMarker(LatLng coordinates, String title) {

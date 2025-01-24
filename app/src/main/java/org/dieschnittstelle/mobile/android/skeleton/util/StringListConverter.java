@@ -9,7 +9,7 @@ import java.util.List;
 public class StringListConverter {
     @TypeConverter
     public static String fromList(List<String> list) {
-        if (list.isEmpty()) {
+        if (list == null || list.isEmpty()) {
             return "";
         }
         return String.join(",", list);
@@ -17,7 +17,7 @@ public class StringListConverter {
 
     @TypeConverter
     public static List<String> toList(String str) {
-        if (str.isBlank()) {
+        if (str == null || str.isBlank()) {
             return new ArrayList<>();
         }
         return new ArrayList<>(Arrays.asList(str.split(",")));

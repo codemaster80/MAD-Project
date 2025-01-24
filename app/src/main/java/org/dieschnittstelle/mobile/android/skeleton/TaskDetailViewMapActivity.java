@@ -89,7 +89,6 @@ public class TaskDetailViewMapActivity extends AppCompatActivity implements OnMa
 
     @Override
     public void onMapClick(@NonNull LatLng latLng) {
-        // Initialize Geocoder and addresses container
         Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
         List<Address> addresses = new ArrayList<>();
 

@@ -117,7 +117,8 @@ public class TaskDetailViewModel extends ViewModel {
         while (contactCursor != null && contactCursor.moveToNext()) {
             String id = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts._ID));
             String name = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-            Contact contact = new Contact(name);
+            Contact contact = new Contact(id);
+            contact.setName(name);
 
             List<String> phoneNumbers = collectPhoneNumbers(contentResolver, contactCursor, id);
             contact.setPhoneNumbers(phoneNumbers);
@@ -172,12 +173,13 @@ public class TaskDetailViewModel extends ViewModel {
     }
 
     public static class Contact {
+        String id;
         String name;
         List<String> phoneNumbers;
         List<String> emails;
 
-        public Contact(String name) {
-            this.name = name;
+        public Contact(String id) {
+            this.id = id;
         }
 
         public List<String> getEmails() {
