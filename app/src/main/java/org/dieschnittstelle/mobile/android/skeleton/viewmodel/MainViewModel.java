@@ -20,6 +20,8 @@ public class MainViewModel extends ViewModel {
     private final MutableLiveData<LoginState> loginState = new MutableLiveData<>();
     private final MutableLiveData<String> mailInputError = new MutableLiveData<>();
     private final MutableLiveData<String> passwordInputError = new MutableLiveData<>();
+    private Handler emailAdressValidationHandler = new Handler(Looper.getMainLooper());
+    private Handler passwordAdressValidationHandler = new Handler(Looper.getMainLooper());
     private boolean lastMailInputOk = false;
     private boolean lastPasswordInputOk = false;
     private User user;
@@ -70,7 +72,6 @@ public class MainViewModel extends ViewModel {
 
     public boolean onMailInputChanged() {
         new Thread(() -> {
-            Handler emailAdressValidationHandler = new Handler(Looper.getMainLooper());
             loginState.postValue(LoginState.RESET);
             mailInputError.postValue(null);
             emailAdressValidationHandler.removeCallbacksAndMessages(null); // Remove pending validations
@@ -90,7 +91,6 @@ public class MainViewModel extends ViewModel {
 
     public boolean onPasswordInputChanged() {
         new Thread(() -> {
-            Handler passwordAdressValidationHandler = new Handler(Looper.getMainLooper());
             loginState.postValue(LoginState.RESET);
             passwordInputError.postValue(null);
             passwordAdressValidationHandler.removeCallbacksAndMessages(null); // Remove pending validations
