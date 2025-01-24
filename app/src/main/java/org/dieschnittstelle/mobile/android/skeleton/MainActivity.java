@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private MainViewModel viewModel;
     private ProgressBar progressBar;
     private User user;
+    private Snackbar snackbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +68,12 @@ public class MainActivity extends AppCompatActivity {
     private void handleUserLoginState(MainViewModel.LoginState loginState) {
         if (loginState != null) {
             switch (loginState) {
+                case RESET:
+                    progressBar.setVisibility(View.GONE);
+                    if (snackbar != null) {
+                        snackbar.dismiss();
+                    }
+                    break;
                 case RUNNING:
                     progressBar.setVisibility(View.VISIBLE);
                     break;
@@ -91,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showPersistentMessage(String message) {
-        Snackbar.make(findViewById(R.id.rootView), message, Snackbar.LENGTH_INDEFINITE).show();
+        snackbar = Snackbar.make(findViewById(R.id.rootView), message, Snackbar.LENGTH_INDEFINITE);
+        snackbar.show();
     }
 }

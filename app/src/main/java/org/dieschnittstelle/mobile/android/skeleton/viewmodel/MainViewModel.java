@@ -57,7 +57,8 @@ public class MainViewModel extends ViewModel {
 
     public boolean onMailInputChanged() {
         Handler emailAdressValidationHandler = new Handler(Looper.getMainLooper());
-        getMailInputError().setValue(null);
+        loginState.setValue(LoginState.RESET);
+        mailInputError.setValue(null);
         emailAdressValidationHandler.removeCallbacksAndMessages(null); // Remove pending validations
         emailAdressValidationHandler.postDelayed(() -> {
             if (isValidEMail()) {
@@ -71,7 +72,8 @@ public class MainViewModel extends ViewModel {
 
     public boolean onPasswordInputChanged() {
         Handler passwordAdressValidationHandler = new Handler(Looper.getMainLooper());
-        getPasswordInputError().setValue(null);
+        loginState.setValue(LoginState.RESET);
+        passwordInputError.setValue(null);
         passwordAdressValidationHandler.removeCallbacksAndMessages(null); // Remove pending validations
         passwordAdressValidationHandler.postDelayed(() -> {
             if (isSixDigitPwd()) {
@@ -129,6 +131,6 @@ public class MainViewModel extends ViewModel {
     }
 
     public enum LoginState {
-        AUTHENTICATION_SUCCESS, AUTHENTICATION_FAIL, RUNNING
+        AUTHENTICATION_SUCCESS, AUTHENTICATION_FAIL, RUNNING, RESET
     }
 }
