@@ -58,8 +58,10 @@ public class TaskListViewMapActivity extends AppCompatActivity implements OnMapR
 
     private void showTasksOnMap() {
         LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+        int markerCounter = 0;
         for (Task t : tasks) {
             if(t.getLocation() != null && t.getLocation().getLatlng() != null) {
+                markerCounter++;
                 Task.LatLng location = t.getLocation().getLatlng();
                 LatLng coordinate = new LatLng(location.getLat(), location.getLng());
                 boundsBuilder.include(coordinate);
@@ -67,7 +69,9 @@ public class TaskListViewMapActivity extends AppCompatActivity implements OnMapR
             }
         }
         // Move camera to show all markers and locations
-        map.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 50));
+        if (markerCounter > 0) {
+            map.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 50));
+        }
     }
 
     private void addMarker(LatLng coordinates, String title) {
