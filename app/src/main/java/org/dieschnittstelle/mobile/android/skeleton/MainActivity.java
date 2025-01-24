@@ -1,5 +1,6 @@
 package org.dieschnittstelle.mobile.android.skeleton;
 
+import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
@@ -7,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -22,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private User user;
     private Snackbar snackbar;
+    private Button loginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
 
                     progressBar = findViewById(R.id.progressBar);
                     progressBar.setVisibility(View.GONE);
+                    loginButton = findViewById(R.id.loginButton);
+                    loginButton.setVisibility(View.GONE);
                     break;
                 default:
                     break;
@@ -70,9 +75,13 @@ public class MainActivity extends AppCompatActivity {
             switch (loginState) {
                 case RESET:
                     progressBar.setVisibility(View.GONE);
+                    loginButton.setVisibility(View.GONE);
                     if (snackbar != null) {
                         snackbar.dismiss();
                     }
+                    break;
+                case READY:
+                    loginButton.setVisibility(View.VISIBLE);
                     break;
                 case RUNNING:
                     progressBar.setVisibility(View.VISIBLE);
