@@ -274,7 +274,7 @@ public class TaskListViewActivity extends AppCompatActivity {
 
         @NonNull
         @Override
-        public View getView(int position, @Nullable View recyclableTaskView, @NonNull ViewGroup parent) {
+        public View getView(@Nullable int position, @Nullable View recyclableTaskView, @NonNull ViewGroup parent) {
             View taskView;
             StructuredTaskViewBinding taskViewBinding;
             Task taskFromList = getItem(position);
