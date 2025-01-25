@@ -1,6 +1,8 @@
 package org.dieschnittstelle.mobile.android.skeleton.viewmodel;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
@@ -29,6 +31,7 @@ public class TaskListViewModel extends ViewModel {
     private RemoteTaskDatabaseOperation remoteDatabase;
     private Context applicationContext;
     private Comparator<Task> currentSorter = SortOrder.SORT_BY_COMPLETED_AND_NAME.value;
+    private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
 
     /**
      * Sets the task database operation to be used by the ViewModel.
@@ -107,11 +110,14 @@ public class TaskListViewModel extends ViewModel {
 
         executorService.execute(() -> {
             try {
-                taskList.add(localDatabase.createTask(task));
-                taskList.sort(currentSorter);
+                Task createdTask = localDatabase.createTask(task);
+                mainThreadHandler.post(() -> {
+                    taskList.add(createdTask);
+                    taskList.sort(currentSorter);
+                    processingState.postValue(ProcessingState.DONE);
+                });
                 // update the remote db with created task
                 remoteDatabase.createTask(task);
-                processingState.postValue(ProcessingState.DONE);
             } catch (Exception e) {
                 // we assume that localdb operations are always successful
                 processingState.postValue(ProcessingState.CREATE_FAIL);
@@ -128,9 +134,12 @@ public class TaskListViewModel extends ViewModel {
         executorService.execute(() -> {
             try {
                 // reading from the current taskDbOperation db, could be Remote or Local
-                taskList.addAll(taskDbOperation.readAllTasks());
-                taskList.sort(currentSorter);
-                processingState.postValue(ProcessingState.DONE);
+                List<Task> tasks = taskDbOperation.readAllTasks();
+                mainThreadHandler.post(() -> {
+                    taskList.addAll(tasks);
+                    taskList.sort(currentSorter);
+                    processingState.postValue(ProcessingState.DONE);
+                });
             } catch (Exception e) {
                 processingState.postValue(ProcessingState.READ_FAIL);
             }
@@ -149,16 +158,16 @@ public class TaskListViewModel extends ViewModel {
             boolean isUpdated = localDatabase.updateTask(task);
             if (isUpdated) {
                 try {
-                    // update the taskList model with new task
-                    taskList.removeIf(t -> t.getId() == task.getId());
-                    taskList.add(task);
-                    taskList.sort(currentSorter);
+                    mainThreadHandler.post(() -> {
+                        // update the taskList model with new task
+                        taskList.removeIf(t -> t.getId() == task.getId());
+                        taskList.add(task);
+                        taskList.sort(currentSorter);
+                        processingState.postValue(ProcessingState.DONE);
+                    });
 
                     // update the remote db with updated task
                     remoteDatabase.updateTask(task);
-
-                    processingState.postValue(ProcessingState.DONE);
-
                 } catch (Exception e) {
                     processingState.postValue(ProcessingState.UPDATE_REMOTE_FAIL);
                 }
@@ -177,17 +186,17 @@ public class TaskListViewModel extends ViewModel {
         processingState.setValue(ProcessingState.RUNNING_LONG);
 
         executorService.execute(() -> {
-
             boolean isDeleted = localDatabase.deleteTask(id);
             if (isDeleted) {
                 try {
-                    // update the taskList model with the removed task
-                    taskList.removeIf(t -> t.getId() == id);
+                    mainThreadHandler.post(() -> {
+                        // update the taskList model with the removed task
+                        taskList.removeIf(t -> t.getId() == id);
+                        processingState.postValue(ProcessingState.DONE);
+                    });
 
                     // delete the task from the remote db
                     remoteDatabase.deleteTask(id);
-
-                    processingState.postValue(ProcessingState.DONE);
                 } catch (Exception ignored) {
                     processingState.postValue(ProcessingState.DELETE_REMOTE_FAIL);
                 }
@@ -204,13 +213,15 @@ public class TaskListViewModel extends ViewModel {
         processingState.setValue(ProcessingState.RUNNING_LONG);
 
         executorService.execute(() -> {
-
             boolean isSuccess = localDatabase.deleteAllTasks();
             if (isSuccess && taskDbOperation instanceof LocalTaskDatabaseOperation) {
-                taskList.clear();
+                mainThreadHandler.post(() -> {
+                    taskList.clear();
+                    processingState.postValue(ProcessingState.DONE);
+                });
+            } else if (!isSuccess) {
+                processingState.postValue(ProcessingState.DELETE_LOCAL_FAIL);
             }
-
-            processingState.postValue(isSuccess ? ProcessingState.DONE : ProcessingState.DELETE_LOCAL_FAIL);
         });
     }
 
@@ -224,10 +235,13 @@ public class TaskListViewModel extends ViewModel {
 
             boolean isSuccess = remoteDatabase.deleteAllTasks();
             if (isSuccess && taskDbOperation instanceof RemoteTaskDatabaseOperation) {
-                taskList.clear();
+                mainThreadHandler.post(() -> {
+                    taskList.clear();
+                    processingState.postValue(ProcessingState.DONE);
+                });
+            } else if (!isSuccess) {
+                processingState.postValue(ProcessingState.DELETE_REMOTE_FAIL);
             }
-
-            processingState.postValue(isSuccess ? ProcessingState.DONE : ProcessingState.DELETE_REMOTE_FAIL);
         });
     }
 
@@ -295,11 +309,12 @@ public class TaskListViewModel extends ViewModel {
                     localTasks.forEach(task -> remoteDatabase.createTask(task));
                }
 
-                // update the model tasklist
-                taskList.addAll(localTasks.isEmpty() ? remoteTasks : localTasks);
-                taskList.sort(currentSorter);
-                processingState.postValue(ProcessingState.DONE);
-
+                mainThreadHandler.post(() -> {
+                    // update the model tasklist
+                    taskList.addAll(localTasks.isEmpty() ? remoteTasks : localTasks);
+                    taskList.sort(currentSorter);
+                    processingState.postValue(ProcessingState.DONE);
+                });
             } catch (Exception e) {
                 processingState.postValue(ProcessingState.CONNECT_REMOTE_FAIL);
                 if (Objects.requireNonNull(e.getMessage()).contains("unexpected end of stream")){
