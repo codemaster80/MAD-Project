@@ -5,8 +5,10 @@ import android.os.Looper;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+
 import org.dieschnittstelle.mobile.android.skeleton.model.ITaskDatabaseOperation;
 import org.dieschnittstelle.mobile.android.skeleton.model.User;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -18,11 +20,15 @@ public class MainViewModel extends ViewModel {
     private final MutableLiveData<LoginState> loginState = new MutableLiveData<>();
     private final MutableLiveData<String> mailInputError = new MutableLiveData<>();
     private final MutableLiveData<String> passwordInputError = new MutableLiveData<>();
+    private Handler emailAdressValidationHandler = new Handler(Looper.getMainLooper());
+    private Handler passwordAdressValidationHandler = new Handler(Looper.getMainLooper());
+    private boolean lastMailInputOk = false;
+    private boolean lastPasswordInputOk = false;
     private User user;
 
     public void authenticateUser() {
         if (isValidEMail() && isSixDigitPwd()) {
-           loginState.setValue(LoginState.RUNNING);
+            loginState.setValue(LoginState.RUNNING);
             new Thread(() -> {
                 try {
                     Thread.sleep(2000);
@@ -39,47 +45,66 @@ public class MainViewModel extends ViewModel {
     }
 
     public boolean isValidEMail() {
-        if (android.util.Patterns.EMAIL_ADDRESS.matcher(user.getEmail()).matches()) {
-            return true;
+        if (user.getEmail() != null) {
+            if (android.util.Patterns.EMAIL_ADDRESS.matcher(user.getEmail()).matches()) {
+                lastMailInputOk = true;
+                return true;
+            }
+            this.mailInputError.setValue("Input not valid, must be an e-mail address");
+            lastMailInputOk = false;
+            return false;
         }
-        this.mailInputError.setValue("Input not valid, must be an e-mail address");
         return false;
     }
 
     public boolean isSixDigitPwd() {
-        boolean sixDigitPattern = Pattern.matches("[0-9]{6}", user.getPwd());
-        if (sixDigitPattern) {
-            return true;
+        if (user.getPwd() != null) {
+            boolean sixDigitPattern = Pattern.matches("[0-9]{6}", user.getPwd());
+            if (sixDigitPattern) {
+                lastPasswordInputOk = true;
+                return true;
+            }
+            this.passwordInputError.setValue("Input not valid, must consist of 6 numbers");
+            return false;
         }
-        this.passwordInputError.setValue("Input not valid, must consist of 6 numbers");
         return false;
     }
 
     public boolean onMailInputChanged() {
-        Handler emailAdressValidationHandler = new Handler(Looper.getMainLooper());
-        getMailInputError().setValue(null);
-        emailAdressValidationHandler.removeCallbacksAndMessages(null); // Remove pending validations
-        emailAdressValidationHandler.postDelayed(() -> {
-            if (isValidEMail()) {
-                mailInputError.setValue(null); // Clear any previous error
-            } else {
-                mailInputError.setValue("Input not valid, must be an e-mail address");
-            }
-        }, 2000);
+        new Thread(() -> {
+            loginState.postValue(LoginState.RESET);
+            mailInputError.postValue(null);
+            emailAdressValidationHandler.removeCallbacksAndMessages(null); // Remove pending validations
+            emailAdressValidationHandler.postDelayed(() -> {
+                if (isValidEMail()) {
+                    mailInputError.postValue(null); // Clear any previous error
+                    if (lastMailInputOk && lastPasswordInputOk) {
+                        loginState.postValue(LoginState.READY);
+                    }
+                } else {
+                    mailInputError.postValue("Input not valid, must be an e-mail address");
+                }
+            }, 2000);
+        }).start();
         return true;
     }
 
     public boolean onPasswordInputChanged() {
-        Handler passwordAdressValidationHandler = new Handler(Looper.getMainLooper());
-        getPasswordInputError().setValue(null);
-        passwordAdressValidationHandler.removeCallbacksAndMessages(null); // Remove pending validations
-        passwordAdressValidationHandler.postDelayed(() -> {
-            if (isSixDigitPwd()) {
-                passwordInputError.setValue(null); // Clear any previous error
-            } else {
-                passwordInputError.setValue("Input not valid, must consist of 6 numbers");
-            }
-        }, 2000);
+        new Thread(() -> {
+            loginState.postValue(LoginState.RESET);
+            passwordInputError.postValue(null);
+            passwordAdressValidationHandler.removeCallbacksAndMessages(null); // Remove pending validations
+            passwordAdressValidationHandler.postDelayed(() -> {
+                if (isSixDigitPwd()) {
+                    passwordInputError.postValue(null); // Clear any previous error
+                    if (lastMailInputOk && lastPasswordInputOk) {
+                        loginState.postValue(LoginState.READY);
+                    }
+                } else {
+                    passwordInputError.postValue("Input not valid, must consist of 6 numbers");
+                }
+            }, 2000);
+        }).start();
         return true;
     }
 
@@ -129,6 +154,6 @@ public class MainViewModel extends ViewModel {
     }
 
     public enum LoginState {
-        AUTHENTICATION_SUCCESS, AUTHENTICATION_FAIL, RUNNING
+        AUTHENTICATION_SUCCESS, AUTHENTICATION_FAIL, RUNNING, READY, RESET
     }
 }
