@@ -70,7 +70,7 @@ public class TaskListViewMapActivity extends AppCompatActivity implements OnMapR
         }
         // Move camera to show all markers and locations
         if (markerCounter > 0) {
-            map.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 50));
+            map.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 100));
         }
     }
 
