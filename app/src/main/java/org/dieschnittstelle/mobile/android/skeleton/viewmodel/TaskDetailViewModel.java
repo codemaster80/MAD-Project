@@ -45,8 +45,14 @@ public class TaskDetailViewModel extends ViewModel {
         return isTaskOnDelete;
     }
 
-    public void deleteContact(String contact) {
-        task.getContacts().remove(contact);
+    public void deleteContact(String contactName) {
+        Contact toBeDeleted = availableContacts.stream()
+                .filter(contact -> contact.getName().equals(contactName))
+                .findFirst().orElse(null);
+
+        if (toBeDeleted == null) { return; }
+
+        task.getContacts().remove(toBeDeleted.getId());
         isContactOnDelete.setValue(true);
     }
 
@@ -102,7 +108,7 @@ public class TaskDetailViewModel extends ViewModel {
         defaultLatLng.setLng(lng);
     }
 
-    public void setupContactList(ContentResolver contentResolver) {
+    public void setupAvailableContactList(ContentResolver contentResolver) {
         List<Contact> contactList = queryContacts(contentResolver);
         availableContacts.addAll(contactList);
     }
@@ -180,6 +186,10 @@ public class TaskDetailViewModel extends ViewModel {
 
         public Contact(String id) {
             this.id = id;
+        }
+
+        public String getId() {
+            return id;
         }
 
         public List<String> getEmails() {

@@ -131,7 +131,7 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == READ_CONTACTS_REQUEST_CODE && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            viewModel.setupContactList(getContentResolver());
+            viewModel.setupAvailableContactList(getContentResolver());
         }
     }
 
@@ -279,16 +279,22 @@ public class TaskDetailViewActivity extends AppCompatActivity {
                         .collect(Collectors.toList())
         );
 
-        ArrayAdapter<String> contactAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, availableContactNames);
-        contactsSpinner.setAdapter(contactAdapter);
+        ArrayAdapter<String> availableContactAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, availableContactNames);
+        contactsSpinner.setAdapter(availableContactAdapter);
         contactsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position == 0) { return; }
-                String selectedContact = contactsSpinner.getSelectedItem().toString();
+                String selectedContactName = contactsSpinner.getSelectedItem().toString();
 
-                if (viewModel.getTask().getContacts().stream().noneMatch(contact -> Objects.equals(contact, selectedContact))) {
-                    viewModel.getTask().getContacts().add(selectedContact);
+                if (viewModel.getTask().getContacts().stream().noneMatch(contact -> Objects.equals(contact, selectedContactName))) {
+                    TaskDetailViewModel.Contact selectedContact = viewModel.getAvailableContacts().stream()
+                            .filter(contact -> contact.getName().equals(selectedContactName))
+                            .findFirst().orElse(null);
+
+                    if (selectedContact == null) { return; }
+
+                    viewModel.getTask().getContacts().add(selectedContact.getId());
                 }
 
                 contactsSpinner.setSelection(0, false);
@@ -304,13 +310,13 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         if (getApplicationContext().checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, READ_CONTACTS_REQUEST_CODE);
         } else {
-            viewModel.setupContactList(getContentResolver());
+            viewModel.setupAvailableContactList(getContentResolver());
         }
     }
 
-    private void openSMSApp(String contactName, String taskName, String taskDescription) {
+    private void openSMSApp(String contactId, String taskName, String taskDescription) {
         TaskDetailViewModel.Contact recipient = viewModel.getAvailableContacts().stream()
-                .filter(contact -> contact.getName().equals(contactName))
+                .filter(contact -> contact.getId().equals(contactId))
                 .findAny()
                 .orElse(null);
 
@@ -323,16 +329,15 @@ public class TaskDetailViewActivity extends AppCompatActivity {
             showMessage("Cannot find phone number of " + recipient.getName());
             return;
         }
-
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + recipient.getPhoneNumbers().get(0)));
         String message = "Mission Name: " + taskName + " Mission Description: " + taskDescription;
         intent.putExtra("sms_body", message);
         startActivity(intent);
     }
 
-    private void openEMailApp(String contactName, String taskName, String taskDescription) {
+    private void openEMailApp(String contactId, String taskName, String taskDescription) {
         TaskDetailViewModel.Contact recipient = viewModel.getAvailableContacts().stream()
-                .filter(contact -> contact.getName().equals(contactName))
+                .filter(contact -> contact.getId().equals(contactId))
                 .findAny()
                 .orElse(null);
 
@@ -345,9 +350,8 @@ public class TaskDetailViewActivity extends AppCompatActivity {
             showMessage("Cannot find email address of " + recipient.getName());
             return;
         }
-
         Intent intent = new Intent(Intent.ACTION_SENDTO);
-        intent.setData(Uri.parse("mailto:")); // only email apps should handle this
+        intent.setData(Uri.parse("mailto:"));
         intent.putExtra(Intent.EXTRA_EMAIL, new String[]{recipient.getEmails().get(0)});
         intent.putExtra(Intent.EXTRA_SUBJECT, "Mission Name: " + taskName);
         intent.putExtra(Intent.EXTRA_TEXT, " Mission Description: " + taskDescription);
@@ -368,7 +372,7 @@ public class TaskDetailViewActivity extends AppCompatActivity {
         public View getView(int position, @Nullable View recyclableContactView, @NonNull ViewGroup parent) {
             View contactView;
             ContactItemViewBinding contactItemViewBinding;
-            String contactFromList = getItem(position);
+            String selectedContactId = getItem(position);
 
             // recyclableContactView do not exist, then create one
             if (recyclableContactView == null) {
@@ -383,16 +387,23 @@ public class TaskDetailViewActivity extends AppCompatActivity {
                 contactItemViewBinding = (ContactItemViewBinding) contactView.getTag();
             }
 
-            if (contactFromList == null || contactFromList.isBlank()) {
+            if (selectedContactId == null || selectedContactId.isBlank()) {
                 return contactView;
             }
-            contactItemViewBinding.setContact(contactFromList);
+            String contactName = viewModel.getAvailableContacts().stream()
+                    .filter(contact -> contact.getId().equals(selectedContactId))
+                    .map(TaskDetailViewModel.Contact::getName)
+                    .findFirst().orElse(null);
+
+            if (contactName == null || contactName.isBlank()) { return contactView; }
+
+            contactItemViewBinding.setContact(contactName);
 
             ImageButton smsButton = contactView.findViewById(R.id.contactSmsButton);
-            smsButton.setOnClickListener(it -> openSMSApp(contactFromList, task.getName(), task.getDescription()));
+            smsButton.setOnClickListener(it -> openSMSApp(selectedContactId, task.getName(), task.getDescription()));
 
             ImageButton mailButton = contactView.findViewById(R.id.contactMailButton);
-            mailButton.setOnClickListener(it -> openEMailApp(contactFromList, task.getName(), task.getDescription()));
+            mailButton.setOnClickListener(it -> openEMailApp(selectedContactId, task.getName(), task.getDescription()));
 
             return contactView;
         }
