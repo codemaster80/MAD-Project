@@ -290,6 +290,16 @@ public class TaskListViewModel extends ViewModel {
     }
 
     /**
+     * Sorts the tasks by date and then by priority.
+     */
+    public void sortTasksByDateAndPrio() {
+        processingState.setValue(ProcessingState.RUNNING);
+        setCurrentSorter(SortOrder.SORT_BY_DATE_AND_PRIO);
+        taskList.sort(currentSorter);
+        processingState.postValue(ProcessingState.DONE);
+    }
+
+    /**
      * Synchronizes the local and remote databases.
      * If there are no local tasks, all tasks are transmitted from the remote to the local database.
      * If there are local tasks, then all tasks on the remote database are deleted and the local tasks are transferred to the remote database.
@@ -329,20 +339,14 @@ public class TaskListViewModel extends ViewModel {
         SORT_BY_COMPLETED_AND_NAME(
                 Comparator.comparing(Task::isCompleted)
                         .thenComparing(Task::getName)
-                        .thenComparing(
-                                Comparator.nullsLast(
-                                        Comparator.comparing(Task::getName, Comparator.nullsLast(Comparator.naturalOrder()))
-                                )
-                        )
         ),
         SORT_BY_PRIO_AND_DATE(
                 Comparator.comparing(Task::getPriority)
-                        .thenComparing(Task::getExpiry)
-                        .thenComparing(
-                                Comparator.nullsLast(
-                                        Comparator.comparing(Task::getExpiry, Comparator.nullsLast(Comparator.naturalOrder()))
-                                )
-                        )
+                        .thenComparingLong(Task::getExpiry)
+        ),
+        SORT_BY_DATE_AND_PRIO(
+                Comparator.comparingLong(Task::getExpiry)
+                        .thenComparing(Task::getPriority)
         );
 
         private final Comparator<Task> value;

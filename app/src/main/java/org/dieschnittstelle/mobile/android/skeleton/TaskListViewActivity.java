@@ -117,6 +117,12 @@ public class TaskListViewActivity extends AppCompatActivity {
             return true;
         }
 
+        if (item.getItemId() == R.id.sortTasksByDate) {
+            showMessage("Sorting all missions by date...");
+            this.viewModel.sortTasksByDateAndPrio();
+            return true;
+        }
+
         if (item.getItemId() == R.id.deleteAllLocalTasks) {
             showMessage("Deleting all missions from local database...");
             this.viewModel.deleteAllTasksFromLocal();
