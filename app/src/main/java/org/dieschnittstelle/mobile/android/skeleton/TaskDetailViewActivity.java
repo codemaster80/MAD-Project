@@ -103,6 +103,10 @@ public class TaskDetailViewActivity extends AppCompatActivity {
                 }
                 String date = (String) pickDateBtn.getText();
                 String time = (String) pickTimeBtn.getText();
+                if ((!date.isBlank() && time.isBlank()) || (date.isBlank() && !time.isBlank())) {
+                    showMessage("Cannot save mission. Please enter both mission date and time");
+                    return;
+                }
                 // DateFormat String 01.01.2025 01:00
                 long expiryLong = DateConverter.fromDateString(date + " " + time);
                 task.setExpiry(expiryLong);
